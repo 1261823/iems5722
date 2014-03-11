@@ -25,6 +25,7 @@ public class Chat extends Activity
 	final static int PACKET_CAME = 1;
 	final static int TOAST  = 2;
 	final static int INFO = 3;
+	final static int TCP_PACKET = 10;
 	
 	EditText		peerAddr;
 	TextView		myAddr;
@@ -33,7 +34,8 @@ public class Chat extends Activity
 	ListView		msgList;
 	ArrayAdapter	<String>receivedMessages;
 
-	ServerThread 	myThread;
+	ServerUDP udpThread;
+	ServerTCP tcpThread;
 	
 	private final Handler mHandler = new Handler() 
 	{
@@ -54,6 +56,11 @@ public class Chat extends Activity
 	            case INFO:
 	            	String infoMessage= (String) msg.obj;
 	            	myAddr.setText(infoMessage);
+	            	break;
+	            case TCP_PACKET:
+	            	String tcpMessage = (String) msg.obj;
+	            	receivedMessages.add("TCP: "+tcpMessage);
+	            	break;
             }
         }
     };    
@@ -85,17 +92,27 @@ public class Chat extends Activity
         	}
         });
         
-        myThread = new ServerThread(getApplicationContext(),mHandler);
+        udpThread = new ServerUDP(getApplicationContext(), mHandler);
 
-        if (!myThread.socketIsOK())
+        if (!udpThread.socketIsOK())
         {
      	   Log.e(TAG,"Server NOT STARTED");
-     	   Toast.makeText(getApplicationContext(), "Cannot Start Server: ", Toast.LENGTH_LONG).show();
+     	   Toast.makeText(getApplicationContext(), "Cannot Start UDP Server: ", Toast.LENGTH_LONG).show();
      	   return;
          }
 
-         myThread.start();
-         Log.i(TAG,"Server Started");
+        udpThread.start();
+        Log.i(TAG,"UDP Server Started");
+        
+        tcpThread = new ServerTCP(getApplicationContext(), mHandler);
+        if (!tcpThread.socketIsOK()) {
+      	   Log.e(TAG,"Server NOT STARTED");
+      	   Toast.makeText(getApplicationContext(), "Cannot Start TCP Server: ", Toast.LENGTH_LONG).show();
+      	   return;        	
+        }
+        tcpThread.start();
+        Log.i(TAG,"TCP Server Started");
+        
     }
     
     private OnClickListener send_listener = new OnClickListener() 
@@ -112,7 +129,8 @@ public class Chat extends Activity
     public void onDestroy()
     {
     	super.onDestroy();
-    	myThread.closeSocket();
+    	udpThread.closeSocket();
+    	tcpThread.closeSocket();
     }
     
     private void postMessage()
@@ -120,7 +138,7 @@ public class Chat extends Activity
     	String theNewMessage = msg.getText().toString();
 
     	try{
-    		myThread.sendMessage(theNewMessage, peerAddr.getText().toString());
+    		udpThread.sendMessage(theNewMessage, peerAddr.getText().toString());
     	}catch(Exception e){
     		Log.e(TAG,"Cannot send message "+ e.getMessage());
     		Log.e(TAG, "Error message " + e);
@@ -135,7 +153,7 @@ public class Chat extends Activity
 		protected String doInBackground(String... messageToSend) {
 	    	try{
 	    		Log.i(TAG, "Sending message in Async task");
-	    		myThread.sendMessage(messageToSend[0], peerAddr.getText().toString());
+	    		udpThread.sendMessage(messageToSend[0], peerAddr.getText().toString());
 	    	}catch(Exception e){
 	    		Log.e(TAG,"Cannot send message "+ e.getMessage());
 	    		Log.e(TAG, "Error message " + e);

@@ -13,9 +13,9 @@ import android.os.Handler;
 import android.net.DhcpInfo;
 import android.util.Log;
 
-public class ServerThread extends Thread {
+public class ServerUDP extends Thread {
 
-	final static private String TAG = "ServerThread";
+	final static private String TAG = "ServerUDP";
 	final static boolean D = true;
 	final static int PORT = 6666;
 
@@ -27,7 +27,7 @@ public class ServerThread extends Thread {
 	InetAddress 	myIPAddress; 			
 	InetAddress 	myPeerAddress;			
 	
-	public ServerThread(Context currentContext,	Handler handler)
+	public ServerUDP(Context currentContext, Handler handler)
 	{
 		mContext = currentContext;
 		mHandler = handler;
