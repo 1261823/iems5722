@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- General Strings -->
     <string name="app_name">ChatApp</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-
+    <string name="yes">Yes</string>
+	<string name="no">No</string>
+	<string name="enter">Enter</string>
+	<string name="send">Send</string>
+	<string name="cancel">Cancel</string>
+	
+	<!-- Log in screen -->
+	<string name="login_username">Username</string>
+	<string name="login_username_hint">Please enter a username</string>
+	<string name="login_btn_enter">Begin Chatting</string>
+	<string name="login_username_empty">Please enter a username with at least one character</string>
+	
+	<!-- Chat screen -->
+	<string name="chat_said"> said</string>
 </resources>

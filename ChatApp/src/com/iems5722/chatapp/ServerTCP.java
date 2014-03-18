@@ -21,6 +21,7 @@ public class ServerTCP extends Thread {
 		this.handler = handler;
 		try {
 			serverSocket = new ServerSocket(TCP_PORT);
+			socketOK = true;
 		}
 		catch (IOException e) {
 			Log.e(TAG, "Cannot open socket " + e.getMessage());
@@ -31,13 +32,13 @@ public class ServerTCP extends Thread {
 	
 	@Override
 	public void run() {
-		Log.i(TAG, "In the running TCP thread");
 		while(socketOK) {
 			try {
 				new ServerTCPThread(serverSocket.accept(), handler).start();
 				Log.i(TAG, "New client connected");
 			} catch (IOException e) {
 				Log.e(TAG, "Cannot start thread for client " + e.getMessage());
+				socketOK = false;
 			}
 		}
 	}
