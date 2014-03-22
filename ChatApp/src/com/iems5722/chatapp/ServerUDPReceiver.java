@@ -1,6 +1,7 @@
 package com.iems5722.chatapp;
 
 import java.io.IOException;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -37,12 +38,15 @@ public class ServerUDPReceiver extends Thread {
 	static int			intNetMask;
 	static InetAddress	inetNetMask;
 	static String 		MACAddress;
+	static int 			intFirstAddress;
+	static InetAddress 	inetFirstAddress;
 	
 	//P2P messaging components
 	static int 				PORT = 6666;	
 	static DatagramSocket 	serverSocket;  			 
 	static boolean 			socketOK=true;	
-	static InetAddress 		BroadcastAddress;	
+	static InetAddress 		BroadcastAddress;
+	static int				intBroadcastAddress;
 	static Hashtable<String, UserRecord> UserHashtable;	
 
 	class UserRecord {
@@ -72,10 +76,54 @@ public class ServerUDPReceiver extends Thread {
 		}
 	}
 	
+	public boolean isUserKnown(String inMACAddress) {
+		UserRecord peerRecord = UserHashtable.get(inMACAddress);
+		if (peerRecord != null) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public static String getAuthorName(String inMACAddress) {
+		UserRecord peerRecord = UserHashtable.get(inMACAddress);
+		if (peerRecord != null) {
+			return peerRecord.peerName;
+		}
+		else {
+			return "Unknown user";
+		}		
+	}
+	
+	public static String getMsgType(String inMessage) {
+		Log.i(TAG, "gmT " + inMessage);		
+		String[] msgParts = inMessage.split(ServerUDPSender.msgSep);
+		String msgType = msgParts[0].toString();
+		Log.i(TAG, "gmT response " + msgType);				
+		return msgType;
+	}
+	
+	public static String getMsgMAC(String inMessage) {
+		Log.i(TAG, "gmM " + inMessage);		
+		String[] msgParts = inMessage.split(ServerUDPSender.msgSep);
+		String peerMAC = msgParts[1].toString();
+		Log.i(TAG, "gmM response " + peerMAC);				
+		return peerMAC;
+	}
+	
+	public static String getMsgContent(String inMessage) {
+		Log.i(TAG, "gmC " + inMessage);
+		String[] msgParts = inMessage.split(ServerUDPSender.msgSep);
+		String msgContent = msgParts[2].toString();
+		Log.i(TAG, "gmC response " + msgContent);						
+		return msgContent;
+	}
+	
+	
 	//Adds new user the hash table if user doesn't already exist
 	public void AddTestNewUser(String peerMSg, InetAddress peerIPAddr) {
 		String[] msgParts = peerMSg.split(ServerUDPSender.msgSep);
-		String peerMAC = msgParts[1].toString();
+		String peerMAC  = msgParts[1].toString();
 		String peerName = msgParts[2].toString();	
 		
 		UserRecord peerRecord = UserHashtable.get(peerMAC);
@@ -150,28 +198,35 @@ public class ServerUDPReceiver extends Thread {
 		        //only bother if it isn't from itself
 		        if(!sourceIPAddress.equals(inetIPAddress)) {
 		        	String message = new String(receivePacket.getData(),0,receivePacket.getLength());
-		        	Log.d(TAG, message);
+		        	String msgType = getMsgType(message);
+		        	Log.d(TAG, message + " type " + msgType);		        	
 		        	//if it is a request, send ack reply
-		        	if (message.contains(ServerUDPSender.PING_REQ_MSG)) {
-		    			Log.i(TAG,  "Ping received");		        		
-		        		chatHandler.obtainMessage(Chat.TOAST, "New User Ping Detected").sendToTarget();		            			        		
+		        	if (msgType.equals(ServerUDPSender.PING_REQ_MSG)) {
+		    			Log.i(TAG,  "Ping received");		        
+		        		chatHandler.obtainMessage(Chat.TOAST, "New user joined: " + getMsgContent(message)).sendToTarget();		            			        		
 		                udpSenderHandler.obtainMessage(ServerUDPSender.PING_ACKNOWLEDGE, sourceIPAddress).sendToTarget();
 		        		//Add new user to UserHashtable
 		                AddTestNewUser(message, sourceIPAddress);
 		        	}
 		        	//if it is a ack reply, add other user to hosts list
-		        	else if (message.contains(ServerUDPSender.PING_ACK_MSG)) {
+		        	else if (msgType.equals(ServerUDPSender.PING_ACK_MSG)) {
 		    			Log.i(TAG,  "Ack received");			        		
-		        		chatHandler.obtainMessage(Chat.TOAST, "User Ack Detected").sendToTarget();		            			        				        		
+		        		chatHandler.obtainMessage(Chat.TOAST, getMsgContent(message) + " added you").sendToTarget();		            			        				        		
 		        		//Add responsive user to User
 		        		AddTestNewUser(message, sourceIPAddress);
 		        	}
 		        	//else forward on to chat handler
-		        	else {
-			        	Log.i(TAG,"Received sentence: " + message + " from " + sourceIPAddress);		        		
+		        	else if (msgType.equals(ServerUDPSender.MSG_ALL_MSG)) {
+			        	Log.i(TAG,"Received sentence: " + message + " from " + sourceIPAddress);
+			        	
 			        	chatHandler.obtainMessage(Chat.PACKET_CAME, message).sendToTarget();    
 			        	//if message comes from unknown host, send ping request to unknown host
-			        	udpSenderHandler.obtainMessage(ServerUDPSender.PING_REQUEST_ONE, sourceIPAddress).sendToTarget();
+			        	if(! isUserKnown(getMsgMAC(message))) {
+				        	udpSenderHandler.obtainMessage(ServerUDPSender.PING_REQUEST_ONE, sourceIPAddress).sendToTarget();
+			        	}
+		        	}
+		        	else {
+		        		Log.e(TAG, "Uknown message type: " + msgType);
 		        	}
 		        }
 			} 
@@ -192,12 +247,23 @@ public class ServerUDPReceiver extends Thread {
            quads[k] = (byte) ((ip_int>> k * 8) & 0xFF);
 		return quads;
     }	
-    
+    /*
+	public static int ipToLong(InetAddress broadcastAddress) {
+		int num = broadcastAddress.getAddress();
+		int num = 0;
+		for (int i =0; i <addrArray.length; i++) {
+			int power = 3 - i;
+			num += ((Integer.parseInt(addrArray[i]) % 256 * Math.pow(256, power)));
+		}
+		return num;
+	}    
+    */
 	
 	public void updateBroadcastAddress() {
 		try {
-			int broadcast = (intIPAddress & intNetMask) | ~ intNetMask;
-			BroadcastAddress = InetAddress.getByAddress(getIPAddress(broadcast));			
+			intBroadcastAddress = (intIPAddress & intNetMask) | ~ intNetMask;
+			BroadcastAddress = InetAddress.getByAddress(getIPAddress(intBroadcastAddress));
+			intFirstAddress = (intIPAddress & intNetMask);
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "WiFi details error");
 		}
@@ -232,7 +298,7 @@ public class ServerUDPReceiver extends Thread {
         String outMsg = "My IP: " + inetIPAddress + " " + inetNetMask + " MAC " + MACAddress;
         chatHandler.obtainMessage(Chat.INFO, outMsg).sendToTarget();
         Log.d(TAG, outMsg);
-        
+
     	//update broadcast address
     	updateBroadcastAddress();
     	Log.d(TAG, "BCA " + BroadcastAddress);        

@@ -39,6 +39,7 @@ public class Chat extends Activity {
 	EditText		msg;
 	Button 			send;
 	Button			ping;
+	Button			pingIterator;
 	ListView		msgList;
 	ArrayAdapter	<String>receivedMessages;
 
@@ -58,14 +59,19 @@ public class Chat extends Activity {
         	if(D) Log.d(TAG, "In the Handler");
         	switch (msg.what) {
             case PACKET_CAME:
+            	Log.i(TAG, "PACKET_CAME");
                 String incomingMessage = (String) msg.obj;
-                receivedMessages.add("You: " + incomingMessage);
+            	Log.i(TAG, incomingMessage);                
+                String msgActual = ServerUDPReceiver.getMsgContent(incomingMessage);
+                String msgAuthor = ServerUDPReceiver.getAuthorName(ServerUDPReceiver.getMsgMAC(incomingMessage));
+                receivedMessages.add(msgAuthor + ": " + msgActual);
                 break;
             case TOAST:
             	String toastToMake= (String) msg.obj;
             	Toast.makeText(getApplicationContext(), toastToMake, Toast.LENGTH_SHORT).show();
                 break;  
             case INFO:
+            	Log.i(TAG, "INFO");
             	String infoMessage= (String) msg.obj;
             	myAddr.setText(infoMessage);
             	break;
@@ -108,7 +114,10 @@ public class Chat extends Activity {
         msg.setOnKeyListener(key_listener);
         
         ping = (Button)findViewById(R.id.ping);
-        ping.setOnClickListener(ping_listener);        
+        ping.setOnClickListener(ping_listener);   
+        
+        pingIterator = (Button)findViewById(R.id.pingiterate);
+        pingIterator.setOnClickListener(pingiterator_listener);
     }
         
     private void initUDP() {
@@ -145,6 +154,7 @@ public class Chat extends Activity {
 		     	//SendPackage sendNewMessage = new SendPackage();
 		    	//sendNewMessage.execute(theNewMessage);
 		    	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
+		    	msg.setText("");
 				return true;
 			}
 		return false;
@@ -155,12 +165,20 @@ public class Chat extends Activity {
         public void onClick(View v) {
         	//postMessage();
         	String messageOut = msg.getText().toString();
+        	String ipTarget = peerAddr.getText().toString();
         	if (messageOut.length() > 0) {
-	         	//SendPackage sendNewMessage = new SendPackage();
-	        	//sendNewMessage.execute(theNewMessage);
-	    		Log.i(TAG, "messageSent " + messageOut);
-	        	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
-		    	receivedMessages.add("Me: "+ messageOut);
+        		if (ipTarget.length() > 0) {
+        			String[] outgoing = {messageOut, ipTarget}; 
+        			udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ONE, outgoing).sendToTarget();
+        		}
+        		else {
+		         	//SendPackage sendNewMessage = new SendPackage();
+		        	//sendNewMessage.execute(theNewMessage);
+		    		Log.i(TAG, "messageSent " + messageOut);
+		        	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
+			    	receivedMessages.add(username + ": "+ messageOut);
+        		}
+		    	msg.setText("");
         	}
         }
     };
@@ -170,7 +188,15 @@ public class Chat extends Activity {
         	Log.d(TAG, "ping clicked");
         	udpHandler.obtainMessage(ServerUDPSender.PING_REQUEST_ALL).sendToTarget();      	
         }
-    };    
+    };   
+    
+    private OnClickListener pingiterator_listener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			Log.d(TAG, "ping clicked");	
+        	udpHandler.obtainMessage(ServerUDPSender.PING_ITERATE_ALL).sendToTarget();      	
+		}
+	};
     
     private class SendPackage extends AsyncTask<String, Void, String> {
 		@Override
@@ -199,7 +225,6 @@ public class Chat extends Activity {
     public void onDestroy() {
     	super.onDestroy();
     	udpReceiver.closeSocket();
-    	udpSender.closeSender();
     	tcpThread.closeSocket();
     }  
 }
