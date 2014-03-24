@@ -1,6 +1,11 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.gui;
 
 import java.io.IOException;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.ServerTCP;
+import com.iems5722.chatapp.network.ServerUDPReceiver;
+import com.iems5722.chatapp.network.ServerUDPSender;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,12 +31,12 @@ public class Chat extends Activity {
 	final static private boolean D	= true;
 	
 	//Message types
-	final static int PACKET_CAME = 1;
-	final static int TOAST  = 2;
-	final static int INFO = 3;
-	final static int TCP_PACKET = 10;
+	public final static int PACKET_CAME = 1;
+	public final static int TOAST  = 2;
+	public final static int INFO = 3;
+	public final static int TCP_PACKET = 10;
 	
-	final static int UDP_SENDER_UPDATE = 50;
+	public final static int UDP_SENDER_UPDATE = 50;
 	
 	//GUI elements
 	EditText		peerAddr;
@@ -90,7 +95,7 @@ public class Chat extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
         
         Intent i = getIntent();
         Bundle extras = i.getExtras();

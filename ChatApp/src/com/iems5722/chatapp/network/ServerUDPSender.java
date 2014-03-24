@@ -1,4 +1,4 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.network;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,7 +17,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.iems5722.chatapp.ServerUDPReceiver.UserRecord;
+import com.iems5722.chatapp.gui.Chat;
+import com.iems5722.chatapp.network.ServerUDPReceiver.UserRecord;
 
 public class ServerUDPSender extends Thread {
 
@@ -30,15 +31,15 @@ public class ServerUDPSender extends Thread {
 	//Commands recognised by this threads handler
 	public static Handler mHandler;	
 	private Looper udpLooper;
-	final static int 	PING_REQUEST_ALL = 1;	
-	final static int 	PING_REQUEST_ONE = 2;	
-	final static int 	PING_ITERATE_ALL = 3;
-	final static int 	PING_ACKNOWLEDGE = 4;
-	final static String PING_REQ_MSG = "PING_REQ";
-    final static String PING_ACK_MSG = "PING_ACK";
-	final static int 	MESSAGE_ALL = 10;
-	final static int 	MESSAGE_ONE = 20;
-    final static String MSG_ALL_MSG = "MSG_ALL";
+	public final static int 	PING_REQUEST_ALL = 1;	
+	public final static int 	PING_REQUEST_ONE = 2;	
+	public final static int 	PING_ITERATE_ALL = 3;
+	public final static int 	PING_ACKNOWLEDGE = 4;
+	public final static String PING_REQ_MSG = "PING_REQ";
+	public final static String PING_ACK_MSG = "PING_ACK";
+	public final static int 	MESSAGE_ALL = 10;
+	public final static int 	MESSAGE_ONE = 20;
+	public final static String MSG_ALL_MSG = "MSG_ALL";
 	
 
 	//Connection details from UDP Receiver

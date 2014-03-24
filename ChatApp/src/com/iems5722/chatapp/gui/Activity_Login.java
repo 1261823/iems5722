@@ -1,4 +1,6 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.gui;
+
+import com.iems5722.chatapp.R;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,28 +28,31 @@ public class Activity_Login extends Activity {
 		login_button = (Button)findViewById(R.id.login_btn_enter);
 		
 		initClickHandler();
+		//start network services
+		initNetworkServices();
 	}
 	
-	public void initClickHandler() {
+	private void initClickHandler() {
 		login_button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// check if username has been entered
 				username = login_username.getText().toString();
-				Log.d(TAG, username);
-				Log.d(TAG, Integer.toString(username.length()));
+				//Log.d(TAG, username);
+				//Log.d(TAG, Integer.toString(username.length()));
 				if (username.length() > 0 ) {
-					Log.d(TAG, "Entering chat");
-					Intent intent = new Intent(getApplicationContext(), Chat.class);
+					//Log.d(TAG, "Entering chat");
+					Intent intent = new Intent(getApplicationContext(), Activity_TabHandler.class);
 					intent.putExtra(URI_USERNAME, username);
 					startActivity(intent);
 				}
 				else {
-					//ask user to enter a valid username
+					//TODO ask user to enter a valid username
 				}
-					
 			}
 		});
 	}
 	
+	private void initNetworkServices() {
+	}
 }
