@@ -18,4 +18,20 @@
 	
 	<!-- Chat screen -->
 	<string name="chat_said"> said</string>
+	
+	<!-- Preference -->
+	<string name="pref_title">Chat Preference</string>
+	<string name="pref_vibrate_title">Viberate</string>
+	<string name="pref_vibrate_sum">Phone viberates on received message</string>
+	<string name="pref_chat_setting_cat">Chat Setting</string>
+	<string name="pref_name_title">Name</string>
+	<string name="pref_name_sum">Enter your nickname here</string>
+	<string name="pref_ringtone_title">Notification Ringtone</string>
+	<string name="pref_ringtone_sum">Default Ringtone</string>
+	<string name="menu_title_1">Preference</string>
+	<string name="pref_lang_title">Language</string>
+	<string name="pref_lang_sum">Choose your language</string>
+	
+	
+	
 </resources>
