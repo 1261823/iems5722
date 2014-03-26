@@ -10,6 +10,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -87,6 +90,8 @@ public class Chat extends Activity {
         }
     };
     
+    
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +106,28 @@ public class Chat extends Activity {
         initUDP();
         initTCP();
     }
-        
+      
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.setting_menu, menu);
+        return true;
+    } 
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.setting:
+            	Intent intent = new Intent(getApplicationContext(), Settings.class);
+				startActivity(intent);
+                return true;
+            
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
     private void setUpGUI() {    
         peerAddr = (EditText)findViewById(R.id.editPeerAddr);
         send = (Button)findViewById(R.id.send);
@@ -118,6 +144,10 @@ public class Chat extends Activity {
         
         pingIterator = (Button)findViewById(R.id.pingiterate);
         pingIterator.setOnClickListener(pingiterator_listener);
+        
+     
+        
+        
     }
         
     private void initUDP() {
