@@ -120,7 +120,8 @@ public class Chat extends Activity {
         switch (item.getItemId()) {
             case R.id.setting:
             	Intent intent = new Intent(getApplicationContext(), Settings.class);
-				startActivity(intent);
+            	intent.putExtra(Activity_Login.URI_USERNAME, username);
+            	startActivity(intent);
                 return true;
             
             default:
