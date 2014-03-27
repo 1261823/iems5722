@@ -47,4 +47,9 @@
 	<!-- Private chat tab -->
 	<string name="priv_chat_empty">No private conversations</string>
 
+	<!-- Wifi Dialog -->
+	<string name="dialog_wifi_title">WiFi Connection Required</string>
+	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
+	<string name="dialog_wifi_accept">Go to WiFi settings</string>
+	
 </resources>

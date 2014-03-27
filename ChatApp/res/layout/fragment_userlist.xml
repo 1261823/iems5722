@@ -28,4 +28,25 @@
 	    android:layout_height="wrap_content"
 	    android:layout_below="@id/user_offline_heading" >
 	</FrameLayout>
+	<View
+        android:layout_below="@id/user_online_heading"
+	    android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:layout_marginLeft="4dip"
+	    android:layout_marginRight="4dip"
+	    android:background="?android:attr/dividerHorizontal" />    
+	<View
+        android:layout_below="@id/user_offline_heading"
+	    android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:layout_marginLeft="4dip"
+	    android:layout_marginRight="4dip"
+	    android:background="?android:attr/dividerHorizontal" /> 	    
+	<View
+        android:layout_above="@id/user_offline_heading"
+	    android:layout_width="fill_parent"
+	    android:layout_height="1dp"
+	    android:layout_marginLeft="4dip"
+	    android:layout_marginRight="4dip"
+	    android:background="?android:attr/dividerHorizontal" />    
 </RelativeLayout>
