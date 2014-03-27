@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/setting"
-          android:title="@string/menu_title_1" >
-        
+
+    <item
+        android:id="@+id/menu_pref"
+        android:showAsAction="ifRoom"
+        android:title="@string/pref_menu" >
+
     </item>
 </menu>

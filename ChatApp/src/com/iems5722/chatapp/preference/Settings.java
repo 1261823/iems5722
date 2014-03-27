@@ -1,4 +1,4 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.preference;
 
 import com.iems5722.chatapp.gui.Activity_Login;
 
@@ -50,7 +50,6 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
 	            namePref.setSummary(sharedPreferences.getString(key, ""));
 	        }
 	}
-	 
     @Override
     protected void onResume() {
         super.onResume();

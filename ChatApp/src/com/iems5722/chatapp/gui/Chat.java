@@ -1,8 +1,8 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.gui;
 
 import java.io.IOException;
 
-import com.iems5722.chatapp.gui.Activity_Login;
+import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.network.ServerTCP;
 import com.iems5722.chatapp.network.ServerUDPReceiver;
 import com.iems5722.chatapp.network.ServerUDPSender;
@@ -11,15 +11,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -36,12 +31,12 @@ public class Chat extends Activity {
 	final static private boolean D	= true;
 	
 	//Message types
-	final static int PACKET_CAME = 1;
-	final static int TOAST  = 2;
-	final static int INFO = 3;
-	final static int TCP_PACKET = 10;
+	public final static int PACKET_CAME = 1;
+	public final static int TOAST  = 2;
+	public final static int INFO = 3;
+	public final static int TCP_PACKET = 10;
 	
-	final static int UDP_SENDER_UPDATE = 50;
+	public final static int UDP_SENDER_UPDATE = 50;
 	
 	//GUI elements
 	EditText		peerAddr;
@@ -97,12 +92,10 @@ public class Chat extends Activity {
         }
     };
     
-    
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
         
         Intent i = getIntent();
         Bundle extras = i.getExtras();
@@ -113,29 +106,7 @@ public class Chat extends Activity {
         initUDP();
         initTCP();
     }
-      
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.setting_menu, menu);
-        return true;
-    } 
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menu_pref:
-            	Intent intent = new Intent(getApplicationContext(), Settings.class);
-            	intent.putExtra(Activity_Login.URI_USERNAME, username);
-            	startActivity(intent);
-                return true;
-            
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
+        
     private void setUpGUI() {    
         peerAddr = (EditText)findViewById(R.id.editPeerAddr);
         send = (Button)findViewById(R.id.send);
@@ -152,10 +123,6 @@ public class Chat extends Activity {
         
         pingIterator = (Button)findViewById(R.id.pingiterate);
         pingIterator.setOnClickListener(pingiterator_listener);
-        
-     
-        
-        
     }
         
     private void initUDP() {
@@ -201,11 +168,6 @@ public class Chat extends Activity {
     
     private OnClickListener send_listener = new OnClickListener() {
         public void onClick(View v) {
-        	/*String username="";
-        	 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-             username = settings.getString(Settings.KEY_PREF_NAME, "");
-        	Toast.makeText(getApplicationContext(), username, 10).show();*/
-        	
         	//postMessage();
         	String messageOut = msg.getText().toString();
         	String ipTarget = peerAddr.getText().toString();

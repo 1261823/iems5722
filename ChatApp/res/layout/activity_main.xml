@@ -1,69 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Please enter your peer address:" />
-
-    <EditText
-        android:id="@+id/editPeerAddr"
+<android.support.v4.view.ViewPager
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/project_pager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<android.support.v4.view.PagerTitleStrip
+        android:id="@+id/pager_title_strip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10" />
-
-	<ListView android:id="@+id/msgList" 
-		android:layout_width="fill_parent" 
-		android:layout_height="0dip"
-		android:stackFromBottom="true"
-		android:transcriptMode="alwaysScroll"
-		android:layout_weight="1">
-	</ListView>
-
-	<LinearLayout android:id="@+id/LinearLayout01" 
-		android:layout_width="fill_parent"
-		android:orientation="horizontal" 
-		android:layout_height="wrap_content">
-		<EditText 
-			android:text="" 
-			android:id="@+id/msg"
-			android:layout_gravity="bottom" 
- 			android:layout_width= "0dip"
- 			android:layout_height="wrap_content"
-			android:layout_weight="1"/>		
-		</LinearLayout>			
-		<LinearLayout android:id="@+id/buttonbar" 
-			android:layout_width="fill_parent"
-			android:orientation="horizontal" 
-			android:layout_height="wrap_content">
-			
-			<Button android:text="Send" 
-				android:id="@+id/send" 
-				android:layout_width="0dip" 
-				android:layout_height="wrap_content" 
-				android:layout_weight="1"/>		
-			<Button android:text="Ping" 
-				android:id="@+id/ping" 
-				android:layout_width="0dip" 
-				android:layout_height="wrap_content" 
-				android:layout_weight="1" />
-			<Button android:text="Ping Iterator" 
-				android:id="@+id/pingiterate" 
-				android:layout_width="0dip" 
-				android:layout_height="wrap_content"
-				android:layout_weight="1" />								
-			
-		</LinearLayout>
-
-	<TextView
-	    android:id="@+id/textMyAddr"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:text="TextView" />
-
-</LinearLayout>
+        android:layout_gravity="top"
+        android:textColor="@color/white"
+        android:background="@color/android_blue"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip" />
+</android.support.v4.view.ViewPager>

@@ -1,4 +1,4 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.network;
 
 import java.io.IOException;
 import java.net.ServerSocket;

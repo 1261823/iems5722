@@ -5,31 +5,41 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="19"
+        android:minSdkVersion="14"
         android:targetSdkVersion="19" />
     <uses-permission android:name="android.permission.INTERNET"/>
-
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".Activity_Login"
+            android:name=".gui.Activity_Login"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>              
-        </activity>            
+            </intent-filter>                         
+        </activity>
+        <activity
+            android:name=".gui.Activity_TabHandler"
+            android:label="@string/app_name" > 
+        </activity>        
         <activity
             android:name=".Chat"
             android:label="@string/app_name" >          
         </activity>
         <activity
-            android:name=".Settings"
+          android:name=".preference.Settings"
             android:label="@string/pref_title" >          
         </activity>
+        <provider
+            android:name="com.iems5722.chatapp.database.DbProvider"
+            android:authorities="com.iems5722.chatapp.DbProvider"
+            android:exported="false">
+        </provider>
+
     </application>
-	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 </manifest>

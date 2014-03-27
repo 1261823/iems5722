@@ -1,4 +1,4 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.network;
 
 import java.io.IOException;
 
@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.iems5722.chatapp.gui.Chat;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -177,7 +179,7 @@ public class ServerUDPReceiver extends Thread {
 		serverSocket.close();
 	}
 	
-	boolean socketIsOK()
+	public boolean socketIsOK()
 	{
 	  return socketOK;
 	}

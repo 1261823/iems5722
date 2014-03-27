@@ -1,9 +1,11 @@
-package com.iems5722.chatapp;
+package com.iems5722.chatapp.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+
+import com.iems5722.chatapp.gui.Chat;
 
 import android.os.Handler;
 import android.util.Log;

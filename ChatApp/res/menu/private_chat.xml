@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<item android:id="@+id/chat_username"
+    android:title="Peer name"/>
+<item android:id="@+id/chat_attachment"
+    android:icon="@drawable/ic_launcher"
+    android:showAsAction="always" />
+</menu>
