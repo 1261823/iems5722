@@ -1,8 +1,10 @@
 package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.preference.Settings;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -11,6 +13,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -40,12 +45,13 @@ public class Activity_TabHandler extends FragmentActivity implements
 		mPagerAdapter = new SlidePagerAdapter(getSupportFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);		
 		
-		final ActionBar actionBar = getActionBar();
-		//Note: this removes the action bar
+		
 		//this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setDisplayShowHomeEnabled(false);	
-		actionBar.hide();
+		//final ActionBar actionBar = getActionBar();
+		//actionBar.setDisplayShowTitleEnabled(false);
+		//actionBar.setDisplayShowHomeEnabled(false);	
+		//Note: this removes the action bar and preference menu
+		//actionBar.hide();
 	}
 
 	private class SlidePagerAdapter extends FragmentPagerAdapter {
@@ -111,4 +117,26 @@ public class Activity_TabHandler extends FragmentActivity implements
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
 		}
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.d(TAG, "onCreateOptionsMenu");
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.setting_menu, menu);
+		return true;
+	}	
+	
+	@Override 
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_pref:
+			Intent iMenuPreference = new Intent(this, Settings.class);
+			startActivity(iMenuPreference);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}		
+	
 }

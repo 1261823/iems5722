@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
+        android:textColor="@color/white"
         android:background="@color/android_blue"
-        android:paddingTop="4dip"
-        android:paddingBottom="4dip" />
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip" />
 </android.support.v4.view.ViewPager>

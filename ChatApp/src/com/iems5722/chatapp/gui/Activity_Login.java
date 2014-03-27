@@ -1,11 +1,15 @@
 package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.preference.Settings;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,6 +56,28 @@ public class Activity_Login extends Activity {
 			}
 		});
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.d(TAG, "onCreateOptionsMenu");
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.setting_menu, menu);
+		return true;
+	}	
+	
+	@Override 
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_pref:
+			Intent iMenuPreference = new Intent(this, Settings.class);
+			iMenuPreference.putExtra(URI_USERNAME, username);
+			startActivity(iMenuPreference);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}	
 	
 	private void initNetworkServices() {
 	}

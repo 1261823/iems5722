@@ -10,6 +10,19 @@
 	<string name="send">Send</string>
 	<string name="cancel">Cancel</string>
 	
+	<!-- Preference -->
+	<string name="pref_menu">Preferences</string>	
+	<string name="pref_title">Chat Preference</string>
+	<string name="pref_vibrate_title">Vibrate</string>
+	<string name="pref_vibrate_sum">Phone vibrates on message received</string>
+	<string name="pref_chat_setting_cat">Chat Setting</string>
+	<string name="pref_name_title">Name</string>
+	<string name="pref_name_sum">Enter your nickname here</string>
+	<string name="pref_ringtone_title">Notification Ringtone</string>
+	<string name="pref_ringtone_sum">Default Ringtone</string>
+	<string name="pref_lang_title">Language</string>
+	<string name="pref_lang_sum">Choose your language</string>
+	
 	<!-- Log in screen -->
 	<string name="login_username">Username</string>
 	<string name="login_username_hint">Please enter a username</string>
