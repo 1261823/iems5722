@@ -1,11 +1,20 @@
 package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.ServiceNetwork;
+import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.preference.Settings;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +32,14 @@ public class Activity_Login extends Activity {
 	private EditText login_username;
 	private Button login_button;
 	public String username;
+	
+	//network service
+	ServiceNetwork networkService;
+	private Intent networkIntent;
+	Handler networkHandler;
+	
+	//events recognised by handler
+	public static final int NTWK_WIFI_AVAIL = 1;
 
 	@Override
  	public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +50,7 @@ public class Activity_Login extends Activity {
 		
 		initClickHandler();
 		//start network services
+		networkIntent = new Intent(this, ServiceNetwork.class);
 		initNetworkServices();
 	}
 	
@@ -45,6 +63,8 @@ public class Activity_Login extends Activity {
 				//Log.d(TAG, username);
 				//Log.d(TAG, Integer.toString(username.length()));
 				if (username.length() > 0 ) {
+					boolean check = networkService.handlerReady();
+					Log.d(TAG, Boolean.toString(check));
 					//Log.d(TAG, "Entering chat");
 					Intent intent = new Intent(getApplicationContext(), Activity_TabHandler.class);
 					intent.putExtra(URI_USERNAME, username);
@@ -79,6 +99,47 @@ public class Activity_Login extends Activity {
 		}
 	}	
 	
-	private void initNetworkServices() {
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		//stop all services on app exit
+		stopService(networkIntent);
+		unbindService(mConnection);
 	}
+	
+	private void initNetworkServices() {
+		startService(networkIntent);
+		bindService(networkIntent, mConnection, Context.BIND_AUTO_CREATE);
+		//networkHandler = networkService.getHandler();
+		//networkHandler.obtainMessage(ServiceNetwork.NTWK_UPDATE).sendToTarget();
+	}
+	
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			Log.d(TAG, "onServiceConnected");	
+			NetworkBinder networkBinder = (NetworkBinder) binder;
+			networkService = networkBinder.getService();
+		}
+		
+		public void onServiceDisconnected(ComponentName className) {
+			Log.d(TAG, "onServiceDisconnected");				
+		}
+	};	
+	
+	private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {		
+        	Log.d(TAG, "UIThread recv handler msg");
+        	switch (msg.what) {
+        		case NTWK_WIFI_AVAIL:
+        			Log.d(TAG, "NTWK_WIFI_AVAIL");
+    				Intent wifiIntent = new Intent (getBaseContext(), DialogWifiAvailable.class);
+    				wifiIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+    				wifiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    				wifiIntent.addFlags(Intent.FLAG_FROM_BACKGROUND);
+    				getApplicationContext().startActivity(wifiIntent);        			
+        		break;
+        	}	
+        }
+	};
 }

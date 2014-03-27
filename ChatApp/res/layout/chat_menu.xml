@@ -2,16 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
-
-    <MultiAutoCompleteTextView
+    android:orientation="horizontal">
+    <AutoCompleteTextView
         android:id="@+id/menu_chat_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="10"
         android:ems="10" >
         <requestFocus />
-    </MultiAutoCompleteTextView>  
+    </AutoCompleteTextView>  
 	<Button
 	    android:id="@+id/menu_chat_send"
 	    android:layout_width="0dp"
