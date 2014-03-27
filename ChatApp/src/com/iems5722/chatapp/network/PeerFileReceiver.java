@@ -64,7 +64,7 @@ public class PeerFileReceiver extends Thread {
 				InputStream inputStream = receiveSocket.getInputStream();
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				int bytesRead = inputStream.read(fileByteArray, 0, fileSize);
-				int currentBytesRead = 0;
+				int currentBytesRead = 0; 
 				while (bytesRead > -1){
 					 currentBytesRead += bytesRead;
 					 if (currentBytesRead>=fileSize){ 
