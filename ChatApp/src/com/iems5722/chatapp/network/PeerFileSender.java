@@ -37,7 +37,7 @@ public class PeerFileSender extends Thread {
 				String testMsg = "Hi Hi Tcp Test";
 				bw.write(testMsg);
 				bw.close();*/
-			   
+				
 			    
 				File file = new File("/sdcard/c1.jpg");
 				long fileSize= file.length();
