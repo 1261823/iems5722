@@ -23,17 +23,12 @@
 	<string name="pref_lang_title">Language</string>
 	<string name="pref_lang_sum">Choose your language</string>
 	
-	<!-- Wifi Dialog -->
-	<string name="dialog_wifi_title">WiFi Connection Required</string>
-	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
-	<string name="dialog_wifi_accept">Go to WiFi settings</string>
-	
 	<!-- Log in screen -->
 	<string name="login_username">Username</string>
 	<string name="login_username_hint">Please enter a username</string>
 	<string name="login_btn_enter">Begin Chatting</string>
 	<string name="login_username_empty">Please enter a username with at least one character</string>
-	
+
 	<!-- General Chat screen -->
 	<string name="chat_said"> said</string>
 	<string name="chat_empty">No chat history</string>
@@ -51,4 +46,10 @@
 	
 	<!-- Private chat tab -->
 	<string name="priv_chat_empty">No private conversations</string>
+
+	<!-- Wifi Dialog -->
+	<string name="dialog_wifi_title">WiFi Connection Required</string>
+	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
+	<string name="dialog_wifi_accept">Go to WiFi settings</string>
+	
 </resources>
