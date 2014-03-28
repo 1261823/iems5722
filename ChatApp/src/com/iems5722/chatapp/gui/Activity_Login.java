@@ -3,6 +3,8 @@ package com.iems5722.chatapp.gui;
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
+import com.iems5722.chatapp.network.ServiceUDP_Recv;
+import com.iems5722.chatapp.network.ServiceUDP_Send;
 import com.iems5722.chatapp.preference.Settings;
 
 import android.app.Activity;
@@ -38,6 +40,12 @@ public class Activity_Login extends Activity {
 	private Intent networkIntent;
 	Handler networkHandler;
 	
+	//udp service
+	ServiceUDP_Recv UDPRecv;
+	private Intent UDPListenerIntent;
+	ServiceUDP_Send UDPSend;
+	private Intent UDPSenderIntent;
+	
 	//events recognised by handler
 	public static final int NTWK_WIFI_AVAIL = 1;
 
@@ -51,6 +59,8 @@ public class Activity_Login extends Activity {
 		initClickHandler();
 		//start network services
 		networkIntent = new Intent(this, ServiceNetwork.class);
+		UDPListenerIntent = new Intent(this, ServiceUDP_Recv.class);
+		UDPSenderIntent = new Intent(this, ServiceUDP_Send.class);
 		initNetworkServices();
 	}
 	
@@ -63,8 +73,6 @@ public class Activity_Login extends Activity {
 				//Log.d(TAG, username);
 				//Log.d(TAG, Integer.toString(username.length()));
 				if (username.length() > 0 ) {
-					boolean check = networkService.handlerReady();
-					Log.d(TAG, Boolean.toString(check));
 					//Log.d(TAG, "Entering chat");
 					Intent intent = new Intent(getApplicationContext(), Activity_TabHandler.class);
 					intent.putExtra(URI_USERNAME, username);
@@ -105,13 +113,20 @@ public class Activity_Login extends Activity {
 		//stop all services on app exit
 		stopService(networkIntent);
 		unbindService(mConnection);
+		stopService(UDPListenerIntent);
+		try {
+			stopService(UDPSenderIntent);
+		}
+		catch (Exception e) {
+			Log.e(TAG, e.toString());
+		}
 	}
 	
 	private void initNetworkServices() {
 		startService(networkIntent);
 		bindService(networkIntent, mConnection, Context.BIND_AUTO_CREATE);
-		//networkHandler = networkService.getHandler();
-		//networkHandler.obtainMessage(ServiceNetwork.NTWK_UPDATE).sendToTarget();
+		startService(UDPListenerIntent);
+		startService(UDPSenderIntent);		
 	}
 	
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -132,6 +147,7 @@ public class Activity_Login extends Activity {
         	Log.d(TAG, "UIThread recv handler msg");
         	switch (msg.what) {
         		case NTWK_WIFI_AVAIL:
+        			//note this does not work
         			Log.d(TAG, "NTWK_WIFI_AVAIL");
     				Intent wifiIntent = new Intent (getBaseContext(), DialogWifiAvailable.class);
     				wifiIntent.addCategory(Intent.CATEGORY_LAUNCHER);

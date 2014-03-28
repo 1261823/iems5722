@@ -45,13 +45,21 @@ public class ServiceNetwork extends Service {
 	boolean handlerReady = false;
 	
 	private Handler UIhandler;
-	public static final String EXTRA_MESSENGER="com.iems5722.chatapp.network.ServiceNetwork.EXTRA_MESSENGER";
 	
 	//commands recognised by udp service
 	public final static int NTWK_UPDATE = 1;
 	public final static int NTWK_GET_NETMASK = 2;
 	public final static int NTWK_INIT = 3;
 	
+	//broadcast issued when network parameters change
+	private Intent updateIntent;
+	public static final String BC_NETWORK_UPDATE = "BroadcastNetworkUpdate";
+	public static final String NT_IP_INT = "int_ipAddress";
+	public static final String NT_IP_INET = "inet_ipAddress";
+	public static final String NT_NM_INT = "int_Netmask";
+	public static final String NT_NM_INET = "inet_Netmask";
+	public static final String NT_MAC_ADDR = "macAddress";
+
 	//WiFi Parameters
 	NetworkInfo networkInfo = null;	
 	static int 			intIPAddress;
@@ -59,8 +67,9 @@ public class ServiceNetwork extends Service {
 	static int			intNetMask;
 	static InetAddress	inetNetMask;
 	static String 		MACAddress;
-	static int 			intFirstAddress;
-	static InetAddress 	inetFirstAddress;	
+	//Existing WiFi parameters
+	static int			currentIPAddress = -1;
+	static int			currentNetMask = -1;
 
 	public Handler getHandler() {
 		Log.i(TAG, "returning handler");
@@ -86,7 +95,13 @@ public class ServiceNetwork extends Service {
 				registerReceiver(serviceBCR, filter);
 				checkWifiActive();
 				break;
-        	}
+        	case NTWK_UPDATE:
+        		checkWifiActive();
+        		getWiFiDetails();
+        		break;
+        	default:
+        		Log.e(TAG, "Unknown command: " + msg.what);
+        	}	
 		}
 	}
 	
@@ -112,6 +127,9 @@ public class ServiceNetwork extends Service {
     		 }
     		 else {
     			Log.d(TAG, "WiFi not connected");
+    			currentIPAddress = -1;
+    			currentNetMask = -1;
+    			
 				Intent wifiIntent = new Intent (getBaseContext(), DialogWifiAvailable.class);
 				wifiIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 				wifiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -122,7 +140,7 @@ public class ServiceNetwork extends Service {
     	 }
     }
 	
-    private void getWiFiDetails() throws UnknownHostException {
+    private void getWiFiDetails() {
     	if (networkInfo.isConnected()) {
 	        WifiManager mWifi = (WifiManager) getApplication().getSystemService(WIFI_SERVICE);
 	        WifiInfo info = mWifi.getConnectionInfo();
@@ -136,16 +154,37 @@ public class ServiceNetwork extends Service {
 			  
 	        DhcpInfo dhcp = mWifi.getDhcpInfo(); 
 	        if (dhcp == null) { 
-	          Log.d(TAG, "Could not get dhcp info"); 
-	          return; 
+	            Log.d(TAG, "Could not get dhcp info"); 
+	            return; 
 	        } 
-	
-	        intIPAddress = dhcp.ipAddress;
-	        inetIPAddress = InetAddress.getByAddress(getIPAddress(intIPAddress));     
-	        //Log.d(TAG, Integer.toString(dhcp.netmask));
-	        intNetMask = dhcp.netmask;
-	        inetNetMask = InetAddress.getByAddress(getIPAddress(intNetMask));
-	        MACAddress = info.getMacAddress();
+	        try {
+		        intIPAddress = dhcp.ipAddress;
+		        inetIPAddress = InetAddress.getByAddress(getIPAddress(intIPAddress));     
+		        //Log.d(TAG, Integer.toString(dhcp.netmask));
+		        intNetMask = dhcp.netmask;
+				inetNetMask = InetAddress.getByAddress(getIPAddress(intNetMask));
+				MACAddress = info.getMacAddress();
+				//if network details have changed, send broadcast and update records
+				if (intIPAddress != currentIPAddress || intNetMask != currentNetMask) {
+					Log.i(TAG, "Broadcasting updated network details");
+					currentIPAddress = intIPAddress;
+					currentNetMask = intNetMask;
+					//broadcast updated details
+					updateIntent = new Intent(BC_NETWORK_UPDATE);
+					updateIntent.putExtra(NT_IP_INT, intIPAddress);
+					updateIntent.putExtra(NT_IP_INET, inetIPAddress);
+					updateIntent.putExtra(NT_NM_INT, intNetMask);
+					updateIntent.putExtra(NT_NM_INET, inetNetMask);
+					updateIntent.putExtra(NT_MAC_ADDR, MACAddress);	
+					LocalBroadcastManager.getInstance(this).sendBroadcast(updateIntent);
+				}
+				
+				
+			} catch (UnknownHostException e) {
+				Log.e(TAG,"Cannot get WiFI details");
+				e.printStackTrace();
+			}
+	        
 	
 	        String outMsg = "My IP: " + inetIPAddress + " " + inetNetMask + " MAC " + MACAddress;
 	        Log.d(TAG, outMsg);
@@ -158,12 +197,7 @@ public class ServiceNetwork extends Service {
 			Log.d(TAG, "Received " + intent.getAction());
 			if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
 				if (checkWifiActive()) {
-					try	{
-						getWiFiDetails();
-					}
-					catch(Exception e) {
-						Log.e(TAG,"Cannot get WiFI details");
-					}
+					getWiFiDetails();
 				}
 			}
 		}
