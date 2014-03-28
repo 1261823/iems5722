@@ -1,15 +1,12 @@
 package com.iems5722.chatapp.network;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import com.iems5722.chatapp.gui.Chat;
 
 import android.content.Context;
 import android.os.Handler;
@@ -31,6 +28,7 @@ public class PeerFileReceiver extends Thread {
 		this.handler = handler;
 		try {
 			serverSocket = new ServerSocket(TCP_PORT);
+			
 			socketOK = true;
 		}
 		catch (IOException e) {
@@ -61,24 +59,29 @@ public class PeerFileReceiver extends Thread {
 				byte[] fileByteArray = new byte[fileSize];
 				Log.d(TAG, "File comes");
 
-				FileOutputStream fos = new FileOutputStream("/sdcard/trial.jpg");
+				File newFile = new File("/sdcard/trial.jpg");
+				FileOutputStream fos = new FileOutputStream(newFile);
 				InputStream inputStream = receiveSocket.getInputStream();
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				int bytesRead = inputStream.read(fileByteArray, 0, fileByteArray.length);
-				int currentBytesRead = bytesRead;
+				int bytesRead = inputStream.read(fileByteArray, 0, fileSize);
+				int currentBytesRead = 0; 
 				while (bytesRead > -1){
-					 bytesRead = inputStream.read(fileByteArray, currentBytesRead, fileByteArray.length-currentBytesRead);
 					 currentBytesRead += bytesRead;
+					 if (currentBytesRead>=fileSize){ 
+						 break;
+					 }
+					 bytesRead = inputStream.read(fileByteArray, currentBytesRead, fileSize-currentBytesRead);
 				}
 				if(currentBytesRead!=-1){
 					bos.write(fileByteArray, 0, currentBytesRead);
-					bos.flush();
+					bos.flush();					
 				}
 				
 				Log.d(TAG, "File receive finished");
 				
-				bos.close();
+				
 				fos.close();
+				bos.close();
 				inputStream.close();
 				receiveSocket.close();
 				

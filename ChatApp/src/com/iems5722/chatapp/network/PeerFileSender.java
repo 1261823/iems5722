@@ -36,8 +36,8 @@ public class PeerFileSender extends Thread {
 				/*BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(tcpSocket.getOutputStream()));
 				String testMsg = "Hi Hi Tcp Test";
 				bw.write(testMsg);
-				bw.close();*/
-			   
+				bw.close();*/ 
+				
 			    
 				File file = new File("/sdcard/c1.jpg");
 				long fileSize= file.length();
