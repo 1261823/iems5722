@@ -1,9 +1,5 @@
 package com.iems5722.chatapp.gui;
 
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.preference.Settings;
-
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,7 +13,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.MulticastReceiverAsyncTask;
+import com.iems5722.chatapp.network.MulticastSenderAsyncTask;
+import com.iems5722.chatapp.preference.Settings;
 
 public class Activity_TabHandler extends FragmentActivity implements
 	FragmentChatMenu.OnButtonClickListener {
@@ -52,6 +54,14 @@ public class Activity_TabHandler extends FragmentActivity implements
 		//actionBar.setDisplayShowHomeEnabled(false);	
 		//Note: this removes the action bar and preference menu
 		//actionBar.hide();
+		
+//		PeerFileReceiverAsyncTask peerFileReceiverAsyncTask = new PeerFileReceiverAsyncTask();
+//		peerFileReceiverAsyncTask.setContext(getApplicationContext());
+//		peerFileReceiverAsyncTask.execute();
+		
+		MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
+		multicastReceiverAsyncTask.setContext(getApplicationContext());
+		multicastReceiverAsyncTask.execute();
 	}
 
 	private class SlidePagerAdapter extends FragmentPagerAdapter {
@@ -110,7 +120,18 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public void buttonClick(int buttonId) {
 		switch(buttonId) {
 		case(R.id.menu_chat_send):
+			
+//			PeerFileSenderAsyncTask peerFileSenderAsyncTask = new PeerFileSenderAsyncTask();
+//			peerFileSenderAsyncTask.setContext(getApplicationContext());
+//			peerFileSenderAsyncTask.execute();
 			//Send message to global chat
+			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
+			
+			MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
+			multicastSenderAsyncTask.setContext(getApplicationContext());
+			multicastSenderAsyncTask.setMsg(chatText.getText().toString());
+			multicastSenderAsyncTask.execute();
+		   	 
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 			break;
 		default:
@@ -138,5 +159,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 			return super.onOptionsItemSelected(item);
 		}
 	}		
+	
 	
 }

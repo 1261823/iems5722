@@ -1,18 +1,11 @@
 package com.iems5722.chatapp.gui;
 
-import java.io.IOException;
-
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.network.ServerTCP;
-import com.iems5722.chatapp.network.ServerUDPReceiver;
-import com.iems5722.chatapp.network.ServerUDPSender;
-
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,6 +17,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.PeerFileReceiver;
+import com.iems5722.chatapp.network.PeerFileSender;
+import com.iems5722.chatapp.network.ServerTCP;
+import com.iems5722.chatapp.network.ServerUDPReceiver;
+import com.iems5722.chatapp.network.ServerUDPSender;
 
 public class Chat extends Activity {
 
@@ -150,6 +150,16 @@ public class Chat extends Activity {
         }
         tcpThread.start();
         Log.i(TAG,"TCP Server Started");
+        
+        
+        PeerFileReceiver peerFileReceiverThread = new PeerFileReceiver(getApplicationContext(), mHandler);
+        if (!peerFileReceiverThread.socketIsOK()) {
+      	   Log.e(TAG,"TCP file receiver port NOT STARTED");
+      	   Toast.makeText(getApplicationContext(), "Cannot Start TCP file receiver port: ", Toast.LENGTH_LONG).show();
+      	   return;        	
+        }
+        peerFileReceiverThread.start();
+        Log.i(TAG,"TCP file receiver Started");
     }
     
     private OnKeyListener key_listener = new OnKeyListener() {
@@ -169,22 +179,29 @@ public class Chat extends Activity {
     private OnClickListener send_listener = new OnClickListener() {
         public void onClick(View v) {
         	//postMessage();
-        	String messageOut = msg.getText().toString();
-        	String ipTarget = peerAddr.getText().toString();
-        	if (messageOut.length() > 0) {
-        		if (ipTarget.length() > 0) {
-        			String[] outgoing = {messageOut, ipTarget}; 
-        			udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ONE, outgoing).sendToTarget();
-        		}
-        		else {
-		         	//SendPackage sendNewMessage = new SendPackage();
-		        	//sendNewMessage.execute(theNewMessage);
-		    		Log.i(TAG, "messageSent " + messageOut);
-		        	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
-			    	receivedMessages.add(username + ": "+ messageOut);
-        		}
-		    	msg.setText("");
-        	}
+//        	String messageOut = msg.getText().toString();
+//        	String ipTarget = peerAddr.getText().toString();
+//        	if (messageOut.length() > 0) {
+//        		if (ipTarget.length() > 0) {
+//        			String[] outgoing = {messageOut, ipTarget}; 
+//        			udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ONE, outgoing).sendToTarget();
+//        		}
+//        		else {
+//		         	//SendPackage sendNewMessage = new SendPackage();
+//		        	//sendNewMessage.execute(theNewMessage);
+//		    		Log.i(TAG, "messageSent " + messageOut);
+//		        	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
+//			    	receivedMessages.add(username + ": "+ messageOut);
+//        		}
+//		    	msg.setText("");
+//        	}
+        	PeerFileSender peerFileSenderThread = new PeerFileSender(getApplicationContext(), mHandler);
+        	 if (!peerFileSenderThread.socketIsOK()) {
+            	   Log.e(TAG,"TCP file receiver port NOT STARTED");
+            	   Toast.makeText(getApplicationContext(), "Cannot Start TCP file receiver port: ", Toast.LENGTH_LONG).show();
+            	   return;        	
+              }
+        	 peerFileSenderThread.start();
         }
     };
     
