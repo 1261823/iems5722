@@ -52,24 +52,5 @@
         		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
         	</intent-filter>
         </service>
-        <service android:name=".network.ServiceUDP_Recv"
-			android:exported="false">
-    		<intent-filter>
-        		<action android:name="com.iems5722.chatpp.network.ServiceNetwork.BC_NETWORK_UPDATE" />
-        	</intent-filter>
-        </service>
-        <service android:name=".network.ServiceUDP_Recv"
-			android:exported="false">
-    		<intent-filter>
-        		<action android:name="com.iems5722.chatpp.network.ServiceNetwork.BC_NETWORK_UPDATE" />
-        	</intent-filter>
-        </service>
-        <service android:name=".network.ServiceUDP_Send"
-			android:exported="false">
-    		<intent-filter>
-        		<action android:name="com.iems5722.chatpp.network.ServiceNetwork.BC_NETWORK_UPDATE" />
-        		<action android:name="com.iems5722.chatpp.network.ServiceUDP_Recv.BC_PING_ACK" />
-        	</intent-filter>
-        </service>    
     </application>
 </manifest>

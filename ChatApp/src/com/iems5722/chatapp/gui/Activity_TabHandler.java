@@ -1,11 +1,20 @@
 package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.ServiceNetwork;
+import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
+import com.iems5722.chatapp.network.MessageBuilder;
+import com.iems5722.chatapp.network.ThreadNetwork;
+import com.iems5722.chatapp.network.ThreadUDPSend;
+
 import com.iems5722.chatapp.preference.Settings;
 
-import android.app.ActionBar;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -21,7 +30,6 @@ import android.widget.Toast;
 
 public class Activity_TabHandler extends FragmentActivity implements
 	FragmentChatMenu.OnButtonClickListener {
-	
 	private static final String TAG = "Activity_TabHandler";
 
 	private ViewPager mViewPager;
@@ -31,6 +39,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 	UserList userList;
 	SessionList privateChat;
 	
+	//Networking service
+	ServiceNetwork NetworkService;
+	private Intent NetServiceIntent;	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,6 +50,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 		globalChat  = new FragmentGlobalChat();
 		userList    = new UserList();
 		privateChat = new SessionList();
+		
+		NetServiceIntent = new Intent(this, ServiceNetwork.class);
+		bindService(NetServiceIntent, NetServiceConnection, Context.BIND_AUTO_CREATE);
 		
 		setContentView(R.layout.activity_main);
 
@@ -112,6 +127,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		case(R.id.menu_chat_send):
 			//Send message to global chat
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
+			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
+			NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -137,6 +154,25 @@ public class Activity_TabHandler extends FragmentActivity implements
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}		
+	}	
+	
+	private ServiceConnection NetServiceConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			Log.d(TAG, "onServiceConnected");	
+			NetworkBinder networkBinder = (NetworkBinder) binder;
+			NetworkService = networkBinder.getService();
+		}
+		
+		public void onServiceDisconnected(ComponentName className) {
+			Log.d(TAG, "onServiceDisconnected");				
+		}
+	};	
+
+	
+	@Override
+	public void onDestroy() {
+		unbindService(NetServiceConnection);
+		super.onDestroy();
+	}
 	
 }
