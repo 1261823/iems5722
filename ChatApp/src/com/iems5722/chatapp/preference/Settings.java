@@ -1,9 +1,8 @@
 package com.iems5722.chatapp.preference;
 
-import com.iems5722.chatapp.gui.Activity_Login;
+import com.iems5722.chatapp.R;
 
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -13,24 +12,13 @@ import android.preference.PreferenceManager;
 
 public class Settings extends PreferenceActivity implements OnSharedPreferenceChangeListener{
     private SettingsFragment prefFrag;
-    public static final String KEY_PREF_NAME = "pref_name";
-    private String username;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        
-        if(extras != null) {
-        	username = extras.getString(Activity_Login.URI_USERNAME);
-        }
         
         //initialize name
-        prefFrag = new SettingsFragment();
-        prefFrag.setUsername(username);
-        		
+        prefFrag = new SettingsFragment();        		
         		
        // Display the fragment as the main content.
         FragmentManager fragmananger = getFragmentManager();
@@ -38,14 +26,10 @@ public class Settings extends PreferenceActivity implements OnSharedPreferenceCh
         fragmananger.beginTransaction()
                 .replace(android.R.id.content,prefFrag)
                 .commit();
-        
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        settings.edit().putString(KEY_PREF_NAME, username);
-        
     }
     
 	 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-	        if (key.equals(KEY_PREF_NAME)) {
+	        if (key.equals(getString(R.string.pref_key_name))) {
 	            Preference namePref = prefFrag.findPreference(key);
 	            namePref.setSummary(sharedPreferences.getString(key, ""));
 	        }

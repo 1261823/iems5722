@@ -3,29 +3,36 @@
     <PreferenceCategory 
         android:title="@string/pref_chat_setting_cat"
         android:key="pref_key_storage_settings">
-    <EditTextPreference
-            android:key="pref_name"
-            android:summary="@string/pref_name_sum"
-            android:title="@string/pref_name_title" 
-            android:defaultValue="" 
-            />    
-    <CheckBoxPreference
-        android:key="pref_vibrate"
-        android:title="@string/pref_vibrate_title"
-        android:summary="@string/pref_vibrate_sum"
-        android:defaultValue="true" />
-     <RingtonePreference
-	    android:key="pref_ringtone"
-	    android:ringtoneType="notification"
-	    android:summary="@string/pref_ringtone_sum"
-	    android:title="@string/pref_ringtone_title" >
-	  </RingtonePreference>
-	  <ListPreference
-            android:key="pref_lang"
-            android:title="@string/pref_lang_title"
-            android:summary="@string/pref_lang_sum"
-            android:entries="@array/langEntries"
-            android:entryValues="@array/langValues" />
+	    <EditTextPreference
+	        android:key="@string/pref_key_name"
+	        android:title="@string/pref_name_title" 
+	        android:summary="@string/pref_name_sum"
+	        android:defaultValue="" />    
+	    <CheckBoxPreference
+	        android:key="@string/pref_key_vibrate"
+	        android:title="@string/pref_vibrate_title"
+	        android:summary="@string/pref_vibrate_sum"
+	        android:defaultValue="true" />
+	    <RingtonePreference
+		    android:key="@string/pref_key_ringtone"
+		    android:ringtoneType="notification"
+		    android:summary="@string/pref_ringtone_sum"
+		    android:title="@string/pref_ringtone_title" >
+		</RingtonePreference>
+		<ListPreference
+	        android:key="@string/pref_key_lang"
+	        android:title="@string/pref_lang_title"
+	        android:summary="@string/pref_lang_sum"
+	        android:entries="@array/langEntries"
+	        android:entryValues="@array/langValues" >
+	    </ListPreference>
+	    <EditTextPreference
+	        android:key="@string/pref_key_userid"
+	        android:title="@string/pref_userid_title"
+	        android:summary="@string/pref_userid_sum"
+	        android:enabled="false" 
+    		android:selectable="true"	        
+	        android:defaultValue="" />
     <!-- <ListPreference
         android:dependency="pref_sync"
         android:key="pref_syncConnectionType"

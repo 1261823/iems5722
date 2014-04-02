@@ -20,7 +20,7 @@ public class DialogWifiAvailable extends Activity {
 		AlertDialog.Builder wifiDialog = new AlertDialog.Builder(this);
 		wifiDialog.setTitle(R.string.dialog_wifi_title)
 		.setMessage(R.string.dialog_wifi_message)
-		.setCancelable(false)
+		.setCancelable(true)
 		.setPositiveButton(R.string.dialog_wifi_accept,
 			new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {

@@ -19,6 +19,10 @@ public class PeerFileSender extends Thread {
 	public final static int TCP_PORT = 6669;
 	Socket tcpSocket = null;
 	boolean socketOK = true;
+	private final static int HEADER_SIZE=1024;
+	private final static String INFO_SEPARATOR=";";
+	private final static String ENDING_STRING = "@";
+	
 	
 	Context context;
 	Handler handler;
@@ -32,29 +36,59 @@ public class PeerFileSender extends Thread {
 	public void run() {
 		
 			try {
-				tcpSocket = new Socket("10.0.2.2", TCP_PORT);
-				/*BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(tcpSocket.getOutputStream()));
-				String testMsg = "Hi Hi Tcp Test";
-				bw.write(testMsg);
-				bw.close();*/ 
-				
-			    
-				File file = new File("/sdcard/c1.jpg");
+				String filename = "c1.jpg";
+				File file = new File("/sdcard/" + filename);
 				long fileSize= file.length();
-				byte [] fileByteArray  = new byte [(int)fileSize];
+					
+				
+				tcpSocket = new Socket("10.0.2.2", TCP_PORT);
+				
+				//send file info first
+			/*	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(tcpSocket.getOutputStream()));
+				StringBuilder fileInfoMsgSb = new StringBuilder();
+				
+				fileInfoMsgSb.append(filename);
+				fileInfoMsgSb.append(INFO_SEPARATOR);
+				fileInfoMsgSb.append(String.valueOf(fileSize));
+				
+				bw.write(fileInfoMsgSb.toString());*/
+				byte [] fileByteArray  = new byte [(int)(fileSize)];
+				byte [] outputByteArray = new byte [(int)(HEADER_SIZE+fileSize)];
+				
+				
+				StringBuilder fileInfoMsgSb = new StringBuilder();
+				
+				fileInfoMsgSb.append(filename);
+				fileInfoMsgSb.append(INFO_SEPARATOR);
+				fileInfoMsgSb.append(String.valueOf(fileSize));
+				fileInfoMsgSb.append(ENDING_STRING);
+				
+				byte [] infoByteArray = fileInfoMsgSb.toString().getBytes("UTF-8");
+				
+				for (int j=0; j<infoByteArray.length; j++){				
+						outputByteArray[j] = infoByteArray[j];					
+				}
+				
+				//send file bytes  				
+				
+				
                 FileInputStream fis = new FileInputStream(file);
                 BufferedInputStream bis = new BufferedInputStream(fis);
-                bis.read(fileByteArray,0,fileByteArray.length);
+                bis.read(fileByteArray ,0,fileByteArray.length);
                 
-        
-                
+                for (int k=HEADER_SIZE; k<outputByteArray.length; k++){
+                	outputByteArray[k] = fileByteArray[k-HEADER_SIZE];               	
+                }
+                                      
                 OutputStream os = tcpSocket.getOutputStream();
-                os.write(fileByteArray,0,fileByteArray.length);
+                os.write(outputByteArray,0,outputByteArray.length);
                 os.flush();
                 
                 
-                Log.d(TAG, "file sent");
+                Log.d(TAG, "file is sent");
                 
+                bis.close();
+                fis.close();
 				closeSocket();
 				
 				

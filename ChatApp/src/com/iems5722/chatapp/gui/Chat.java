@@ -21,9 +21,9 @@ import android.widget.Toast;
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.network.PeerFileReceiver;
 import com.iems5722.chatapp.network.PeerFileSender;
-import com.iems5722.chatapp.network.ServerTCP;
-import com.iems5722.chatapp.network.ServerUDPReceiver;
-import com.iems5722.chatapp.network.ServerUDPSender;
+//import com.iems5722.chatapp.network.ServerTCP;
+//import com.iems5722.chatapp.network.ServerUDPReceiver;
+//import com.iems5722.chatapp.network.ServerUDPSender;
 
 public class Chat extends Activity {
 
@@ -52,11 +52,11 @@ public class Chat extends Activity {
 	public static String username = "default";
 	
 	//UDP Server threads
-	ServerUDPReceiver udpReceiver;
-	ServerUDPSender   udpSender;
-	Handler udpHandler;
+	//ServerUDPReceiver udpReceiver;
+	//ServerUDPSender   udpSender;
+	//Handler udpHandler;
 	
-	ServerTCP tcpThread;
+	//ServerTCP tcpThread;
 	
 	private final Handler mHandler = new Handler() {
         @Override
@@ -67,9 +67,9 @@ public class Chat extends Activity {
             	Log.i(TAG, "PACKET_CAME");
                 String incomingMessage = (String) msg.obj;
             	Log.i(TAG, incomingMessage);                
-                String msgActual = ServerUDPReceiver.getMsgContent(incomingMessage);
-                String msgAuthor = ServerUDPReceiver.getAuthorName(ServerUDPReceiver.getMsgMAC(incomingMessage));
-                receivedMessages.add(msgAuthor + ": " + msgActual);
+                //String msgActual = ServerUDPReceiver.getMsgContent(incomingMessage);
+                //String msgAuthor = ServerUDPReceiver.getAuthorName(ServerUDPReceiver.getMsgMAC(incomingMessage));
+                //receivedMessages.add(msgAuthor + ": " + msgActual);
                 break;
             case TOAST:
             	String toastToMake= (String) msg.obj;
@@ -85,7 +85,7 @@ public class Chat extends Activity {
             	receivedMessages.add("TCP: "+tcpMessage);
             	break;
             case UDP_SENDER_UPDATE:
-            	udpHandler = udpSender.getHandler();
+            	//udpHandler = udpSender.getHandler();
             	Log.d(TAG, "UDP Handler updated");
             	break;
             }
@@ -103,7 +103,7 @@ public class Chat extends Activity {
         	username = extras.getString(Activity_Login.URI_USERNAME);
         }
         setUpGUI();
-        initUDP();
+        //initUDP();
         initTCP();
     }
         
@@ -124,7 +124,7 @@ public class Chat extends Activity {
         pingIterator = (Button)findViewById(R.id.pingiterate);
         pingIterator.setOnClickListener(pingiterator_listener);
     }
-        
+    /*    
     private void initUDP() {
     	udpReceiver = new ServerUDPReceiver(getApplicationContext(), mHandler);
         if (!udpReceiver.socketIsOK()) {
@@ -140,8 +140,9 @@ public class Chat extends Activity {
         udpSender.start();
         Log.i(TAG,"UDP Sender Started");
     }
-    
+    */
     private void initTCP() {
+    	/*
         tcpThread = new ServerTCP(getApplicationContext(), mHandler);
         if (!tcpThread.socketIsOK()) {
       	   Log.e(TAG,"Server NOT STARTED");
@@ -150,7 +151,7 @@ public class Chat extends Activity {
         }
         tcpThread.start();
         Log.i(TAG,"TCP Server Started");
-        
+        */
         
         PeerFileReceiver peerFileReceiverThread = new PeerFileReceiver(getApplicationContext(), mHandler);
         if (!peerFileReceiverThread.socketIsOK()) {
@@ -168,7 +169,7 @@ public class Chat extends Activity {
 		    	String messageOut = msg.getText().toString();
 		     	//SendPackage sendNewMessage = new SendPackage();
 		    	//sendNewMessage.execute(theNewMessage);
-		    	udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
+		    	//udpHandler.obtainMessage(ServerUDPSender.MESSAGE_ALL, messageOut).sendToTarget();
 		    	msg.setText("");
 				return true;
 			}
@@ -208,7 +209,7 @@ public class Chat extends Activity {
     private OnClickListener ping_listener = new OnClickListener() {
         public void onClick(View v) {
         	Log.d(TAG, "ping clicked");
-        	udpHandler.obtainMessage(ServerUDPSender.PING_REQUEST_ALL).sendToTarget();      	
+        	//udpHandler.obtainMessage(ServerUDPSender.PING_REQUEST_ALL).sendToTarget();      	
         }
     };   
     
@@ -216,7 +217,7 @@ public class Chat extends Activity {
 		@Override
 		public void onClick(View v) {
 			Log.d(TAG, "ping clicked");	
-        	udpHandler.obtainMessage(ServerUDPSender.PING_ITERATE_ALL).sendToTarget();      	
+        	//udpHandler.obtainMessage(ServerUDPSender.PING_ITERATE_ALL).sendToTarget();      	
 		}
 	};
     
@@ -226,7 +227,7 @@ public class Chat extends Activity {
 	    	try{
 	    		Log.i(TAG, "Sending message in Async task");
 	    		Log.i(TAG, "Message[0] is: " + messageToSend[0]);
-	    		udpSender.udpSendMessage(messageToSend[0], peerAddr.getText().toString());
+	    		//udpSender.udpSendMessage(messageToSend[0], peerAddr.getText().toString());
 	    	}catch(Exception e){
 	    		Log.e(TAG,"Cannot send message "+ e.getMessage());
 	    		Log.e(TAG, "Error message " + e);
@@ -246,7 +247,7 @@ public class Chat extends Activity {
     @Override
     public void onDestroy() {
     	super.onDestroy();
-    	udpReceiver.closeSocket();
-    	tcpThread.closeSocket();
+    	//udpReceiver.closeSocket();
+    	//tcpThread.closeSocket();
     }  
 }
