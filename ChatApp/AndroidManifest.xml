@@ -35,9 +35,13 @@
             android:label="@string/app_name" > 
         </activity>        
         <activity
-            android:name=".Chat"
+            android:name=".gui.Activity_PrivateChat"
             android:label="@string/app_name" >          
         </activity>
+        <activity
+            android:name=".gui.DialogAttachmentPicker"
+            android:label="@string/app_name" >          
+        </activity>        
         <activity
             android:name=".preference.Settings"
             android:label="@string/pref_title" >          

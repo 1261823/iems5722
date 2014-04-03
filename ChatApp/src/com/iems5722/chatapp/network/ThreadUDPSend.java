@@ -22,17 +22,18 @@ public class ThreadUDPSend extends Handler {
 
 	//message builder
 	MessageBuilder msgBuilder;
+	String username = "";
 
-	
 	//commands recognised by udp service
 	public final static int     PING_REQUEST_ALL = 1;	
 	public final static int     PING_REQUEST_ONE = 2;	
 	public final static int     PING_ITERATE_ALL = 3;
 	public final static int     PING_ACKNOWLEDGE = 4;
+	public final static int		PREF_UPDATE_USER = 10;
 	
 	public ThreadUDPSend(Looper looper, Context serviceContext) {
 		super(looper);
-		Log.i(TAG, "Creating UDP Sender Thread");
+		//Log.i(TAG, "Creating UDP Sender Thread");
 		mContext = serviceContext;
 		handlerReady = true;
 		msgBuilder = new MessageBuilder(mContext);
@@ -40,12 +41,9 @@ public class ThreadUDPSend extends Handler {
 	
 	@Override
 	public void handleMessage(Message msg) {
-		Log.i(TAG, "UDP Send Handler");
+		//Log.i(TAG, "UDP Send Handler");
 		String outMessage;
 		InetAddress peerAddress;	
-		//TODO send user id from preferences
-		String username = "username";
-		String userId = "macaddresshash";
 		switch(msg.what) {	
 			case PING_REQUEST_ALL:
 				Log.i(TAG, "PING_REQUEST_ALL");
@@ -84,6 +82,10 @@ public class ThreadUDPSend extends Handler {
 	    		peerAddress = (InetAddress) msg.obj;
 	    		Log.i(TAG, "ACK " + peerAddress + " " + outMessage);	        		
 	        	udpSendMessage(outMessage, peerAddress);					
+				break;
+			case PREF_UPDATE_USER:
+				username = (String) msg.obj;
+				Log.d(TAG, "New username set: " + username);
 				break;
 			default:
 				Log.e(TAG, "Unknown command: " + msg.what);		

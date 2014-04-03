@@ -12,4 +12,12 @@
         <item>JP-JP</item>
         <item>FR-FR</item>
     </string-array>      
+    
+    <!-- Add Attachment Spinner Lists options-->
+    <string-array name="attachment">
+        <item name="photo">@string/att_photo</item>
+        <item name="video">@string/att_video</item>
+        <item name="audio">@string/att_audio</item>
+        <item name="file">@string/att_file</item>
+    </string-array>        
 </resources>

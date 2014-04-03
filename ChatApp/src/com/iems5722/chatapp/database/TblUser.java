@@ -13,6 +13,9 @@ public class TblUser {
 	public static final String IP_ADDR_STR    = "ipaddr_str";
 	public static final String STATUS 		  = "status";
 	public static final String USER_DATETIME  = "user_dt";
+	
+	public static final String STAT_ON = "online";
+	public static final String STAT_OFF = "offline";
 
 	//create database
 	private static final String DATABASE_CREATE = "CREATE TABLE IF NOT EXISTS " 

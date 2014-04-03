@@ -18,7 +18,7 @@ public class UserList extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.d(TAG, "onCreateView");
+		//Log.d(TAG, "onCreateView");
 		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_userlist, container, false);
 		userActive = new UserListActive();
 		userInactive = new UserListInactive();
@@ -26,7 +26,7 @@ public class UserList extends Fragment {
 		transaction.add(R.id.usersActive, userActive);
 		transaction.add(R.id.usersInactive, userInactive);
 		transaction.commit();
-		Log.d(TAG, "transaction committed");
+		//Log.d(TAG, "transaction committed");
 		return rootView;
 	}
 	

@@ -1,5 +1,6 @@
 package com.iems5722.chatapp.gui;
 
+
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.network.MulticastReceiverAsyncTask;
 import com.iems5722.chatapp.network.MulticastSenderAsyncTask;
@@ -13,8 +14,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -30,11 +35,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
-
 public class Activity_TabHandler extends FragmentActivity implements
-	FragmentChatMenu.OnButtonClickListener {
+	FragmentChatMenu.OnButtonClickListener,
+	OnSharedPreferenceChangeListener {
 	private static final String TAG = "Activity_TabHandler";
 
+	//Preferences
+	private SharedPreferences prefs;	
+	
 	private ViewPager mViewPager;
 	private SlidePagerAdapter mPagerAdapter;
 	
@@ -44,16 +52,18 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 	//Networking service
 	ServiceNetwork NetworkService;
-	private Intent NetServiceIntent;	
+	private Intent NetServiceIntent;
+	Handler ServiceHandler;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		//Log.d(TAG, "onCreate");
 		globalChat  = new FragmentGlobalChat();
 		userList    = new UserList();
 		privateChat = new SessionList();
 		
+		//create connections to service
 		NetServiceIntent = new Intent(this, ServiceNetwork.class);
 		bindService(NetServiceIntent, NetServiceConnection, Context.BIND_AUTO_CREATE);
 		
@@ -62,6 +72,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 		mViewPager = (ViewPager)findViewById(R.id.project_pager);
 		mPagerAdapter = new SlidePagerAdapter(getSupportFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);		
+		
+		//get name from preferences
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);		
 		
 		
 		//this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -75,14 +89,15 @@ public class Activity_TabHandler extends FragmentActivity implements
 //		peerFileReceiverAsyncTask.setContext(getApplicationContext());
 //		peerFileReceiverAsyncTask.execute();
 		
-		MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
-		multicastReceiverAsyncTask.setContext(getApplicationContext());
-		multicastReceiverAsyncTask.execute();
+		
+		//this crashes when i login so have disabled until stable
+	    //MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
+		//multicastReceiverAsyncTask.setContext(getApplicationContext());
+		//multicastReceiverAsyncTask.execute();
 	}
 
 	private class SlidePagerAdapter extends FragmentPagerAdapter {
 		SparseArray<Fragment> registeredFragment = new SparseArray<Fragment>();
-		
 		public SlidePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
@@ -121,7 +136,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 		
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
-			Log.d(TAG, "instantiateItem");
+			//Log.d(TAG, "instantiateItem");
 			Fragment fragment = (Fragment) super.instantiateItem(container, position);
 			registeredFragment.put(position, fragment);
 			return fragment;
@@ -143,10 +158,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 			//Send message to global chat
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
 			
-			MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
-			multicastSenderAsyncTask.setContext(getApplicationContext());
-			multicastSenderAsyncTask.setMsg(chatText.getText().toString());
-			multicastSenderAsyncTask.execute();
+		//	MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
+		//	multicastSenderAsyncTask.setContext(getApplicationContext());
+		//	multicastSenderAsyncTask.setMsg(chatText.getText().toString());
+		//	multicastSenderAsyncTask.execute();
 		   	 
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
@@ -159,17 +174,23 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.d(TAG, "onCreateOptionsMenu");
+		//Log.d(TAG, "onCreateOptionsMenu");
 		super.onCreateOptionsMenu(menu);
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.setting_menu, menu);
+		inflater.inflate(R.menu.tab_menu, menu);
 		return true;
 	}	
 	
 	@Override 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.menu_ping:
+			//check for new users
+			NetworkService.udpPingAll();
+			Toast.makeText(this, R.string.menu_ping_toast, Toast.LENGTH_SHORT).show();
+			return true;		
 		case R.id.menu_pref:
+			//go to preferences menu
 			Intent iMenuPreference = new Intent(this, Settings.class);
 			startActivity(iMenuPreference);
 			return true;
@@ -177,12 +198,14 @@ public class Activity_TabHandler extends FragmentActivity implements
 			return super.onOptionsItemSelected(item);
 		}
 	}	
-	
+
 	private ServiceConnection NetServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			Log.d(TAG, "onServiceConnected");	
 			NetworkBinder networkBinder = (NetworkBinder) binder;
 			NetworkService = networkBinder.getService();
+			ServiceHandler = NetworkService.getServiceHandler();
+			initPreference();
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
@@ -190,12 +213,27 @@ public class Activity_TabHandler extends FragmentActivity implements
 		}
 	};	
 
+	private void initPreference() {
+		//Log.d(TAG, "initPreference");
+		String usernameKey = this.getString(R.string.pref_key_name);	
+		readUsername(usernameKey);
+	}	
 	
 	@Override
 	public void onDestroy() {
 		unbindService(NetServiceConnection);
 		super.onDestroy();
 	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(this.getString(R.string.pref_key_name))) {
+			readUsername(key);
+		}
+	}
 	
-	
+	private void readUsername(String key) {
+		String msgUsername = prefs.getString(key, "");
+		ServiceHandler.obtainMessage(ServiceNetwork.PREF_NAME, msgUsername).sendToTarget();
+	}
 }

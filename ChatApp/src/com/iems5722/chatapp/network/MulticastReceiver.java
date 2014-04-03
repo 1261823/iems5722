@@ -1,6 +1,5 @@
 package com.iems5722.chatapp.network;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -11,7 +10,6 @@ import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 public class MulticastReceiver extends Thread{
 	final static private String TAG = "MulticastReceiver";

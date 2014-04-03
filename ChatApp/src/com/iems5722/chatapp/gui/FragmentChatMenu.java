@@ -22,13 +22,13 @@ public class FragmentChatMenu extends Fragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "onCreate");
+		//Log.d(TAG, "onCreate");
 		super.onCreate(savedInstanceState);	
 	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.d(TAG, "onCreateView");
+		//Log.d(TAG, "onCreateView");
 		View view = inflater.inflate(R.layout.chat_menu, container, false);
 		btnSendMessage = (Button) view.findViewById(R.id.menu_chat_send);
 		setClickListener();
@@ -46,7 +46,7 @@ public class FragmentChatMenu extends Fragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
-		Log.d(TAG, "onAttach");
+		//Log.d(TAG, "onAttach");
 		super.onAttach(activity);
 		try {
 			clickListener = (OnButtonClickListener) activity;

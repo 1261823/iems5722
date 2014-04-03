@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 
 import com.iems5722.chatapp.gui.Activity_Login;
 import com.iems5722.chatapp.gui.DialogWifiAvailable;
+import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -33,6 +34,7 @@ public class ThreadNetwork extends Handler {
 	//references back to service
 	boolean handlerReady = false;
 	private Context mContext;	
+	private ServiceHandler mServiceHandler;
 	
 	//WiFi Parameters
 	NetworkInfo networkInfo = null;		
@@ -42,16 +44,17 @@ public class ThreadNetwork extends Handler {
 	public final static int NTWK_UPDATE = 1;
 	public final static int NTWK_SHUTDOWN = 2;
 	
-	public ThreadNetwork (Looper looper, Context serviceContext) {
+	public ThreadNetwork (Looper looper, Context serviceContext, ServiceHandler serviceHandler) {
 		super(looper);
 		Log.i(TAG, "Creating Network Monitoring Thread");
 		mContext = serviceContext;
+		mServiceHandler = serviceHandler;
 		handlerReady = true;
 	}
 	
 	@Override
 	public void handleMessage(Message msg) {
-		Log.i(TAG, "handling message");
+		//Log.i(TAG, "handling message");
     	switch (msg.what) {
         case NTWK_INIT:
         	Log.i(TAG, "Network Init");
@@ -77,7 +80,7 @@ public class ThreadNetwork extends Handler {
 	private BroadcastReceiver serviceBCR = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.d(TAG, "Received " + intent.getAction());
+			//Log.d(TAG, "Received " + intent.getAction());
 			if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE")) {
 				if (checkWifiActive()) {
 					getWiFiDetails();
@@ -89,31 +92,31 @@ public class ThreadNetwork extends Handler {
 	//alerts user that they are not online
 	//asks user to connect to wifi if possible 
     private boolean checkWifiActive() {
+    	Boolean wifiActive = false;
     	Log.d(TAG, "Checking WiFi connectivity");
     	 ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(mContext.getApplicationContext().CONNECTIVITY_SERVICE);
     	 if (connectivityManager == null) {
              Log.e(TAG,"Cannot Get Connection Info");
-             return false;
     	 }
     	 else {
     		 networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
     		 if (networkInfo.isConnected()) {
     			 Log.i(TAG, "Wifi connected");
-    			 return true;
+    			 wifiActive = true;
+    			 ServiceNetwork.WiFiConnected = true;
     		 }
     		 else {
     			Log.d(TAG, "WiFi not connected");
     			ServiceNetwork.currentIPAddress = -1;
     			ServiceNetwork.currentNetMask = -1;
-    			
-				Intent wifiIntent = new Intent (mContext.getApplicationContext(), DialogWifiAvailable.class);
-				wifiIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-				wifiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				wifiIntent.addFlags(Intent.FLAG_FROM_BACKGROUND);
-				mContext.startActivity(wifiIntent);  
-    			return false;
+    			ServiceNetwork.WiFiConnected = false;
     		 }
     	 }
+    	 if (!wifiActive) {
+    		 //inform service that wifi not functioning
+    		 mServiceHandler.obtainMessage(ServiceNetwork.WIFI_INACTIVE).sendToTarget();
+    	 }
+    	 return wifiActive; 
     }	
     
 	//update wifi information in service
@@ -127,7 +130,7 @@ public class ThreadNetwork extends Handler {
 	            return;
 	        }
 	        else {
-	        	Log.d(TAG,"\n\nWiFi Status: " + info.toString());
+	        	//Log.d(TAG,"\n\nWiFi Status: " + info.toString());
 	        }
 			  
 	        DhcpInfo dhcp = mWifi.getDhcpInfo(); 

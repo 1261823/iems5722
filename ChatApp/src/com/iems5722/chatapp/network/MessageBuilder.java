@@ -5,13 +5,15 @@ import com.iems5722.chatapp.preference.Settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 //Creates and interprets messages
-public class MessageBuilder {
+public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	public final static String TAG = "MessageBuilder";
 	private Context mContext;
+	SharedPreferences prefs; 
 	
 	//Message type codes
 	//ping message types
@@ -29,7 +31,12 @@ public class MessageBuilder {
 	
 	public MessageBuilder(Context mContext) {
 		this.mContext = mContext;
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		readPreferences();
+		prefs.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	public void readPreferences() {
 		String userIdKey = mContext.getString(R.string.pref_key_userid);
 		msgUserId = prefs.getString(userIdKey, "");
 	}
@@ -46,9 +53,16 @@ public class MessageBuilder {
 	
 	public static String getMessagePart(String inMessage, int msgPart) {
 		String[] msgParts = inMessage.split(msgSeparator, 3);
-		Log.i(TAG, "Type " + msgParts[MsgType]);
-		Log.i(TAG, "User " + msgParts[MsgUser]);
-		Log.i(TAG, "Content " + msgParts[MsgContent]);
+		//Log.i(TAG, "Type " + msgParts[MsgType]);
+		//Log.i(TAG, "User " + msgParts[MsgUser]);
+		//Log.i(TAG, "Content " + msgParts[MsgContent]);
 		return msgParts[msgPart];
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(mContext.getString(R.string.pref_key_userid))) {
+			readPreferences();
+		}
 	}
 }

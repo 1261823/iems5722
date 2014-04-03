@@ -6,11 +6,9 @@ import java.security.SecureRandom;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.network.ServiceNetwork;
-import com.iems5722.chatapp.network.ThreadNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.preference.Settings;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +19,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,7 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-public class Activity_Login extends Activity implements OnSharedPreferenceChangeListener {
+public class Activity_Login extends FragmentActivity implements OnSharedPreferenceChangeListener {
 	private static final String TAG = "Activity_Login";
 	
 	public static final String URI_USERNAME = "username";
@@ -49,20 +48,21 @@ public class Activity_Login extends Activity implements OnSharedPreferenceChange
 	//Networking service
 	ServiceNetwork NetworkService;
 	private Intent NetServiceIntent;	
-	Handler networkHandler;
+	Handler ServiceHandler;
 	
 	//events recognised by handler
 	public static final int SERV_READY = 0;
+	public static final int WIFI_INACTIVE = 1;
 	
 	private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
         	Log.d(TAG, "received message");
         	switch (msg.what) {
-        	case (SERV_READY):
-        		//wait until network threads have started
-        		//get user name and user id from preferences
-        		
+        	case (WIFI_INACTIVE):
+        		//inform user that wifi inactive
+        		DialogFragment wifidialog = new DialogWifiAvailable();
+        		wifidialog.show(getSupportFragmentManager(), DialogWifiAvailable.TAG);
         		break;
     		}
         }
@@ -106,7 +106,7 @@ public class Activity_Login extends Activity implements OnSharedPreferenceChange
 		String userIdKey = getString(R.string.pref_key_userid);
 		userId = prefs.getString(userIdKey, "");
 		//if user id is null then generate a new one
-		if (userId.equals("")) {
+		if (userId.equals("") || userId.equals(getString(R.string.pref_userid_default))) {
 			userId = generateUserId();
 			prefEditor.putString(userIdKey, userId).commit();
 		}
@@ -222,6 +222,7 @@ public class Activity_Login extends Activity implements OnSharedPreferenceChange
 			Log.d(TAG, "onServiceConnected");	
 			NetworkBinder networkBinder = (NetworkBinder) binder;
 			NetworkService = networkBinder.getService();
+			NetworkService.setUIHandler(mHandler);
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {

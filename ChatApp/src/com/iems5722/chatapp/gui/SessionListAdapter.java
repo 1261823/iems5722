@@ -14,6 +14,7 @@ import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.database.TblUser;
 
+//gets private chat sessions
 public class SessionListAdapter extends SimpleCursorAdapter {
 	private static final String TAG = "SessionListAdapter";
 
@@ -30,7 +31,7 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		Log.d(TAG, "newView");
+		//Log.d(TAG, "newView");
 		final LayoutInflater inflater = LayoutInflater.from(context);
 		View v = inflater.inflate(layout, parent, false);
 		loadView(v, context, cursor);
@@ -39,12 +40,12 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 	
 	@Override
 	public void bindView(View v, Context context, Cursor c) {
-		Log.d(TAG, "bindView");
+		//Log.d(TAG, "bindView");
 		loadView(v, context, c);
 	}	
 	
 	private void loadView(View v, Context context, Cursor c) {
-		Log.d(TAG, "loadView");		
+		//Log.d(TAG, "loadView");		
 		int colUsername  = c.getColumnIndex(TblUser.USER_NAME);
 		int colTimestamp = c.getColumnIndex(TblChat.MSG_DATETIME);
 		int colLastMsg   = c.getColumnIndex(TblChat.MESSAGE);

@@ -1,7 +1,9 @@
 package com.iems5722.chatapp.database;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -73,7 +75,7 @@ public class DbProvider extends ContentProvider{
 				break;
 			case USER_ITEM:
 				queryBuilder.setTables(TblUser.TABLE_USER);
-				queryBuilder.appendWhere(TblUser.USER_UFI + "=" + uri.getLastPathSegment());
+				//queryBuilder.appendWhere(TblUser.USER_UFI + "=" + uri.getLastPathSegment());
 				break;		
 			case GCHAT_LIST:
 				queryBuilder.setTables(TblGlobalChat.TABLE_GLOBAL_CHAT);

@@ -11,7 +11,6 @@
 	<string name="cancel">Cancel</string>
 	
 	<!-- Preference -->
-	<string name="pref_menu">Preferences</string>	
 	<string name="pref_title">Chat Preference</string>
 	<string name="pref_chat_setting_cat">Chat Setting</string>
 	<string name="pref_name_title">Name</string>
@@ -22,6 +21,7 @@
 	<string name="pref_ringtone_sum">Currently using: </string>
 	<string name="pref_lang_title">Language</string>
 	<string name="pref_lang_sum">Currently using: </string>
+	<string name="pref_lang_default">EN-US</string>
 	<string name="pref_userid_title">User Id</string>
 	<string name="pref_userid_sum">This is your ID: </string>
 	<string name="pref_userid_default">User Id Not Initialised</string>
@@ -32,9 +32,10 @@
 	<string name="pref_key_lang">pref_key_lang</string>
 	<string name="pref_key_userid">pref_key_userid</string>
 	
-	
-	
-	
+	<!-- Optons menu -->
+	<string name="menu_pref">Preferences</string>		
+	<string name="menu_ping">Refresh Users</string>
+	<string name="menu_ping_toast">Refreshing Users</string>
 	
 	<!-- Log in screen -->
 	<string name="login_username">Username</string>
@@ -57,12 +58,29 @@
 	<string name="user_online_none">No online users</string>
 	<string name="user_offline_none">No offline users</string>
 	
+	<!-- User context menu items -->
+	<string name="user_menu_ping">Check if online</string>
+	<string name="user_menu_chat">Chat with user</string>
+	
 	<!-- Private chat tab -->
 	<string name="priv_chat_empty">No private conversations</string>
+	
+	<!-- Private chat screen -->
+	<string name="priv_chat_title">Chatting with </string>	
+	<string name="priv_chat_attach">Send Attachment</string>	
+	
+	<!-- Attachment dialog -->
+	<string name="att_title">Photo</string>	
+	<string name="att_photo">Photo</string>	
+	<string name="att_audio">Audio</string>	
+	<string name="att_video">Video</string>	
+	<string name="att_file">File</string>	
 
 	<!-- Wifi Dialog -->
 	<string name="dialog_wifi_title">WiFi Connection Required</string>
 	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
 	<string name="dialog_wifi_accept">Go to WiFi settings</string>
+	<string name="dialog_wifi_decline">Continue in offline mode</string>
+	
 	
 </resources>

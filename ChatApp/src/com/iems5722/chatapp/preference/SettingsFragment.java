@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -18,11 +19,15 @@ import android.util.Log;
 
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 	public static final String TAG = "SettingsFragment";
-	private String username;
+	
+    SharedPreferences prefs;
+
+	private String oldUsername;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
         
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
@@ -30,17 +35,17 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
         PreferenceManager.setDefaultValues(this.getActivity(), R.xml.preferences, false);
         updateSummary();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+        oldUsername = prefs.getString(getString(R.string.pref_key_name), "");
 	}
         
     public void updateSummary() {    
     	Log.d(TAG, "Updating summary");
-    
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-
+   
         String username = prefs.getString(getString(R.string.pref_key_name), "");
         Preference namePref = findPreference(getString(R.string.pref_key_name));
         namePref.setSummary(getString(R.string.pref_name_sum) + " " + username);
-       
+        oldUsername = prefs.getString(getString(R.string.pref_key_name), "");
+        
         String ringtonePath = prefs.getString(getString(R.string.pref_key_ringtone), "");
         Uri ringtoneUri = Uri.parse(ringtonePath);
         Ringtone ringtone = RingtoneManager.getRingtone(this.getActivity(), ringtoneUri);
@@ -48,9 +53,10 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
         Preference ringtonePref = findPreference(getString(R.string.pref_key_ringtone));
         ringtonePref.setSummary(getString(R.string.pref_ringtone_sum) + " " + ringtoneName);
         
-        String language = prefs.getString(getString(R.string.pref_key_lang), "");
+        String langCode = prefs.getString(getString(R.string.pref_key_lang), "");
         Preference langPref = findPreference(getString(R.string.pref_key_lang));
-        langPref.setSummary(getString(R.string.pref_lang_sum) + " " + language);
+        ListPreference langPrefList = (ListPreference) langPref;
+        langPref.setSummary(getString(R.string.pref_lang_sum) + " " + langPrefList.getEntry());
         
         String userId = prefs.getString(getString(R.string.pref_key_userid), getString(R.string.pref_userid_default));
         Preference useridPref = findPreference(getString(R.string.pref_key_userid));
@@ -58,13 +64,22 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
     }
 	
 	public String getUsername() {
-		return username;
+		return oldUsername;
 	}
 	public void setUsername(String username) {
-		this.username = username;
+		this.oldUsername = oldUsername;
 	}
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		//check that new name is valid
+		if (key.equals(getString(R.string.pref_key_name))) {
+			String newUsername = prefs.getString(getString(R.string.pref_key_name), "");
+			if (newUsername.length() == 0 ) {
+				Log.d(TAG, "Using old username " + oldUsername);
+				SharedPreferences.Editor prefEditor = prefs.edit();
+				prefEditor.putString(key, oldUsername).commit();
+			}
+		}
 		updateSummary();
 	}
 	

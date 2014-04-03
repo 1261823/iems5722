@@ -15,6 +15,7 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
 
+//shows private chat sessions
 public class SessionList extends ListFragment implements LoaderCallbacks<Cursor> {
 	private static final String TAG = "SessionList";
 	
@@ -25,10 +26,10 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		//Log.d(TAG, "onCreate");
 		Bundle arguments = getArguments();
 		if (arguments != null) {
-			mRowId = arguments.getLong(TblChat.MESSAGE_ID);
+			mRowId = arguments.getLong(TblUser.USER_UFI);
 		}
 		String[] from = new String[] {TblChat.USER_ID};
 		int[] to = new int[] {R.id.chat_peer};
@@ -39,7 +40,7 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 				+ " FROM " + TblChat.TABLE_CHAT + " INNER JOIN " + TblUser.TABLE_USER
 				+ " ON "  + TblChat.TABLE_CHAT  + "." + TblChat.USER_ID + " = " + TblUser.TABLE_USER + "." + TblUser.USER_ID
 				+ " GROUP BY " + TblChat.SESSION_ID;
-		Log.d(SessionList.class.getName(), sql);
+		//Log.d(SessionList.class.getName(), sql);
 		Cursor cursor = db.rawQuery(sql, null);
 		mAdapter = new SessionListAdapter(getActivity(), R.layout.chatlist_detail, cursor, from, to, 0);
 		setListAdapter(mAdapter);

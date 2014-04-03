@@ -24,7 +24,8 @@
 	        android:title="@string/pref_lang_title"
 	        android:summary="@string/pref_lang_sum"
 	        android:entries="@array/langEntries"
-	        android:entryValues="@array/langValues" >
+	        android:entryValues="@array/langValues" 
+	        android:defaultValue="@string/pref_lang_default">
 	    </ListPreference>
 	    <EditTextPreference
 	        android:key="@string/pref_key_userid"
@@ -32,7 +33,7 @@
 	        android:summary="@string/pref_userid_sum"
 	        android:enabled="false" 
     		android:selectable="true"	        
-	        android:defaultValue="" />
+	        android:defaultValue="@string/pref_userid_default" />
     <!-- <ListPreference
         android:dependency="pref_sync"
         android:key="pref_syncConnectionType"
