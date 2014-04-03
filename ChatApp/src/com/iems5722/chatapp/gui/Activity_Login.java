@@ -34,6 +34,7 @@ import android.widget.EditText;
 
 public class Activity_Login extends FragmentActivity implements OnSharedPreferenceChangeListener {
 	private static final String TAG = "Activity_Login";
+	final Context context = this;
 	
 	public static final String URI_USERNAME = "username";
 	private EditText login_username;
@@ -60,13 +61,21 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
         	Log.d(TAG, "received message");
         	switch (msg.what) {
         	case (WIFI_INACTIVE):
-        		//inform user that wifi inactive
-        		DialogFragment wifidialog = new DialogWifiAvailable();
-        		wifidialog.show(getSupportFragmentManager(), DialogWifiAvailable.TAG);
-        		break;
+        		createWifiDialog();
+    			break;
     		}
         }
 	};
+	
+	public void createWifiDialog() {
+		//inform user that wifi inactive
+		Intent iWifiDialog = new Intent(this, DialogWifiAvailable.class);
+    	iWifiDialog.addCategory(Intent.CATEGORY_LAUNCHER);
+    	iWifiDialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    	iWifiDialog.addFlags(Intent.FLAG_FROM_BACKGROUND);
+		//not sure if session information needs to be passed to intent
+		startActivity(iWifiDialog);
+	}
 
 	@Override
  	public void onCreate(Bundle savedInstanceState) {
@@ -165,7 +174,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 					if (username.length() > 0 ) {
 						//Log.d(TAG, "Entering chat");
 						updatePreference();
-						Intent intent = new Intent(getApplicationContext(), Activity_TabHandler.class);
+						Intent intent = new Intent(Activity_Login.this, Activity_TabHandler.class);
 						intent.putExtra(URI_USERNAME, username);
 						startActivity(intent);
 					}

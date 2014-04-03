@@ -91,9 +91,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 		
 		
 		//this crashes when i login so have disabled until stable
-	    //MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
-		//multicastReceiverAsyncTask.setContext(getApplicationContext());
-		//multicastReceiverAsyncTask.execute();
+	    MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
+		multicastReceiverAsyncTask.setContext(getApplicationContext());
+		multicastReceiverAsyncTask.execute();
 	}
 
 	private class SlidePagerAdapter extends FragmentPagerAdapter {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/user_ping"
+        android:title="@string/user_menu_ping" >
+    </item>
+	<item        
+	    android:id="@+id/user_chat"
+        android:title="@string/user_menu_chat" >
+	</item>
+</menu>

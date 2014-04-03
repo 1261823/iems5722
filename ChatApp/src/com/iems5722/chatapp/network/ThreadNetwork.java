@@ -38,6 +38,8 @@ public class ThreadNetwork extends Handler {
 	
 	//WiFi Parameters
 	NetworkInfo networkInfo = null;		
+	//monitoring network state
+	boolean monitoringNetwork = false;
 	
 	//commands recognised by udp service
 	public final static int NTWK_INIT = 0;	
@@ -62,6 +64,7 @@ public class ThreadNetwork extends Handler {
 			IntentFilter filter = new IntentFilter();
 			filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
 			mContext.registerReceiver(serviceBCR, filter);
+			monitoringNetwork = true;
 			break;
     	case NTWK_UPDATE:
     		Log.i(TAG, "Network Update");
@@ -69,7 +72,9 @@ public class ThreadNetwork extends Handler {
     		getWiFiDetails();
     		break;
     	case NTWK_SHUTDOWN:
-    		mContext.unregisterReceiver(serviceBCR);
+    		if (monitoringNetwork) {
+    			mContext.unregisterReceiver(serviceBCR);
+    		}
     		break;  		
     	default:
     		Log.e(TAG, "Unknown command: " + msg.what);
@@ -115,6 +120,8 @@ public class ThreadNetwork extends Handler {
     	 if (!wifiActive) {
     		 //inform service that wifi not functioning
     		 mServiceHandler.obtainMessage(ServiceNetwork.WIFI_INACTIVE).sendToTarget();
+    		 mContext.unregisterReceiver(serviceBCR);
+    		 monitoringNetwork = false;
     	 }
     	 return wifiActive; 
     }	
