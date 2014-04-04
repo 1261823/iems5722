@@ -9,24 +9,44 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
-public class MulticastReceiver extends Thread{
-	final static private String TAG = "MulticastReceiver";
+public class MulticastReceiver extends Handler{
+	public final static String TAG = "MulticastReceiver";
 	public final static int MULTI_PORT = 26669;
-	MulticastSocket multiSocket = null;
-	boolean socketOK = true;
-	static final int TOAST  = 2;
+	private MulticastSocket multiSocket = null;
+	private boolean socketOK = true;
 	
-	Context context;
-	Handler handler;
+	public final static int INITIAL_MUTLICAST = 1;
+	public final static int MULTICAST_LISTEN = 2;
 	
-	public MulticastReceiver(Context currentContext, Handler handler) {
+	private Context context;
+	private Looper looper;
+
+	public MulticastReceiver(Looper looper, Context currentContext) {
+		super(looper);
 		this.context = currentContext;
-		this.handler = handler;
-		
-		
-		
+		this.looper = looper;
+	}
+	
+	@Override
+	public void handleMessage(Message msg) {
+		switch(msg.what) {
+		case INITIAL_MUTLICAST :  
+			initialMulticast();
+			break;
+		case MULTICAST_LISTEN :
+			multicastListen();
+			break;
+			default: break;
+		}		
+	}
+	
+	
+	public void initialMulticast(){
+		Log.d(TAG, "initial multicast");
 		WifiManager wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
 	    MulticastLock mLock = wifi.createMulticastLock("mylock");
 	    mLock.acquire();
@@ -39,24 +59,23 @@ public class MulticastReceiver extends Thread{
 	    	 socketOK = false;
 	    	Log.e(TAG, "Multicast Receiver initial problem : " + e.getMessage());
 	    }
-	
-	
 	}
 	
-	@Override
-	public void run() {
+	public void	multicastListen() {
+			Log.d(TAG, "multicast listening");
+		
 			try {
-				Looper.prepare();
 				byte[] requestData = new byte[1024];
-
-				 while(true)
+		           
+				while(true)
 			       {
-			            DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length);
+					 	DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length);
 			            multiSocket.receive(requestPacket);
 
 			            String requestString = new String(requestPacket.getData(), 0, requestPacket.getLength());
-			            handler.obtainMessage(TOAST, requestString).sendToTarget();
+			            Toast.makeText(context, requestString, Toast.LENGTH_SHORT).show();
 			            Log.d(TAG,"Got Msg = "+ requestString); 
+			        
 			       }
 				
 			} catch (Exception e) {
@@ -64,9 +83,6 @@ public class MulticastReceiver extends Thread{
 			}finally{
 				closeSocket();
 			}
-	
-	
-				
 		
 	}
 	

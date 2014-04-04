@@ -1,16 +1,5 @@
 package com.iems5722.chatapp.gui;
 
-
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.database.UserSetInactive;
-import com.iems5722.chatapp.network.MulticastReceiverAsyncTask;
-import com.iems5722.chatapp.network.MulticastSenderAsyncTask;
-import com.iems5722.chatapp.network.ServiceNetwork;
-import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
-import com.iems5722.chatapp.network.ThreadNetwork;
-import com.iems5722.chatapp.network.ThreadUDPSend;
-import com.iems5722.chatapp.preference.Settings;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +9,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -35,6 +23,17 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.UserSetInactive;
+import com.iems5722.chatapp.network.MulticastService;
+import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
+import com.iems5722.chatapp.network.PeerFileService;
+import com.iems5722.chatapp.network.PeerFileService.PeerFileServiceBinder;
+import com.iems5722.chatapp.network.ServiceNetwork;
+import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
+import com.iems5722.chatapp.network.ThreadUDPSend;
+import com.iems5722.chatapp.preference.Settings;
 
 
 public class Activity_TabHandler extends FragmentActivity implements
@@ -54,9 +53,19 @@ public class Activity_TabHandler extends FragmentActivity implements
 	SessionList privateChat;
 	
 	//Networking service
-	ServiceNetwork NetworkService;
-	private Intent NetServiceIntent;
-	Handler ServiceHandler;
+	ServiceNetwork networkService;
+	private Intent netServiceIntent;
+	Handler serviceHandler;
+	
+	//Peer File Transfer service
+	PeerFileService peerFileService;
+	private Intent peerFileServiceIntent;
+	private Handler peerFileServiceHandler;
+	
+	//Peer File Transfer service
+	MulticastService multicastService;
+	private Intent multicastServiceIntent;
+	private Handler multicastServiceHandler;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -67,8 +76,19 @@ public class Activity_TabHandler extends FragmentActivity implements
 		privateChat = new SessionList();
 		
 		//create connections to service
-		NetServiceIntent = new Intent(this, ServiceNetwork.class);
-		bindService(NetServiceIntent, NetServiceConnection, Context.BIND_AUTO_CREATE);
+		netServiceIntent = new Intent(this, ServiceNetwork.class);
+		bindService(netServiceIntent, netServiceConnection, Context.BIND_AUTO_CREATE);
+		
+		//create Peer File Transfer service
+		peerFileServiceIntent = new Intent(this, PeerFileService.class);
+		startService(peerFileServiceIntent);
+		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
+		
+		//create Multicast Message service
+		multicastServiceIntent = new Intent(this, MulticastService.class);
+		startService(multicastServiceIntent);
+		bindService(multicastServiceIntent, multicastServiceConnection, Context.BIND_AUTO_CREATE);
+				
 		
 		setContentView(R.layout.activity_main);
 
@@ -86,18 +106,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		//actionBar.setDisplayShowHomeEnabled(false);	
 		//Note: this removes the action bar and preference menu
 		//actionBar.hide();
-		
-//		PeerFileReceiverAsyncTask peerFileReceiverAsyncTask = new PeerFileReceiverAsyncTask();
-//		peerFileReceiverAsyncTask.setContext(getApplicationContext());
-//		peerFileReceiverAsyncTask.execute();
-		
-		
-		//this crashes when i login so have disabled until stable
-	    MulticastReceiverAsyncTask multicastReceiverAsyncTask = new MulticastReceiverAsyncTask();
-		multicastReceiverAsyncTask.setContext(getApplicationContext());
-		multicastReceiverAsyncTask.execute();
 	}
-
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -161,20 +171,14 @@ public class Activity_TabHandler extends FragmentActivity implements
 		switch(buttonId) {
 		case(R.id.menu_chat_send):
 			
-//			PeerFileSenderAsyncTask peerFileSenderAsyncTask = new PeerFileSenderAsyncTask();
-//			peerFileSenderAsyncTask.setContext(getApplicationContext());
-//			peerFileSenderAsyncTask.execute();
 			//Send message to global chat
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
-			
-			MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
-			multicastSenderAsyncTask.setContext(getApplicationContext());
-			multicastSenderAsyncTask.setMsg(chatText.getText().toString());
-			multicastSenderAsyncTask.execute();
-		   	 
+		
+			multicastServiceHandler.obtainMessage(MulticastService.SEND_MSG, chatText.getText().toString()).sendToTarget();
+			 
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
-//			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
-//			NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
+			//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
+			//networkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -208,19 +212,45 @@ public class Activity_TabHandler extends FragmentActivity implements
 		}
 	}	
 
-	private ServiceConnection NetServiceConnection = new ServiceConnection() {
+	private ServiceConnection netServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			Log.d(TAG, "onServiceConnected");	
 			NetworkBinder networkBinder = (NetworkBinder) binder;
-			NetworkService = networkBinder.getService();
-			ServiceHandler = NetworkService.getServiceHandler();
+			networkService = networkBinder.getService();
+			serviceHandler = networkService.getServiceHandler();
 			initPreference();
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
 			Log.d(TAG, "onServiceDisconnected");				
 		}
-	};	
+	};
+	
+	private ServiceConnection peerFileServiceConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			Log.d(TAG, "onPeerFileServiceConnected");	
+			PeerFileServiceBinder peerFileServiceBinder = (PeerFileServiceBinder) binder;
+			peerFileService = peerFileServiceBinder.getService();
+			peerFileServiceHandler = peerFileService.getServiceHandler();
+		}
+		
+		public void onServiceDisconnected(ComponentName className) {
+			Log.d(TAG, "onPeerFileServiceDisconnected");				
+		}
+	};
+	
+	private ServiceConnection multicastServiceConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			Log.d(TAG, "onMulticastConnected");	
+			MulticastServiceBinder multicastServiceBinder = (MulticastServiceBinder) binder;
+			multicastService = multicastServiceBinder.getService();
+			multicastServiceHandler = multicastService.getServiceHandler();
+		}
+		
+		public void onServiceDisconnected(ComponentName className) {
+			Log.d(TAG, "onMulticastDisconnected");				
+		}
+	};
 
 	private void initPreference() {
 		//Log.d(TAG, "initPreference");
@@ -231,8 +261,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	@Override
 	public void onDestroy() {
 		//inform other users 
-		NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
-		unbindService(NetServiceConnection);
+		networkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
+		unbindService(netServiceConnection);
 		super.onDestroy();
 	}
 
@@ -245,7 +275,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 	private void readUsername(String key) {
 		msgUsername = prefs.getString(key, "");
-		NetworkService.setUsername(msgUsername);
+		networkService.setUsername(msgUsername);
 		pingAllUsers();
 	}
 	
@@ -255,9 +285,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 		setInactive.setContext(getApplicationContext());
 		setInactive.execute();
 		//check for new users
-		if (NetworkService != null && !msgUsername.isEmpty()) {
+		if (networkService != null && !msgUsername.isEmpty()) {
 			Log.d(TAG, "Pinging with username: " + msgUsername);
-			NetworkService.udpPingAll();
+			networkService.udpPingAll();
 		}
 	}
 }

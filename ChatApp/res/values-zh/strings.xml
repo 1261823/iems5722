@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- General Strings -->
+    <string name="app_name">傾計apps</string>
+    <string name="action_settings">設定</string>
+    <string name="yes">是</string>
+	<string name="no">否</string>
+	<string name="enter">進入</string>
+	<string name="send">傳送</string>
+	<string name="cancel">取消</string>
+	
+	<!-- Preference -->
+	<string name="pref_title">傾計設定</string>
+	<string name="pref_chat_setting_cat">Chat Setting</string>
+	<string name="pref_name_title">Name</string>
+	<string name="pref_name_sum">Your Username is: </string>
+	<string name="pref_vibrate_title">Vibrate</string>
+	<string name="pref_vibrate_sum">Phone vibrates on message received</string>
+	<string name="pref_ringtone_title">Notification Ringtone</string>
+	<string name="pref_ringtone_sum">Currently using: </string>
+	<string name="pref_lang_title">Language</string>
+	<string name="pref_lang_sum">Currently using: </string>
+	<string name="pref_lang_default">EN-US</string>
+	<string name="pref_userid_title">User Id</string>
+	<string name="pref_userid_sum">This is your ID: </string>
+	<string name="pref_userid_default">User Id Not Initialised</string>
+	
+	<string name="pref_key_name">pref_key_name</string>
+	<string name="pref_key_vibrate">pref_key_vibrate</string>
+	<string name="pref_key_ringtone">pref_key_ringtone</string>
+	<string name="pref_key_lang">pref_key_lang</string>
+	<string name="pref_key_userid">pref_key_userid</string>
+	
+	<!-- Optons menu -->
+	<string name="menu_pref">Preferences</string>		
+	<string name="menu_ping">Refresh Users</string>
+	<string name="menu_ping_toast">Refreshing Users</string>
+	
+	<!-- Log in screen -->
+	<string name="login_username">用戶名</string>
+	<string name="login_username_hint">請輸入用戶名</string>
+	<string name="login_btn_enter">開始傾</string>
+	<string name="login_username_empty">請最少輸入一個字母</string>
+
+	<!-- General Chat screen -->
+	<string name="chat_said"> said</string>
+	<string name="chat_empty">No chat history</string>
+	
+	<!-- Tab screen -->
+	<string name="tab_globalchat">大家傾</string>
+	<string name="tab_users">用戶</string>
+	<string name="tab_privatechat">私密傾</string>
+	
+	<!-- User tab -->
+	<string name="user_online_heading">在線用戶</string>
+	<string name="user_offline_heading">離線用戶</string>
+	<string name="user_online_none">冇在線用戶</string>
+	<string name="user_offline_none">冇離線用戶</string>
+	
+	<!-- User context menu items -->
+	<string name="user_menu_ping">Check if online</string>
+	<string name="user_menu_chat">Chat with user</string>
+	
+	<!-- Private chat tab -->
+	<string name="priv_chat_empty">No private conversations</string>
+	
+	<!-- Private chat screen -->
+	<string name="priv_chat_title">同傾計 </string>	
+	<string name="priv_chat_attach">傳送附件</string>	
+	
+	<!-- Attachment dialog -->
+	<string name="att_title">相</string>	
+	<string name="att_photo">相</string>	
+	<string name="att_audio">聲音</string>	
+	<string name="att_video">錄像</string>	
+	<string name="att_file">檔案</string>	
+
+	<!-- Wifi Dialog -->
+	<string name="dialog_wifi_title">WiFi Connection Required</string>
+	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
+	<string name="dialog_wifi_accept">Go to WiFi settings</string>
+	<string name="dialog_wifi_decline">Continue in offline mode</string>
+	
+	
+</resources>

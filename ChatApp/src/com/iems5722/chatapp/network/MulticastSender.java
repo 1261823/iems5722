@@ -6,28 +6,50 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 import android.content.Context;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-public class MulticastSender extends Thread{
-	final static private String TAG = "MulticastSender";
+public class MulticastSender extends Handler{
+	public final static  String TAG = "MulticastSender";
 	public final static int MULTI_PORT = 26669;
-	MulticastSocket multiSocket = null;
-	boolean socketOK = true;
-	private String msg;
+	private MulticastSocket multiSocket = null;
+	private boolean socketOK = true;
+		
+	private Context context;
+	private InetAddress group;
+	private Looper looper;
 	
-	Context context;
-	Handler handler;
-	InetAddress group;
+	public final static int INITIAL_MUTLICAST = 1;
+	public final static int SEND_MSG = 2;
 	
-	public MulticastSender(Context currentContext, String msg, Handler handler) {
+	public MulticastSender(Looper looper, Context currentContext) {
+		super(looper);
 		this.context = currentContext;
-		this.handler = handler;
-		this.msg = msg;
+		this.looper = looper;
+	}
+	
+	@Override
+	public void handleMessage(Message msg) {
+		switch(msg.what) {
+		case INITIAL_MUTLICAST :
+			 initialMulticast();		
+		     break;
+		case SEND_MSG :  
+			sendMulticastMsg((String)msg.obj);
+			break;
+			default: break;
+		}		
+	}
+	
+	
+	public void initialMulticast(){
+		Log.d(TAG, "inital multicast");
 		
 		WifiManager wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
 	    MulticastLock mLock = wifi.createMulticastLock("mylock");
@@ -41,39 +63,31 @@ public class MulticastSender extends Thread{
 	    }catch(Exception e){
 	    	socketOK = false;
 	    	Log.e(TAG, "Multicast Sender initial problem : " + e.getMessage());
-	    }finally{
-	    	
-	    	
-	    }
-	
-	
+	    }		
 	}
 	
-	@Override
-	public void run() {
-		Looper.prepare();
-			try {
-				String requestString = msg;
-				byte[] requestData = new byte[requestString.length()];
-				requestData = requestString.getBytes();
-				
-				DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, group, MULTI_PORT);
-		        multiSocket.send(requestPacket); 
-				
-			} catch (Exception e) {
-				Log.e(TAG, "problem when sending files " + e.getMessage());
-			}finally{
-				try{
-			    multiSocket.leaveGroup(group);
-				closeSocket();
-				}catch (Exception e){
-					Log.e(TAG, "error when leave group " + e.getMessage());
-				}
-					
+	public void sendMulticastMsg(String msg) {
+		Log.d(TAG, "send multicast msg");
+		
+		try {
+			String requestString = msg;
+			byte[] requestData = new byte[requestString.length()];
+			requestData = requestString.getBytes();
+			
+			DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, group, MULTI_PORT);
+	        multiSocket.send(requestPacket); 
+			
+		} catch (Exception e) {
+			Log.e(TAG, "problem when sending files " + e.getMessage());
+		}finally{
+			try{
+		    multiSocket.leaveGroup(group);
+			closeSocket();
+			}catch (Exception e){
+				Log.e(TAG, "error when leave group " + e.getMessage());
 			}
-	
-	
 				
+		}
 		
 	}
 	

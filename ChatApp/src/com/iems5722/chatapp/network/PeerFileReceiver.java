@@ -1,21 +1,25 @@
 package com.iems5722.chatapp.network;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
+
 import android.content.Context;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
-public class PeerFileReceiver extends Thread {
-	final static private String TAG = "PeerFileReceiver";
+public class PeerFileReceiver extends Handler {
+	public final static String TAG = "PeerFileReceiver";
 	public final static int TCP_PORT = 6669;
 	ServerSocket serverSocket = null;
 	boolean socketOK = true;
@@ -26,26 +30,42 @@ public class PeerFileReceiver extends Thread {
 	
 	private Context context;
 	private Handler handler;
+
+	public final static int INITIAL_TCP_PORT  = 1;
+	public final static int TCP_LISTEN = 2;
 	
 	
-	
-	public PeerFileReceiver(Context currentContext, Handler handler) {
+	public PeerFileReceiver(Looper looper, Context currentContext) {
 		this.context = currentContext;
-		this.handler = handler;
+	}
+	
+	@Override
+	public void handleMessage(Message msg) {
+		switch(msg.what) {
+			case INITIAL_TCP_PORT :  
+							 initialTcpPort();
+							 break;
+			case TCP_LISTEN :
+							 tcpListen(); 
+							 break;
+			default: break;
+		}
+		
+	}
+	
+	public void initialTcpPort(){
 		try {
-			serverSocket = new ServerSocket(TCP_PORT);
-			
+			serverSocket = new ServerSocket(TCP_PORT);			
 			socketOK = true;
 		}
 		catch (IOException e) {
 			Log.e(TAG, "Cannot open socket " + e.getMessage());
 			socketOK = false;
 			return;
-		}
+		}		
 	}
 	
-	@Override
-	public void run() {
+	public void tcpListen() {
 			
 		while(socketOK) {
 			try {
@@ -55,9 +75,14 @@ public class PeerFileReceiver extends Thread {
 				Socket receiveSocket = serverSocket.accept();
 				in = new BufferedReader(new InputStreamReader(receiveSocket.getInputStream()));
 				String lineStr = in.readLine();*/
-				
+				Log.d(TAG, "Peer file receiver listening");
+		
 				byte[] headerByteArray = new byte[HEADER_SIZE];
+				
 				Socket receiveSocket = serverSocket.accept();
+				
+				Log.d(TAG, "Incoming TCP accepted");
+				
 				InputStream inputStream = receiveSocket.getInputStream();
 				inputStream.read(headerByteArray, 0, HEADER_SIZE);
 				
@@ -75,7 +100,7 @@ public class PeerFileReceiver extends Thread {
 				byte[] fileByteArray = new byte[filesize];
 				Log.d(TAG, "File comes");
 
-				File newFile = new File(SD_CARD_PATH+filename);
+				File newFile = new File(Environment.getExternalStorageDirectory(),filename);
 				FileOutputStream fos = new FileOutputStream(newFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				

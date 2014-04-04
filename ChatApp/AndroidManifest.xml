@@ -60,5 +60,13 @@
         		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
         	</intent-filter>
         </service>
+        <service android:name=".network.PeerFileService"
+			android:exported="false"
+    		>    		
+        </service>
+        <service android:name=".network.MulticastService"
+			android:exported="false"
+    		>    		
+        </service>
     </application>
 </manifest>
