@@ -20,6 +20,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -43,6 +44,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 
 	//Preferences
 	private SharedPreferences prefs;	
+	private String msgUsername;
 	
 	private ViewPager mViewPager;
 	private SlidePagerAdapter mPagerAdapter;
@@ -78,7 +80,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);		
 		
-		
 		//this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//final ActionBar actionBar = getActionBar();
 		//actionBar.setDisplayShowTitleEnabled(false);
@@ -97,6 +98,13 @@ public class Activity_TabHandler extends FragmentActivity implements
 		multicastReceiverAsyncTask.execute();
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		//ping for users if possible
+		pingAllUsers();
+	}
+	
 	private class SlidePagerAdapter extends FragmentPagerAdapter {
 		SparseArray<Fragment> registeredFragment = new SparseArray<Fragment>();
 		public SlidePagerAdapter(FragmentManager fm) {
@@ -165,8 +173,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 			multicastSenderAsyncTask.execute();
 		   	 
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
-			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
-			NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
+//			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
+//			NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -186,13 +194,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_ping:
-			//set all users to offline then wait for response to confirm user still online
-			UserSetInactive setInactive = new UserSetInactive();
-			setInactive.setContext(getApplicationContext());
-			setInactive.execute();
-			
 			//check for new users
-			NetworkService.udpPingAll();
+			pingAllUsers();
 			Toast.makeText(this, R.string.menu_ping_toast, Toast.LENGTH_SHORT).show();
 			return true;		
 		case R.id.menu_pref:
@@ -227,6 +230,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 	@Override
 	public void onDestroy() {
+		//inform other users 
+		NetworkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
 		unbindService(NetServiceConnection);
 		super.onDestroy();
 	}
@@ -239,7 +244,20 @@ public class Activity_TabHandler extends FragmentActivity implements
 	}
 	
 	private void readUsername(String key) {
-		String msgUsername = prefs.getString(key, "");
-		ServiceHandler.obtainMessage(ServiceNetwork.PREF_NAME, msgUsername).sendToTarget();
+		msgUsername = prefs.getString(key, "");
+		NetworkService.setUsername(msgUsername);
+		pingAllUsers();
+	}
+	
+	private void pingAllUsers() {
+		//set all users to offline then wait for response to confirm user still online
+		UserSetInactive setInactive = new UserSetInactive();
+		setInactive.setContext(getApplicationContext());
+		setInactive.execute();
+		//check for new users
+		if (NetworkService != null && !msgUsername.isEmpty()) {
+			Log.d(TAG, "Pinging with username: " + msgUsername);
+			NetworkService.udpPingAll();
+		}
 	}
 }

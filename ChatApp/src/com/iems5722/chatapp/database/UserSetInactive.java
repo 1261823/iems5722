@@ -23,9 +23,9 @@ public class UserSetInactive extends AsyncTask<Void, Void, Void> {
 		Log.i(TAG, "Setting users to inactive");
 		ContentValues values = new ContentValues();
 		values.put(TblUser.STATUS, TblUser.STAT_OFF);
-		
-		int count = context.getContentResolver().update(DbProvider.USER_URI, values, null, null);
-		if (count != 1) {
+		int count = -1;
+		count = context.getContentResolver().update(DbProvider.USER_URI, values, null, null);
+		if (count == -1) {
 			throw new IllegalStateException("Unable to update");
 		}
 		return null;

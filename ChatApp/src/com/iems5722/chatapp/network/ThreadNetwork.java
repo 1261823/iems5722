@@ -40,17 +40,20 @@ public class ThreadNetwork extends Handler {
 	NetworkInfo networkInfo = null;		
 	//monitoring network state
 	boolean monitoringNetwork = false;
+	IntentFilter filter;
 	
 	//commands recognised by udp service
-	public final static int NTWK_INIT = 0;	
-	public final static int NTWK_UPDATE = 1;
-	public final static int NTWK_SHUTDOWN = 2;
+	public final static int NTWK_START_MONITOR = 0;
+	public final static int NTWK_STOP_MONITOR = 1;
+	public final static int NTWK_UPDATE = 2;
 	
 	public ThreadNetwork (Looper looper, Context serviceContext, ServiceHandler serviceHandler) {
 		super(looper);
 		Log.i(TAG, "Creating Network Monitoring Thread");
 		mContext = serviceContext;
 		mServiceHandler = serviceHandler;
+		filter = new IntentFilter();
+		filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
 		handlerReady = true;
 	}
 	
@@ -58,24 +61,25 @@ public class ThreadNetwork extends Handler {
 	public void handleMessage(Message msg) {
 		//Log.i(TAG, "handling message");
     	switch (msg.what) {
-        case NTWK_INIT:
-        	Log.i(TAG, "Network Init");
-			//register to listen for network change event
-			IntentFilter filter = new IntentFilter();
-			filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-			mContext.registerReceiver(serviceBCR, filter);
-			monitoringNetwork = true;
-			break;
+        case NTWK_START_MONITOR:
+        	Log.i(TAG, "NTWK_START_MONITOR");
+        	if (!monitoringNetwork) {
+        		mContext.registerReceiver(serviceBCR, filter);
+        		monitoringNetwork = true;
+        	}
+        	break;
+        case NTWK_STOP_MONITOR:
+        	Log.i(TAG, "NTWK_STOP_MONITOR");
+    		if (monitoringNetwork) {
+    			mContext.unregisterReceiver(serviceBCR);
+    			monitoringNetwork = false;
+    		}
+        	break;
     	case NTWK_UPDATE:
-    		Log.i(TAG, "Network Update");
+    		Log.i(TAG, "NTWK_UPDATE");
     		checkWifiActive();
     		getWiFiDetails();
     		break;
-    	case NTWK_SHUTDOWN:
-    		if (monitoringNetwork) {
-    			mContext.unregisterReceiver(serviceBCR);
-    		}
-    		break;  		
     	default:
     		Log.e(TAG, "Unknown command: " + msg.what);
     	}	
@@ -120,8 +124,6 @@ public class ThreadNetwork extends Handler {
     	 if (!wifiActive) {
     		 //inform service that wifi not functioning
     		 mServiceHandler.obtainMessage(ServiceNetwork.WIFI_INACTIVE).sendToTarget();
-    		 mContext.unregisterReceiver(serviceBCR);
-    		 monitoringNetwork = false;
     	 }
     	 return wifiActive; 
     }	

@@ -40,6 +40,8 @@ public class ServiceNetwork extends Service {
 	public ThreadUDPRecv udpRecvHandler;	
 	
 	//Network parameters used by all threads
+	//own username
+	static String		username;
 	//WiFi Parameters
 	static int 			intIPAddress;
 	static InetAddress 	inetIPAddress;
@@ -109,24 +111,21 @@ public class ServiceNetwork extends Service {
 	    		udpRecvThread.start();
 	    		looperUDPRecv = udpRecvThread.getLooper();
 	    		udpRecvHandler = new ThreadUDPRecv(looperUDPRecv, getApplicationContext(), mServiceHandler);
-	    		
 	    		//get threads to do work
-	    		networkHandler.obtainMessage(ThreadNetwork.NTWK_INIT).sendToTarget();
+	    		networkHandler.obtainMessage(ThreadNetwork.NTWK_START_MONITOR).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_INIT).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_LISTEN).sendToTarget();
 	    		break;
         	case(WIFI_INACTIVE):
         		//inform UI thread that wifi is disconnected
         		UIhandler.obtainMessage(Activity_Login.WIFI_INACTIVE).sendToTarget();
+   		 		//stop monitoring to avoid repeat dialogs
+        		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
         		break;
         	case(SEND_PING_ACK):
         		//get udp thread to send ack to host
         		InetAddress pingTo = (InetAddress) msg.obj;
         		udpSendHandler.obtainMessage(ThreadUDPSend.PING_ACKNOWLEDGE, pingTo).sendToTarget();
-        		break;
-        	case(PREF_NAME):
-        		//update username in messages
-        		udpSendHandler.obtainMessage(ThreadUDPSend.PREF_UPDATE_USER, msg.obj).sendToTarget();
         		break;
         	}
     	}
@@ -153,7 +152,7 @@ public class ServiceNetwork extends Service {
 	@Override
 	public void onDestroy() {
 		//Log.d(TAG, "onDestroy");
-		networkHandler.obtainMessage(ThreadNetwork.NTWK_SHUTDOWN).sendToTarget();
+		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
 		stopSelf();
 	}		
 	
@@ -171,7 +170,7 @@ public class ServiceNetwork extends Service {
 
 	public void udpPingAll() {
 		//Log.d(TAG, "Recv Ping Request All");
-		if(WiFiConnected) {
+		if(WiFiConnected && !username.isEmpty()) {
 			udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 		}
 	}
@@ -187,5 +186,10 @@ public class ServiceNetwork extends Service {
 			return MACAddress;
 		}
 		return null;
+	}
+	
+	public void setUsername(String username) {
+		this.username = username;
+		udpSendHandler.obtainMessage(ThreadUDPSend.PREF_UPDATE_USER, username).sendToTarget();
 	}
 }

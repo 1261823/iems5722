@@ -29,6 +29,7 @@ public class ThreadUDPSend extends Handler {
 	public final static int     PING_REQUEST_ONE = 2;	
 	public final static int     PING_ITERATE_ALL = 3;
 	public final static int     PING_ACKNOWLEDGE = 4;
+	public final static int     SIGN_OUT    = 5;
 	public final static int		PREF_UPDATE_USER = 10;
 	
 	public ThreadUDPSend(Looper looper, Context serviceContext) {
@@ -83,6 +84,12 @@ public class ThreadUDPSend extends Handler {
 	    		Log.i(TAG, "ACK " + peerAddress + " " + outMessage);	        		
 	        	udpSendMessage(outMessage, peerAddress);					
 				break;
+			case SIGN_OUT:
+				Log.d(TAG, "SIGN_OUT");
+				outMessage = msgBuilder.messageCreate(MessageBuilder.SIGN_OUT, username);
+	    		Log.i(TAG, "SO " + ServiceNetwork.BroadcastAddress + " " + outMessage);	        		
+	    		udpSendMessage(outMessage, ServiceNetwork.BroadcastAddress);
+				break;
 			case PREF_UPDATE_USER:
 				username = (String) msg.obj;
 				Log.d(TAG, "New username set: " + username);
@@ -93,18 +100,24 @@ public class ThreadUDPSend extends Handler {
 	}	
 
 	public void udpSendMessage(String msg, InetAddress peerInetAddress) {
-		byte[] sendData  = new byte[1024]; 
-		sendData = msg.getBytes(); 
-		InetAddress peerAddress = peerInetAddress;
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, peerAddress, ServiceNetwork.UDP_PORT);
-		try {
-			ServiceNetwork.serverSocket.send(sendPacket);
-		} catch (IOException e) {
-    		Log.e(TAG,"Cannot send message "+ e.getMessage());
-    		Log.e(TAG, "Error message " + e);
-    		e.printStackTrace();
+		//username cannot be empty
+		if (!username.isEmpty()) {
+			byte[] sendData  = new byte[1024]; 
+			sendData = msg.getBytes(); 
+			InetAddress peerAddress = peerInetAddress;
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, peerAddress, ServiceNetwork.UDP_PORT);
+			try {
+				ServiceNetwork.serverSocket.send(sendPacket);
+			} catch (IOException e) {
+	    		Log.e(TAG,"Cannot send message "+ e.getMessage());
+	    		Log.e(TAG, "Error message " + e);
+	    		e.printStackTrace();
+			}
+	        Log.i(TAG,"Sent packet: " + msg);	
 		}
-        Log.i(TAG,"Sent packet: " + msg);		
+		else {
+			Log.d(TAG, "Cannot send message with no username");
+		}
 	}
 	
 	public void udpSendMessage(String msg, String peerStrAddress) {

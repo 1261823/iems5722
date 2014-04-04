@@ -110,20 +110,8 @@ public class ThreadUDPRecv extends Handler {
 		    			Log.i(TAG,  "Ping received");
 		    			//tell service to send ping ack back to user
 		    			mServiceHandler.obtainMessage(ServiceNetwork.SEND_PING_ACK, sourceIPAddress).sendToTarget();	
-		    			//TODO add user to database
-		    			updateUser(message);
 		        	}
-		    		else if (msgType.equals(MessageBuilder.PING_ACK_MSG)) {
-		    			Log.i(TAG,  "Ack received");			        
-		    			updateUser(message);
-		        		//TODO set user to active
-		    			
-		        		//TODO AddTestNewUser(message, sourceIPAddress);
-		    		}
-		        	else {
-		        		Log.e(TAG, "Uknown message: " + message);
-		        		
-		        	}		    			
+	    			updateUser(message);
 		        }
 			}
 			catch (Exception e) {
@@ -149,8 +137,13 @@ public class ThreadUDPRecv extends Handler {
 		values.put(TblUser.USER_ID, msgUser);
 		values.put(TblUser.USER_NAME, msgContent);
 		values.put(TblUser.IP_ADDR_INT, 0);
-		values.put(TblUser.IP_ADDR_STR, sourceIPAddress.toString());		
-		values.put(TblUser.STATUS, TblUser.STAT_ON);
+		values.put(TblUser.IP_ADDR_STR, sourceIPAddress.toString());
+		if (msgType.equals(MessageBuilder.SIGN_OUT)) {
+			values.put(TblUser.STATUS, TblUser.STAT_OFF);
+		}
+		else {
+			values.put(TblUser.STATUS, TblUser.STAT_ON);
+		}
 		values.put(TblUser.USER_DATETIME, curDateTimeMS);
 		
 		
