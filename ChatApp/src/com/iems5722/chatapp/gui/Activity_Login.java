@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.UserSetInactive;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.preference.Settings;
@@ -91,6 +92,11 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		loadPreference();
 		prefs.registerOnSharedPreferenceChangeListener(this);
+		
+		//reset user status
+		UserSetInactive setInactive = new UserSetInactive();
+		setInactive.setContext(getApplicationContext());
+		setInactive.execute();
 	}
 	
 	private void loadPreference() {

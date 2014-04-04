@@ -178,6 +178,9 @@ public class DbProvider extends ContentProvider{
 		int uriType = sURIMatcher.match(uri);
 		int count;
 		switch(uriType) {
+			case USER_LIST:
+				count = database.getWritableDatabase().update(TblUser.TABLE_USER, values, null, null);
+				break;
 			case USER_ITEM:
 				count = database.getWritableDatabase().update(TblUser.TABLE_USER, values, TblUser.USER_UFI + "=?",
 					    new String[] {Long.toString(ContentUris.parseId(uri))});

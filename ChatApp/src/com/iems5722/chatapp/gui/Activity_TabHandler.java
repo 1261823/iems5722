@@ -2,6 +2,7 @@ package com.iems5722.chatapp.gui;
 
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.UserSetInactive;
 import com.iems5722.chatapp.network.MulticastReceiverAsyncTask;
 import com.iems5722.chatapp.network.MulticastSenderAsyncTask;
 import com.iems5722.chatapp.network.ServiceNetwork;
@@ -185,6 +186,11 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_ping:
+			//set all users to offline then wait for response to confirm user still online
+			UserSetInactive setInactive = new UserSetInactive();
+			setInactive.setContext(getApplicationContext());
+			setInactive.execute();
+			
 			//check for new users
 			NetworkService.udpPingAll();
 			Toast.makeText(this, R.string.menu_ping_toast, Toast.LENGTH_SHORT).show();

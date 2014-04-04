@@ -157,6 +157,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			int colUsername   = cursor.getColumnIndex(TblUser.USER_NAME);
 			String username = cursor.getString(colUsername);
 			actionBar = getActionBar();
+			actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.android_blue));
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayShowHomeEnabled(false);	
 			actionBar.setTitle(getString(R.string.priv_chat_title) + " " + username);
