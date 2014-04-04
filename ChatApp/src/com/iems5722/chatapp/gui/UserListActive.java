@@ -30,7 +30,7 @@ public class UserListActive extends ListFragment implements LoaderCallbacks<Curs
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		//Log.d(TAG, "onCreate");
 		String[] from = new String[] {TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
 		int[] to = new int[] {R.id.user_name, R.id.user_status};
 		mAdapter = new UserListAdapter(getActivity(), R.layout.userlist_detail, null, from, to, 0);
@@ -47,14 +47,14 @@ public class UserListActive extends ListFragment implements LoaderCallbacks<Curs
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		Log.d(TAG, "onViewCreated");
+		//Log.d(TAG, "onViewCreated");
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.user_online_none));
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-		Log.d(TAG, "onCreateLoader");
+		//Log.d(TAG, "onCreateLoader");
 		String[] column = {TblUser.USER_UFI, TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
 		String selection = TblUser.STATUS + " = ?";
 		String[] selectArgs = {"online"};
@@ -63,13 +63,13 @@ public class UserListActive extends ListFragment implements LoaderCallbacks<Curs
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		Log.d(TAG, "onLoadFinished");			
+		//Log.d(TAG, "onLoadFinished");			
 		mAdapter.swapCursor(cursor);		
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		Log.d(TAG, "onLoaderReset");
+		//Log.d(TAG, "onLoaderReset");
 		mAdapter.swapCursor(null);		
 	}
 	

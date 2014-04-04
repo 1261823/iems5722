@@ -1,14 +1,10 @@
 package com.iems5722.chatapp.gui;
 
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblUser;
-import com.iems5722.chatapp.preference.Settings;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -23,7 +19,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class Activity_PrivateChat extends FragmentActivity implements 
@@ -183,4 +178,6 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	public void onLoaderReset(Loader<Cursor> loader) {
 		//not used
 	}
+
+	
 }
