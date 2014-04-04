@@ -24,7 +24,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class UserListActive extends ListFragment implements LoaderCallbacks<Cursor> {
 	private static final String TAG = "UserListActive";
 
-	private long mRowId;	
 	private UserListAdapter mAdapter;
 	String sortOrder = TblUser.USER_NAME;
 	
@@ -32,11 +31,6 @@ public class UserListActive extends ListFragment implements LoaderCallbacks<Curs
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-		Bundle arguments = getArguments();
-		if (arguments != null) {
-			mRowId = arguments.getLong(TblUser.USER_UFI);
-		}		
-		
 		String[] from = new String[] {TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
 		int[] to = new int[] {R.id.user_name, R.id.user_status};
 		mAdapter = new UserListAdapter(getActivity(), R.layout.userlist_detail, null, from, to, 0);
@@ -64,7 +58,6 @@ public class UserListActive extends ListFragment implements LoaderCallbacks<Curs
 		String[] column = {TblUser.USER_UFI, TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
 		String selection = TblUser.STATUS + " = ?";
 		String[] selectArgs = {"online"};
-		
 		return new CursorLoader(getActivity(), DbProvider.USER_URI, column, selection, selectArgs, sortOrder);
 	}
 

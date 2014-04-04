@@ -71,5 +71,7 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		mAdapter.swapCursor(null);		
 	}
+	
+
 
 }

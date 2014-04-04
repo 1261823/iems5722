@@ -158,10 +158,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 			//Send message to global chat
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
 			
-		//	MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
-		//	multicastSenderAsyncTask.setContext(getApplicationContext());
-		//	multicastSenderAsyncTask.setMsg(chatText.getText().toString());
-		//	multicastSenderAsyncTask.execute();
+			MulticastSenderAsyncTask multicastSenderAsyncTask = new MulticastSenderAsyncTask();
+			multicastSenderAsyncTask.setContext(getApplicationContext());
+			multicastSenderAsyncTask.setMsg(chatText.getText().toString());
+			multicastSenderAsyncTask.execute();
 		   	 
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 			NetworkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();

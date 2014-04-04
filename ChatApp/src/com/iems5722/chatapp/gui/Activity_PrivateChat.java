@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.preference.Settings;
 
@@ -29,33 +30,70 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	FragmentChatMenu.OnButtonClickListener,
 	LoaderCallbacks<Cursor> {
 	public final static String TAG = "Activity_PrivateChat";
-	private long dbPUFI;
 	private ActionBar actionBar;
+
+	
+	//loader types
+	final static int LOAD_USER = 0;
+	final static int LOAD_SESSION = 1;
+	Loader<Cursor> LOADER_USER;
+	Loader<Cursor> LOADER_SERSSION;
+	
 	// peer details
-	private InetAddress peerIdAddress;
+	private String peerIdAddress;
+	//user identifer
+	private long dbPUFI = -1;
+	private String dbPID = "";
+	//session id
+	private String dbSessionId = "";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Bundle arguments = getIntent().getExtras();
 		if (arguments != null) {
-			dbPUFI = arguments.getLong(TblUser.USER_UFI);				
+			if (getIntent().hasExtra(TblUser.USER_UFI)) {
+				dbPUFI = arguments.getLong(TblUser.USER_UFI);
+			}
+			if (getIntent().hasExtra(TblChat.SESSION_ID)) {
+				dbSessionId = arguments.getString(TblChat.SESSION_ID);
+			}
+			// test at least one id value is available
+			if (dbPUFI == -1 && dbSessionId.isEmpty()) {
+				Log.e(TAG, "Entered private chat with no id");
+			}
 			setContentView(R.layout.frame_chatdetail);
 			if (findViewById(R.id.layout_details) != null) {
 				if (savedInstanceState != null) {
 	                return;
 	            }
-				//!!!TODO!!! private chat session not done yet!!! using session list as placeholder
-				SessionList chatSession = new SessionList();
-				FragmentChatMenu chatMenu = new FragmentChatMenu();
+				// Need to give session id into private chat list to load history
+				// two entry points to this activity
+				// 1. by tapping on user's name. Has USER UFI, need to find USER ID
+				// 2. by clicking on an existing chat session. Has SESSION ID --> USER ID
+				// 
 				
-				chatSession.setArguments(getIntent().getExtras());
-				chatMenu.setArguments(getIntent().getExtras());
+				if (dbPUFI != -1) {
+					// handle scenario 1 where only user ufi is known
+					Log.d(TAG, "No session id");
+					getSupportLoaderManager().initLoader(LOAD_USER, arguments, this);
+				} else {
+					// handle scenario 2 where session id and user id is known
+					dbPID = dbSessionId;
+					arguments.putString(TblChat.SESSION_ID, dbSessionId);
+				}
+				
+
+				//!!!TODO!!! private chat session not done yet!!! using session list as placeholder
+				//fragments in activity
+				PrivateChatList chatSession = new PrivateChatList(); 
+				FragmentChatMenu chatMenu = new FragmentChatMenu();
+				chatSession.setArguments(arguments);
 				
 				getSupportFragmentManager().beginTransaction().add(R.id.layout_details, chatSession).commit();
 				getSupportFragmentManager().beginTransaction().add(R.id.layout_menu, chatMenu).commit();
+								
 				
-				getSupportLoaderManager().initLoader(0, arguments, this);
 			}
 		}
 		else {
@@ -104,11 +142,12 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 		dbPUFI = bundle.getLong(TblUser.USER_UFI);	
-		Log.d(TAG, "Creating cursor looking for " + Long.toString(dbPUFI));
-		String[] column = {TblUser.USER_UFI, TblUser.USER_ID, TblUser.USER_NAME, TblUser.IP_ADDR_STR};
+		Log.d(TAG, "Creating cursor looking for user " + Long.toString(dbPUFI));
+		String[] column = {TblUser.USER_UFI, TblUser.USER_ID, TblUser.USER_NAME, TblUser.IP_ADDR_STR};;
 		String selection = TblUser.USER_UFI + " = ?";
 		String[] selectArgs = {Long.toString(dbPUFI)};
-		return new CursorLoader(this, DbProvider.USER_URI, column, selection, selectArgs, null);
+		LOADER_USER = new CursorLoader(this, DbProvider.USER_URI, column, selection, selectArgs, null);
+		return LOADER_USER;
 	}
 
 	@Override
@@ -120,25 +159,27 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			actionBar = getActionBar();
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setDisplayShowHomeEnabled(false);	
-			actionBar.setTitle(getString(R.string.priv_chat_title) + username);
+			actionBar.setTitle(getString(R.string.priv_chat_title) + " " + username);
 			//Note: this removes the action bar and preference menu
 			//actionBar.hide();
 			
-			int colPeerIP = cursor.getColumnIndex(TblUser.IP_ADDR_STR);
-			Toast.makeText(this, "communicating with "+ cursor.getString(colPeerIP), Toast.LENGTH_SHORT).show();
-			/* TODO put this as async task
-			try {
-				peerIdAddress = InetAddress.getByName(cursor.getString(colPeerIP));
-			} catch (UnknownHostException e) {
-				Log.e(TAG, "Error getting IP address of peer");
-				e.printStackTrace();
-			}
-			*/
+			int colIPAddress = cursor.getColumnIndex(TblUser.IP_ADDR_STR);
+			peerIdAddress = cursor.getString(colIPAddress);
+			Toast.makeText(this, "communicating with "+ peerIdAddress, Toast.LENGTH_SHORT).show();
+			
+			int colUserId = cursor.getColumnIndex(TblUser.USER_ID);
+			dbPID = cursor.getString(colUserId);
+			dbSessionId = dbPID;
+			Toast.makeText(this, "Session Id "+ dbSessionId, Toast.LENGTH_SHORT).show();
+			
+			//update fragment
+			PrivateChatList chatSession = (PrivateChatList) getSupportFragmentManager().findFragmentById(R.id.layout_details);
+			chatSession.setSessionId(dbSessionId);
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 		//not used
 	}
 }

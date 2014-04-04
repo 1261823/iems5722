@@ -16,7 +16,7 @@ public class TblChat {
 	private static final String DATABASE_CREATE = "CREATE TABLE  IF NOT EXISTS " 
 			+ TABLE_CHAT + " ("
 			+ MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-			+ SESSION_ID + " INTEGER NOT NULL, " 
+			+ SESSION_ID + " TEXT NOT NULL, " // for simplicity the other user's id is the session id
 			+ USER_ID + " TEXT NOT NULL,  "
 			+ MESSAGE + " BLOB NOT NULL, "
 			+ MSG_DATETIME + " INTEGER NOT NULL);" ; 
