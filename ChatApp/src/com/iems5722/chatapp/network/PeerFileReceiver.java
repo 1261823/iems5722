@@ -7,10 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Calendar;
 
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.gui.Activity_PrivateChat;
 import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -110,6 +115,7 @@ public class PeerFileReceiver extends Handler {
 				if (firstParam.equals(PeerFileService.MSG_TYPE_CHAT)){
 					String chatMsg = secondParam;
 					Log.d(TAG, "Received Chat Msg: " + chatMsg);
+					updatePrivateMsg(chatMsg);
 					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, chatMsg);					
 				}else{//assume other type must be file
 					int filesize = Integer.parseInt(secondParam);
@@ -147,12 +153,33 @@ public class PeerFileReceiver extends Handler {
 				inputStream.close();
 				receiveSocket.close();
 				
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, "Problem when receiving files " + e.getMessage());
 				socketOK = false;
 				closeSocket();
 			}
 		}
+	}
+	
+	public void updatePrivateMsg(String message) throws Exception{
+    	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
+    	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
+    	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
+    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
+    	
+    	Calendar c = Calendar.getInstance();
+		long curDateTimeMS = c.getTimeInMillis();     	
+    	    	
+		ContentValues values = new ContentValues();
+		values.put(TblChat.USER_ID, msgUser);
+		values.put(TblChat.MESSAGE, msgContent);
+		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
+		values.put(TblChat.SESSION_ID, chatSessionId);
+		//add new user
+		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
+		Log.d(TAG, "Added new private message " + itemUri.toString());    	
 	}
 	
 	public void closeSocket()

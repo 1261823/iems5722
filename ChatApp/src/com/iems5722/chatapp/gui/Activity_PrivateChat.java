@@ -132,6 +132,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			TcpAttachMsgVO chatMsgVO = new TcpAttachMsgVO();
 			chatMsgVO.setUserIp(ipAddress);
 			chatMsgVO.setChatMsg(chatText.getText().toString());
+			chatMsgVO.setChatSessionId(dbSessionId);
 		
 			peerFileService.getPeerFileSender().obtainMessage(PeerFileSender.SEND_MSG, chatMsgVO).sendToTarget();
 			Toast.makeText(this, "Sent private message to " + peerIdAddress, Toast.LENGTH_SHORT).show();
@@ -246,7 +247,8 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	@Override
 	public void onDestroy() {
 		unbindService(peerFileServiceConnection);
-		stopService(peerFileServiceIntent);		
+		stopService(peerFileServiceIntent);	
+		super.onDestroy();
 	}
 	
 	

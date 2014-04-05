@@ -50,16 +50,18 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 		int colTimestamp = c.getColumnIndex(TblChat.MSG_DATETIME);
 		int colLastMsg   = c.getColumnIndex(TblChat.MESSAGE);
 		
-		String username   = c.getString(colUsername);	
-		int timestamp     = c.getInt(colTimestamp);
-		String lastonline = c.getString(colLastMsg);
-		
-		TextView disp_peername  = (TextView) v.findViewById(R.id.chat_peer);
-		TextView disp_timestamp = (TextView) v.findViewById(R.id.chat_timestamp);
-		TextView disp_lastmsg   = (TextView) v.findViewById(R.id.chat_lastmessage);
-
-		disp_peername.setText(username);
-		disp_timestamp.setText(Integer.toString(timestamp));
-		disp_lastmsg.setText(lastonline);
+		if (colUsername!=-1 && colTimestamp!=-1 && colLastMsg !=-1){
+			String username   = c.getString(colUsername);	
+			int timestamp     = c.getInt(colTimestamp);
+			String lastonline = c.getString(colLastMsg);
+			
+			TextView disp_peername  = (TextView) v.findViewById(R.id.chat_peer);
+			TextView disp_timestamp = (TextView) v.findViewById(R.id.chat_timestamp);
+			TextView disp_lastmsg   = (TextView) v.findViewById(R.id.chat_lastmessage);
+	
+			disp_peername.setText(username);
+			disp_timestamp.setText(Integer.toString(timestamp));
+			disp_lastmsg.setText(lastonline);
+		}
 	}
 }

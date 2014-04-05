@@ -6,7 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Calendar;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,6 +18,9 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.gui.TcpAttachMsgVO;
 
 public class PeerFileSender extends Handler {
@@ -31,12 +36,12 @@ public class PeerFileSender extends Handler {
 	public final static int SEND_MSG = 2;
 	
 	private Context context;
-	
+	private MessageBuilder msgBuilder;
 	
 	public PeerFileSender(Looper looper, Context currentContext) {
 		super(looper);
 		this.context = currentContext;
-	
+		msgBuilder = new MessageBuilder(context);
 	}
 	
 	@Override
@@ -56,9 +61,10 @@ public class PeerFileSender extends Handler {
 	
 	public void sendMsg(TcpAttachMsgVO msgToSendVO) {
 		try{
-			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, msgToSendVO.getChatMsg());
+			String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, msgToSendVO.getChatMsg(), msgToSendVO.getChatSessionId());
+			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, formattedChatMsg);
 			byte [] infoByteArray = fileInfoString.toString().getBytes("UTF-8");
-			
+			updatePrivateMsg(formattedChatMsg);
 			tcpSend(msgToSendVO.getUserIp(), infoByteArray);
 			
 			Log.d(TAG, "TCP Msg sent : "+ msgToSendVO.getChatMsg());
@@ -141,6 +147,27 @@ public class PeerFileSender extends Handler {
 	        cursor.close();
 	    }
 	    return result;
+	}
+	
+	public void updatePrivateMsg(String message) throws Exception{
+    	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
+    	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
+    	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
+    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
+    	
+    	Calendar c = Calendar.getInstance();
+		long curDateTimeMS = c.getTimeInMillis();     	
+    	    	
+		ContentValues values = new ContentValues();
+		values.put(TblChat.USER_ID, msgUser);
+		values.put(TblChat.MESSAGE, msgContent);
+		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
+		values.put(TblChat.SESSION_ID, chatSessionId);
+		//add new user
+		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
+		Log.d(TAG, "Added new private message " + itemUri.toString());    	
 	}
 	
 	public void closeSocket()

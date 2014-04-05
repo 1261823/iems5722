@@ -105,9 +105,20 @@ public class DialogAttachmentPicker extends Activity {
 	@Override
 	public void onDestroy() {
 		//inform other users 
+		super.onDestroy();
 		if (currentExtIntent!=0){
 			this.finishActivity(currentExtIntent);
 		}
-		super.onDestroy();
+		this.finish();
 	}
+	
+	@Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        super.onDestroy();
+		if (currentExtIntent!=0){
+			this.finishActivity(currentExtIntent);
+		}
+		this.finish();
+    }
 }

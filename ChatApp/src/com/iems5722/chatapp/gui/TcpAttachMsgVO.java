@@ -6,6 +6,8 @@ public class TcpAttachMsgVO {
 	private String userIp;
 	private String chatMsg;
 	private Uri attachmentUri;
+	private String chatSessionId;
+	
 	
 	
 	public String getUserIp() {
@@ -26,6 +28,13 @@ public class TcpAttachMsgVO {
 	}
 	public void setChatMsg(String chatMsg) {
 		this.chatMsg = chatMsg;
+	}
+	
+	public String getChatSessionId() {
+		return chatSessionId;
+	}
+	public void setChatSessionId(String chatSessionId) {
+		this.chatSessionId = chatSessionId;
 	}
 	
 }
