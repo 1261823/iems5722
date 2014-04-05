@@ -20,6 +20,8 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	public final static String PING_REQ_MSG = "PR";
 	public final static String PING_ACK_MSG = "PA";	
 	public final static String SIGN_OUT = "SO";
+	public final static String GLOBAL_MSG = "GM";
+	public final static String PRIVATE_MSG = "PM";
 	
 	//User id used to identify sender
 	private static String msgUserId =  "";

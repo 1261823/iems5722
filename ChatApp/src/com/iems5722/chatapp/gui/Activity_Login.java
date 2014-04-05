@@ -201,7 +201,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		Log.d(TAG, "onCreateOptionsMenu");
 		super.onCreateOptionsMenu(menu);
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.setting_menu, menu);
+		inflater.inflate(R.menu.private_chat, menu);
 		return true;
 	}	
 	

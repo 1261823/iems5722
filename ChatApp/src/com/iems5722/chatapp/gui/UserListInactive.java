@@ -24,7 +24,7 @@ public class UserListInactive extends ListFragment implements LoaderCallbacks<Cu
 	@Override
 	public void onCreate(Bundle savedInstanceState) { 
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		//Log.d(TAG, "onCreate");
 		Bundle arguments = getArguments();
 		if (arguments != null) {
 			mRowId = arguments.getLong(TblUser.USER_UFI);
@@ -38,14 +38,14 @@ public class UserListInactive extends ListFragment implements LoaderCallbacks<Cu
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		Log.d(TAG, "onViewCreated");
+		//Log.d(TAG, "onViewCreated");
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.user_offline_none));
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-		Log.d(TAG, "onCreateLoader");		
+		//Log.d(TAG, "onCreateLoader");		
 		String[] column = {TblUser.USER_UFI, TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
 		String selection = TblUser.STATUS + " = ?";
 		String[] selectArgs = {"offline"};		
@@ -54,13 +54,13 @@ public class UserListInactive extends ListFragment implements LoaderCallbacks<Cu
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		Log.d(TAG, "onLoadFinished");
+		//Log.d(TAG, "onLoadFinished");
 		mAdapter.swapCursor(cursor);		
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		Log.d(TAG, "onLoaderReset");
+		//Log.d(TAG, "onLoaderReset");
 		mAdapter.swapCursor(null);		
 	}
 }

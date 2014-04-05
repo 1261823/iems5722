@@ -20,14 +20,14 @@ public class UserListAdapter extends SimpleCursorAdapter {
 
 	public UserListAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
 		super(context, layout, c, from, to, flags);
-		Log.d(TAG, "UserListAdapter");
+		//Log.d(TAG, "UserListAdapter");
 		this.context = context;
 		this.layout = layout;
 	}
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		Log.d(TAG, "newView");
+		//Log.d(TAG, "newView");
 		cursor = getCursor();
 		final LayoutInflater inflater = LayoutInflater.from(context);
 		View v = inflater.inflate(layout, parent, false);
@@ -37,12 +37,12 @@ public class UserListAdapter extends SimpleCursorAdapter {
 	
 	@Override
 	public void bindView(View v, Context context, Cursor c) {
-		Log.d(TAG, "bindView");
+		//Log.d(TAG, "bindView");
 		loadView(v, context, c);
 	}	
 	
 	private void loadView(View v, Context context, Cursor c) {
-		Log.d(TAG, "loadView");		
+		//Log.d(TAG, "loadView");		
 		int colUsername   = c.getColumnIndex(TblUser.USER_NAME);
 		int colStatus     = c.getColumnIndex(TblUser.STATUS);
 		int colLastOnline = c.getColumnIndex(TblUser.USER_DATETIME);
