@@ -129,7 +129,6 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			//show attachment picker
 			Intent iAttachmentPicker = new Intent(this, DialogAttachmentPicker.class);
 			iAttachmentPicker.addCategory(Intent.CATEGORY_LAUNCHER);
-			iAttachmentPicker.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			iAttachmentPicker.addFlags(Intent.FLAG_FROM_BACKGROUND);
 			//not sure if session information needs to be passed to intent
 			startActivity(iAttachmentPicker);
