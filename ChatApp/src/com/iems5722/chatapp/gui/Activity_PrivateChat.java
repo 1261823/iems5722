@@ -26,7 +26,6 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	LoaderCallbacks<Cursor> {
 	public final static String TAG = "Activity_PrivateChat";
 	private ActionBar actionBar;
-
 	
 	//loader types
 	final static int LOAD_USER = 0;

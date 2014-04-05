@@ -1,11 +1,18 @@
 package com.iems5722.chatapp.gui;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 import android.content.ComponentName;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -14,6 +21,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseArray;
@@ -25,8 +35,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
-import com.iems5722.chatapp.network.MulticastReceiver;
+import com.iems5722.chatapp.network.MessageBuilder;
 import com.iems5722.chatapp.network.MulticastService;
 import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
 import com.iems5722.chatapp.network.PeerFileService;
@@ -44,14 +56,19 @@ public class Activity_TabHandler extends FragmentActivity implements
 
 	//Preferences
 	private SharedPreferences prefs;	
-	private String msgUsername;
+	static String msgUsername;
+	static String userId;
 	
+	//view objects
 	private ViewPager mViewPager;
 	private SlidePagerAdapter mPagerAdapter;
+	static final int ITEMS = 3;
+	private Menu menu;
 	
 	FragmentGlobalChat globalChat;
 	UserList userList;
 	SessionList privateChat;
+	String languageToLoad;
 	
 	//Networking service
 	ServiceNetwork networkService;
@@ -71,6 +88,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setUpInterface();
+
 		//Log.d(TAG, "onCreate");
 		globalChat  = new FragmentGlobalChat();
 		userList    = new UserList();
@@ -89,13 +108,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 		multicastServiceIntent = new Intent(this, MulticastService.class);
 		startService(multicastServiceIntent);
 		bindService(multicastServiceIntent, multicastServiceConnection, Context.BIND_AUTO_CREATE);
-				
-		
-		setContentView(R.layout.activity_main);
-
-		mViewPager = (ViewPager)findViewById(R.id.project_pager);
-		mPagerAdapter = new SlidePagerAdapter(getSupportFragmentManager());
-		mViewPager.setAdapter(mPagerAdapter);		
 		
 		//get name from preferences
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -109,6 +121,21 @@ public class Activity_TabHandler extends FragmentActivity implements
 		//actionBar.hide();
 	}
 	
+	public void setUpInterface() {
+		Log.i(TAG, "Setting up interface");
+		setContentView(R.layout.activity_main);
+		mPagerAdapter = new SlidePagerAdapter(getSupportFragmentManager());
+		mViewPager = (ViewPager)findViewById(R.id.project_pager);
+		mViewPager.setOffscreenPageLimit(2);
+		mViewPager.setAdapter(mPagerAdapter);
+
+		if (menu != null) {
+			menu.clear();
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.tab_menu, menu);
+		}
+	}
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -116,7 +143,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 		pingAllUsers();
 	}
 	
-	private class SlidePagerAdapter extends FragmentPagerAdapter {
+	private class SlidePagerAdapter extends FragmentStatePagerAdapter  {
 		SparseArray<Fragment> registeredFragment = new SparseArray<Fragment>();
 		public SlidePagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -124,16 +151,24 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 		@Override
 		public Fragment getItem(int position) {
-			Fragment fragment = new Fragment();
+			//Fragment fragment = new Fragment();
 			switch (position) {
 			case 0:
-				return fragment = globalChat;
+				return FragmentGlobalChat.init();
 			case 1:
-				return fragment = userList;
+				return UserList.init();
 			case 2:
-				return fragment = privateChat;
+				return SessionList.init();
+			default:
+				return FragmentGlobalChat.init();
 			}
-			return fragment;
+			//return fragment;
+		}
+		
+		@Override
+		public int getItemPosition(Object object) {
+			Log.d(TAG, "getItemPosition");
+		    return PagerAdapter.POSITION_NONE;
 		}
 		
 		@Override
@@ -153,17 +188,11 @@ public class Activity_TabHandler extends FragmentActivity implements
 			}
 			return null;
 		}
-		
+
 		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
-			//Log.d(TAG, "instantiateItem");
-			Fragment fragment = (Fragment) super.instantiateItem(container, position);
-			registeredFragment.put(position, fragment);
-			return fragment;
-		}
-		
-		public Fragment getRegisteredFragment(int position) {
-			return registeredFragment.get(position);
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			Log.d(TAG, "DestroyItem on " + Integer.toString(position));
+			super.destroyItem(container, position, object);
 		}
 	}
 
@@ -192,6 +221,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public boolean onCreateOptionsMenu(Menu menu) {
 		//Log.d(TAG, "onCreateOptionsMenu");
 		super.onCreateOptionsMenu(menu);
+		this.menu = menu;
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.tab_menu, menu);
 		return true;
@@ -222,6 +252,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 			networkService = networkBinder.getService();
 			serviceHandler = networkService.getServiceHandler();
 			initPreference();
+			postLocaleChange();
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
@@ -259,6 +290,11 @@ public class Activity_TabHandler extends FragmentActivity implements
 		//Log.d(TAG, "initPreference");
 		String usernameKey = this.getString(R.string.pref_key_name);	
 		readUsername(usernameKey);
+		String useridKey = this.getString(R.string.pref_key_userid);
+		readUserId(useridKey);
+		String languageKey = this.getString(R.string.pref_key_lang);
+		languageToLoad = prefs.getString(languageKey, "");
+		updateDatabase();
 	}	
 	
 	@Override
@@ -274,19 +310,16 @@ public class Activity_TabHandler extends FragmentActivity implements
 		stopService(multicastServiceIntent);
 		super.onDestroy();
 	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(this.getString(R.string.pref_key_name))) {
-			readUsername(key);
-		}
-	}
 	
 	private void readUsername(String key) {
 		msgUsername = prefs.getString(key, "");
 		networkService.setUsername(msgUsername);
 		pingAllUsers();
 	}
+	
+	private void readUserId(String key) {
+		userId = prefs.getString(key, "");
+	}	
 	
 	private void pingAllUsers() {
 		//set all users to offline then wait for response to confirm user still online
@@ -299,4 +332,63 @@ public class Activity_TabHandler extends FragmentActivity implements
 			networkService.udpPingAll();
 		}
 	}
+	
+	private void updateDatabase() {
+		Log.i(TAG, "Updating user details");
+		if (userId != null) {
+			Calendar c = Calendar.getInstance();
+			long curDateTimeMS = c.getTimeInMillis();     	
+	    	    	
+			ContentValues values = new ContentValues();
+			int mRowId = 0;
+			values.put(TblUser.USER_ID, userId);
+			values.put(TblUser.USER_NAME, msgUsername);
+			values.put(TblUser.IP_ADDR_INT, 0);
+			values.put(TblUser.IP_ADDR_STR, "0");
+			values.put(TblUser.STATUS, TblUser.STAT_ON);
+			values.put(TblUser.USER_DATETIME, curDateTimeMS);
+			
+			//update user with new information
+			
+			Log.d(TAG, "User MD5 is " + userId);
+			int count = this.getApplicationContext().getContentResolver().update(
+						ContentUris.withAppendedId(DbProvider.USER_URI, mRowId), values, null, null);
+			if (count != 1) {
+				Log.d(TAG, "Inserting user " + msgUsername);
+				Uri itemUri = this.getApplicationContext().getContentResolver().insert(DbProvider.USER_URI, values);
+			}
+			else {
+				Log.d(TAG, "Updating user " + msgUsername);
+			}
+		}
+		else {
+			Log.d(TAG, "User details not saved");
+		}
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.equals(this.getString(R.string.pref_key_name))) {
+			readUsername(key);
+			updateDatabase();
+		}
+		else if (key.equals(this.getString(R.string.pref_key_lang))) {
+			languageToLoad = prefs.getString(key, "");
+			postLocaleChange();
+		}
+	}	
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		Log.d(TAG, "New config");
+		getBaseContext().getResources().updateConfiguration(newConfig, getBaseContext().getResources().getDisplayMetrics());
+		setUpInterface();
+	}
+	
+	public void postLocaleChange() {
+		Configuration newConfig = new Configuration();
+	    newConfig.locale = new Locale(languageToLoad);
+	    onConfigurationChanged(newConfig);		
+	}	
 }

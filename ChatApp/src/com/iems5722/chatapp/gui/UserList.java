@@ -15,6 +15,11 @@ public class UserList extends Fragment {
 
 	UserListActive userActive;
 	UserListInactive userInactive;
+	
+	static UserList init() {
+		UserList fragUL = new UserList();
+		return fragUL;
+	}	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

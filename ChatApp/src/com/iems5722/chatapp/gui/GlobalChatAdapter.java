@@ -2,16 +2,19 @@ package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblGlobalChat;
+import com.iems5722.chatapp.database.TblUser;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class GlobalChatAdapter extends SimpleCursorAdapter {
+	public final static String TAG = "GlobalChatAdapter";
 	private Context context;
 	private int layout;
 	
@@ -28,10 +31,29 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 	
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		//log.d(APP_TAG, "newView");
+		//Log.d(TAG, "newView");
 		Cursor c = getCursor();
-		final LayoutInflater inflater = LayoutInflater.from(context);
-		View v = inflater.inflate(layout, parent, false);
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		//for (int i = 0 ; i < cursor.getColumnCount(); i++) {
+		//	Log.i(TAG, cursor.getColumnName(i) + " : " + cursor.getString(i));
+		//}
+		
+		//change the message display if is own message
+		View v;
+		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
+		String dbMsgAuthor = c.getString(msgAuthor);
+
+
+		//Log.i(TAG, "Msg " + Long.toString(dbMsgId) + " from " + dbMsgAuthor + " vs " + Activity_TabHandler.userId);
+		if (dbMsgAuthor.equals(Activity_TabHandler.msgUsername)) {
+			//Log.i(TAG, "sent");
+			v = inflater.inflate(R.layout.chat_message_sent, null);
+		}		
+		else {
+			//Log.i(TAG, "recv");
+			v = inflater.inflate(layout, null);
+		}
 		loadView(v, context, c);
 		return v;
 	}
@@ -44,7 +66,7 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 	
 	private void loadView(View v, Context context, Cursor c) {
 		int msgId = c.getColumnIndex(TblGlobalChat.MESSAGE_ID);
-		int msgAuthor = c.getColumnIndex(TblGlobalChat.USER_ID);
+		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
 		int msgContent = c.getColumnIndex(TblGlobalChat.MESSAGE);
 		int msgTimestamp = c.getColumnIndex(TblGlobalChat.MSG_DATETIME);
 		
@@ -52,11 +74,12 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		String dbMsgAuthor = c.getString(msgAuthor);
 		String dbMsgContent = c.getString(msgContent);
 		long dbMsgTimestamp = c.getLong(msgTimestamp);
+
 		
-		vMsgId = (TextView) v.findViewById(R.id.msg_author);
-		vMsgAuthor = (TextView) v.findViewById(R.id.msg_timestamp);
-		vMsgContent = (TextView) v.findViewById(R.id.msg_id);
-		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_recv);
+		vMsgId = (TextView) v.findViewById(R.id.msg_id);
+		vMsgAuthor = (TextView) v.findViewById(R.id.msg_author);
+		vMsgContent = (TextView) v.findViewById(R.id.msg_recv);
+		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_timestamp);
 		
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);

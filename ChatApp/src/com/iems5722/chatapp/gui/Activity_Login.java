@@ -3,6 +3,7 @@ package com.iems5722.chatapp.gui;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Locale;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.UserSetInactive;
@@ -16,6 +17,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -43,6 +45,8 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	public String username;
 	public String prefUsername;
 	public String userId;
+	public String languageToLoad;
+	private Menu menu;
 	
 	//Preferences
 	private SharedPreferences prefs;
@@ -81,22 +85,36 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	@Override
  	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_login);
-		login_username = (EditText)findViewById(R.id.login_username);
-		login_button = (Button)findViewById(R.id.login_btn_enter);
+
+		setUpInterface();
+		
 		//start network services
 		NetServiceIntent = new Intent(this, ServiceNetwork.class);
 		initNetworkServices();
-		//respond to controls
-		initClickHandler();		
+	
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		loadPreference();
 		prefs.registerOnSharedPreferenceChangeListener(this);
+		postLocaleChange();
 		
 		//reset user status
 		UserSetInactive setInactive = new UserSetInactive();
 		setInactive.setContext(getApplicationContext());
 		setInactive.execute();
+	}
+	
+	private void setUpInterface() {
+		setContentView(R.layout.activity_login);
+		login_username = (EditText)findViewById(R.id.login_username);
+		login_button = (Button)findViewById(R.id.login_btn_enter);		
+		//respond to controls
+		initClickHandler();	
+		
+		if (menu != null) {
+			menu.clear();
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.setting_menu, menu);
+		}
 	}
 	
 	private void loadPreference() {
@@ -105,7 +123,10 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		prefUsername = prefs.getString(usernameKey, "");
 		if (!prefUsername.equals("")) {
 			login_username.setText(prefUsername);
-		}	
+			
+		}
+		String languageKey = getString(R.string.pref_key_lang);
+		languageToLoad = prefs.getString(languageKey, "");
 	}
 	
 	private void updatePreference() {
@@ -200,6 +221,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
 		super.onCreateOptionsMenu(menu);
+		this.menu = menu;
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.setting_menu, menu);
 		return true;
@@ -248,5 +270,24 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		loadPreference();
+		if (key.equals(this.getString(R.string.pref_key_lang))) {
+			languageToLoad = prefs.getString(key, "");
+			postLocaleChange();
+		}
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		Log.d(TAG, "New config");
+		getBaseContext().getResources().updateConfiguration(newConfig, getBaseContext().getResources().getDisplayMetrics());
+		setUpInterface();
+		loadPreference();
+	}
+	
+	public void postLocaleChange() {
+    	Configuration newConfig = new Configuration();
+        newConfig.locale = new Locale(languageToLoad);
+        onConfigurationChanged(newConfig);		
 	}
 }

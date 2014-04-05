@@ -5,11 +5,13 @@ import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblGlobalChat;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 
 public class GlobalChatList extends ListFragment implements LoaderCallbacks<Cursor> {
@@ -23,7 +25,7 @@ public class GlobalChatList extends ListFragment implements LoaderCallbacks<Curs
 
 		String[] from = new String[] {TblGlobalChat.MESSAGE_ID};
 		int[] to = new int[] {R.id.msg_id};
-		mAdapter = new GlobalChatAdapter(getActivity(), R.layout.chat_message_sent, null, from, to, 0);
+		mAdapter = new GlobalChatAdapter(getActivity(), R.layout.chat_message_recv, null, from, to, 0);
 		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(0, null, this);
 	}	
@@ -37,6 +39,7 @@ public class GlobalChatList extends ListFragment implements LoaderCallbacks<Curs
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+		SQLiteDatabase db = DbProvider.database.getReadableDatabase();
 		return new CursorLoader(getActivity(), DbProvider.GCHAT_URI, null, null, null, null);
 	}
 

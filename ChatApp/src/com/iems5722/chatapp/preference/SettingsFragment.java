@@ -6,6 +6,7 @@ import com.iems5722.chatapp.R.xml;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -81,15 +82,20 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 				SharedPreferences.Editor prefEditor = prefs.edit();
 				prefEditor.putString(key, oldUsername).commit();
 			}
-		}else if (key.equals(getString(R.string.pref_key_lang))){
+		} 
+		else if (key.equals(getString(R.string.pref_key_lang))){
         	String localString =  prefs.getString(getString(R.string.pref_key_lang), "");
-        	
+        	Log.d(TAG, "LocalString " + localString);
+
+            
+        	/*
         	 Resources res = this.getActivity().getResources();
         	    // Change locale settings in the app.
         	    DisplayMetrics dm = res.getDisplayMetrics();
         	    android.content.res.Configuration conf = res.getConfiguration();
         	    conf.locale = new Locale(localString);
         	    res.updateConfiguration(conf, dm);
+        	    */
         }
 		updateSummary();
 	}

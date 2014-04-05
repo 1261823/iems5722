@@ -23,6 +23,11 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	private SessionListAdapter mAdapter;
 	private Cursor cursor;
 	
+	static SessionList init() {
+		SessionList fragSess = new SessionList();
+		return fragSess;
+	}		
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

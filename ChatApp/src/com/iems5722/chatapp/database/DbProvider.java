@@ -78,7 +78,9 @@ public class DbProvider extends ContentProvider{
 				//queryBuilder.appendWhere(TblUser.USER_UFI + "=" + uri.getLastPathSegment());
 				break;		
 			case GCHAT_LIST:
-				queryBuilder.setTables(TblGlobalChat.TABLE_GLOBAL_CHAT);
+				queryBuilder.setTables(TblGlobalChat.TABLE_GLOBAL_CHAT + " LEFT OUTER JOIN " + TblUser.TABLE_USER
+									+ " ON (" + TblGlobalChat.TABLE_GLOBAL_CHAT + "." + TblGlobalChat.USER_ID
+									+ " = " + TblUser.TABLE_USER + "." + TblUser.USER_ID + ")");
 				break;
 			case GCHAT_ITEM:
 				queryBuilder.setTables(TblGlobalChat.TABLE_GLOBAL_CHAT);
