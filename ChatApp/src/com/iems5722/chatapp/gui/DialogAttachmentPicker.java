@@ -14,6 +14,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Window;
 
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.ThreadUDPSend;
 
 public class DialogAttachmentPicker extends Activity { 
 	public final static String TAG = "DialogAttachmentPicker";
@@ -23,6 +24,7 @@ public class DialogAttachmentPicker extends Activity {
 	private static final int SELECT_AUDIO=200;
 	private static final int SELECT_VIDEO=300;
 	private static final int SELECT_FILE=400;
+	private int currentExtIntent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,22 +46,26 @@ public class DialogAttachmentPicker extends Activity {
 				switch(which) {
 					case(0):
 						//photos
+						currentExtIntent = SELECT_PHOTO;
 						Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 						startActivityForResult(photoPickerIntent, SELECT_PHOTO);   
 						break;
 					case(1):
 						//video
+						currentExtIntent =  SELECT_VIDEO;
 						Intent videoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
 						startActivityForResult(videoPickerIntent, SELECT_VIDEO);
 						break;
 					case(2):
 						//audio
+						currentExtIntent = SELECT_AUDIO;
 						Intent audioPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
 						startActivityForResult(audioPickerIntent, SELECT_AUDIO);
 						break;
 						
 					case(3):
 						//file
+						currentExtIntent = SELECT_FILE;
 						Intent filePickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
 						filePickerIntent.setType("file/*");
 						startActivityForResult(filePickerIntent, SELECT_FILE);
@@ -86,11 +92,22 @@ public class DialogAttachmentPicker extends Activity {
 		            resultIntent.setData(selectedFileUri);
 		            setResult(RESULT_OK, resultIntent);
 		            this.finishActivity(requestCode);
-		            this.finish();		            		            
+		            this.finish();
+		            currentExtIntent=0;
 	        	}catch(Exception ex){
 	        		Log.d(TAG, ex.getMessage());	        		
 	        	}
+	        	
 	        }
 	  
 	}	
+	
+	@Override
+	public void onDestroy() {
+		//inform other users 
+		if (currentExtIntent!=0){
+			this.finishActivity(currentExtIntent);
+		}
+		super.onDestroy();
+	}
 }
