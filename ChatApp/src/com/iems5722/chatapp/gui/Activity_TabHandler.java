@@ -26,11 +26,8 @@ import android.widget.Toast;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.UserSetInactive;
-import com.iems5722.chatapp.network.MulticastReceiver;
 import com.iems5722.chatapp.network.MulticastService;
 import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
-import com.iems5722.chatapp.network.PeerFileService;
-import com.iems5722.chatapp.network.PeerFileService.PeerFileServiceBinder;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.network.ThreadUDPSend;
@@ -58,10 +55,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 	private Intent netServiceIntent;
 	Handler serviceHandler;
 	
-	//Peer File Transfer service
-	PeerFileService peerFileService;
-	private Intent peerFileServiceIntent;
-	private Handler peerFileServiceHandler;
 	
 	//Peer File Transfer service
 	MulticastService multicastService;
@@ -80,10 +73,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 		netServiceIntent = new Intent(this, ServiceNetwork.class);
 		bindService(netServiceIntent, netServiceConnection, Context.BIND_AUTO_CREATE);
 		
-		//create Peer File Transfer service
-		peerFileServiceIntent = new Intent(this, PeerFileService.class);
-		startService(peerFileServiceIntent);
-		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
 		
 		//create Multicast Message service
 		multicastServiceIntent = new Intent(this, MulticastService.class);
@@ -229,18 +218,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 		}
 	};
 	
-	private ServiceConnection peerFileServiceConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName className, IBinder binder) {
-			Log.d(TAG, "onPeerFileServiceConnected");	
-			PeerFileServiceBinder peerFileServiceBinder = (PeerFileServiceBinder) binder;
-			peerFileService = peerFileServiceBinder.getService();
-			peerFileServiceHandler = peerFileService.getServiceHandler();
-		}
-		
-		public void onServiceDisconnected(ComponentName className) {
-			Log.d(TAG, "onPeerFileServiceDisconnected");				
-		}
-	};
+	
 	
 	private ServiceConnection multicastServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder binder) {
@@ -267,10 +245,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		networkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
 		
 		unbindService(netServiceConnection);
-		unbindService(peerFileServiceConnection);
 		unbindService(multicastServiceConnection);
 		
-		stopService(peerFileServiceIntent);
 		stopService(multicastServiceIntent);
 		super.onDestroy();
 	}

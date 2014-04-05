@@ -1,37 +1,48 @@
 package com.iems5722.chatapp.gui;
 
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.database.DbProvider;
-import com.iems5722.chatapp.database.TblChat;
-import com.iems5722.chatapp.database.TblUser;
-import com.iems5722.chatapp.preference.Settings;
-
 import android.app.ActionBar;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.network.PeerFileSender;
+import com.iems5722.chatapp.network.PeerFileService;
+import com.iems5722.chatapp.network.PeerFileService.PeerFileServiceBinder;
 
 public class Activity_PrivateChat extends FragmentActivity implements 
 	FragmentChatMenu.OnButtonClickListener,
 	LoaderCallbacks<Cursor> {
 	public final static String TAG = "Activity_PrivateChat";
+	private final static int ACTIVIITY_ATTACHMENT_PICKER=100;
+	public final static int TOAST = 1;
 	private ActionBar actionBar;
-
+	
+	//Peer File Transfer service
+	PeerFileService peerFileService;
+	private Intent peerFileServiceIntent;
+	private Handler peerFileServiceHandler;
+		
 	
 	//loader types
 	final static int LOAD_USER = 0;
@@ -46,6 +57,8 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	private String dbPID = "";
 	//session id
 	private String dbSessionId = "";
+	
+	private Context privateChatContext = this;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,6 +112,12 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		else {
 			Log.e(TAG, "Entered private chat without peer to chat with");
 		}
+		
+		//create Peer File Transfer service
+		peerFileServiceIntent = new Intent(this, PeerFileService.class);
+		startService(peerFileServiceIntent);
+		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
+				
 	}
 	
 	@Override
@@ -131,7 +150,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			iAttachmentPicker.addCategory(Intent.CATEGORY_LAUNCHER);
 			iAttachmentPicker.addFlags(Intent.FLAG_FROM_BACKGROUND);
 			//not sure if session information needs to be passed to intent
-			startActivity(iAttachmentPicker);
+			startActivityForResult(iAttachmentPicker, ACTIVIITY_ATTACHMENT_PICKER);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -182,4 +201,56 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	public void onLoaderReset(Loader<Cursor> loader) {
 		//not used
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) { 
+	    super.onActivityResult(requestCode, resultCode, returnedIntent); 
+	    	if (requestCode == ACTIVIITY_ATTACHMENT_PICKER){
+		    	if(resultCode == RESULT_OK){
+		    		Uri selectedFileUri = returnedIntent.getData();
+		    		String ipAddress = peerIdAddress.replace("/", "");
+		    		Log.d(TAG, "prepare to send file ip: " + ipAddress + " file URI: " + selectedFileUri);
+		    		
+		    		AttachmentVO attachVO = new AttachmentVO();
+		    		attachVO.setUserIp(ipAddress);
+		    		attachVO.setAttachmentUri(selectedFileUri);
+		    		
+		    		peerFileService.getPeerFileSender().obtainMessage(PeerFileSender.SEND_FILE, attachVO).sendToTarget();
+		    	}	    	
+	    	}
+	}
+	
+	private ServiceConnection peerFileServiceConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			Log.d(TAG, "onPeerFileServiceConnected");	
+			PeerFileServiceBinder peerFileServiceBinder = (PeerFileServiceBinder) binder;
+			peerFileService = peerFileServiceBinder.getService();
+			peerFileServiceHandler = peerFileService.getServiceHandler();
+			peerFileService.setUiHandler(mHandler);
+		}
+		
+		public void onServiceDisconnected(ComponentName className) {
+			Log.d(TAG, "onPeerFileServiceDisconnected");				
+		}
+	};
+	
+	@Override
+	public void onDestroy() {
+		unbindService(peerFileServiceConnection);
+		stopService(peerFileServiceIntent);		
+	}
+	
+	
+	private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+        	Log.d(TAG, "received message");
+        	switch (msg.what) {
+        	case (TOAST):
+        		Toast.makeText(privateChatContext,  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+    			break;
+    		}
+        }
+	};
+	
 }

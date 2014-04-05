@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.iems5722.chatapp.gui.Activity_PrivateChat;
 import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
 import android.content.Context;
@@ -29,8 +30,9 @@ public class PeerFileReceiver extends Handler {
 	private final static String ENDING_STRING = "@";
 	
 	private Context context;
-	private Handler handler;
+	private Handler mHandler;
 
+	
 	public final static int INITIAL_TCP_PORT  = 1;
 	public final static int TCP_LISTEN = 2;
 	
@@ -38,6 +40,15 @@ public class PeerFileReceiver extends Handler {
 	public PeerFileReceiver(Looper looper, Context currentContext) {
 		this.context = currentContext;
 	}
+	
+	public Handler getmHandler() {
+		return mHandler;
+	}
+
+	public void setmHandler(Handler mHandler) {
+		this.mHandler = mHandler;
+	}
+
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -90,6 +101,7 @@ public class PeerFileReceiver extends Handler {
 				String fileInfoUsefulPart = fileInfoStr.substring(0, fileInfoStr.indexOf(ENDING_STRING));
 				Log.d(TAG, "File info arrived "+fileInfoUsefulPart);
 				
+				
 				String [] fileInfoStrArray = fileInfoUsefulPart.split(INFO_SEPARATOR); 
 				String filename = fileInfoStrArray[0];
 				String filesizeStr = fileInfoStrArray[1];
@@ -99,6 +111,7 @@ public class PeerFileReceiver extends Handler {
 				//receive file after info arrived
 				byte[] fileByteArray = new byte[filesize];
 				Log.d(TAG, "File comes");
+				this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File comes");
 
 				File newFile = new File(Environment.getExternalStorageDirectory(),filename);
 				FileOutputStream fos = new FileOutputStream(newFile);
@@ -119,7 +132,7 @@ public class PeerFileReceiver extends Handler {
 				}
 				
 				Log.d(TAG, "File receive finished");
-				
+				this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
 				
 				fos.close();
 				bos.close();

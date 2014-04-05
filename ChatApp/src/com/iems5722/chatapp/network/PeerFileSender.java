@@ -9,14 +9,14 @@ import java.net.Socket;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.iems5722.chatapp.gui.AttachmentVO;
 
 public class PeerFileSender extends Handler {
 	public final static  String TAG = "PeerFileSender";
@@ -42,8 +42,8 @@ public class PeerFileSender extends Handler {
 	public void handleMessage(Message msg) {
 		Log.d(TAG, "handle msg :" + msg.what);
 		switch(msg.what) {
-		case SEND_FILE : Uri fileToSend = (Uri)msg.obj;
-						 sendFile(fileToSend); 
+		case SEND_FILE : AttachmentVO fileToSendVO = (AttachmentVO)msg.obj;
+						 sendFile(fileToSendVO); 
 						 break;
 			default: break;
 		}
@@ -51,27 +51,16 @@ public class PeerFileSender extends Handler {
 	}
 	
 	
-	public void sendFile(Uri fileToSend) {
+	public void sendFile(AttachmentVO fileToSendVO) {
 		
 			try {
-				Log.d(TAG, "file to send URI : " + fileToSend);
-//					String[] filePathColumn = {MediaStore.Images.Media.DATA};
-//
-//		            Cursor cursor = this.context.getContentResolver().query(
-//		                               fileToSend, filePathColumn, null, null, null);
-//		            cursor.moveToFirst();
-//
-//		            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//		            String filePath = cursor.getString(columnIndex);
-//		            cursor.close();
-//
-//		            Bitmap yourSelectedImage = BitmapFactory.decodeFile(filePath);
-				File file = new File(getRealPathFromURI(fileToSend));
+				Log.d(TAG, "file to send URI : " + fileToSendVO.getAttachmentUri());
+				File file = new File(getRealPathFromURI(fileToSendVO.getAttachmentUri()));
 
 				long fileSize= file.length();
 					
 				
-				tcpSocket = new Socket("10.0.2.2", TCP_PORT);
+				tcpSocket = new Socket(fileToSendVO.getUserIp(), TCP_PORT);
 				
 				
 				byte [] fileByteArray  = new byte [(int)(fileSize)];

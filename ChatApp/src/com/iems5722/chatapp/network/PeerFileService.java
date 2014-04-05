@@ -13,7 +13,7 @@ import android.util.Log;
 public class PeerFileService extends Service{
 	private final static String TAG = "PeerFileService";
 	private static Looper peerFileServiceLooper;
-	private Handler UIhandler;
+	private Handler uiHandler;
 	private final IBinder peerFileServiceBinder = new PeerFileServiceBinder();
 	
 	public static PeerFileServiceHandler peerFileServiceHandler;
@@ -23,6 +23,18 @@ public class PeerFileService extends Service{
 	public final static int INIT_THREAD = 0;
 	public final static int SEND_FILE = 1;
 	
+	
+	
+	public Handler getUiHandler() {
+		return uiHandler;
+	}
+
+
+	public void setUiHandler(Handler uiHandler) {
+		this.uiHandler = uiHandler;
+	}
+
+
 	@Override
 	public void onCreate() {
 		Log.d(TAG, "Creating service");
@@ -38,7 +50,7 @@ public class PeerFileService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int StartId) {
 		Log.d(TAG, "onStartCommand");
-		UIhandler = new Handler(Looper.getMainLooper());
+		uiHandler = new Handler(Looper.getMainLooper());
 		peerFileServiceHandler.obtainMessage(INIT_THREAD).sendToTarget();
 		return Service.START_STICKY;
 	}
@@ -97,6 +109,7 @@ public class PeerFileService extends Service{
 	    	    		peerFileReceiverHandler = new PeerFileReceiver(peerFileReceiverLooper, getApplicationContext());
 	    	    		
 	    	    		Log.d(TAG, "Invoke Receiver Thread");
+	    	    		peerFileReceiverHandler.setmHandler(uiHandler);
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.INITIAL_TCP_PORT).sendToTarget();
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.TCP_LISTEN).sendToTarget();
 	    	    		break;
