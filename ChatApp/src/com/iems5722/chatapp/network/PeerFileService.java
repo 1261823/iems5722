@@ -21,6 +21,7 @@ public class PeerFileService extends Service{
 	private PeerFileReceiver peerFileReceiverHandler;
 	
 	public final static int INIT_THREAD = 0;
+	public final static int SEND_FILE = 1;
 	
 	@Override
 	public void onCreate() {
@@ -29,7 +30,8 @@ public class PeerFileService extends Service{
 		HandlerThread thread = new HandlerThread(TAG);
 		thread.start();
 		peerFileServiceLooper = thread.getLooper();
-		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper); 
+		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper);
+		
 	}
 	
 	
@@ -60,9 +62,13 @@ public class PeerFileService extends Service{
 		return peerFileServiceHandler;
 	}
 	
+	public PeerFileSender getPeerFileSender(){
+		return this.peerFileSenderHandler;		
+	}
+	
 	@Override
 	public void onDestroy() {
-		//Log.d(TAG, "onDestroy");
+		Log.d(TAG, "onDestroy");
 		stopSelf();
 	}
 	
@@ -74,6 +80,7 @@ public class PeerFileService extends Service{
 	    	@Override
 	    	public void handleMessage(Message msg) {
 	    		Log.d(TAG, "handling message");
+	    		
 	        	switch (msg.what) {
 	        		case PeerFileService.INIT_THREAD: 
 	        			
@@ -93,8 +100,16 @@ public class PeerFileService extends Service{
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.INITIAL_TCP_PORT).sendToTarget();
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.TCP_LISTEN).sendToTarget();
 	    	    		break;
-	        		default: break;	
+	        		case PeerFileService.SEND_FILE:
+	        			Log.d(TAG, "send file : "+ msg.obj);
+	        			peerFileSenderHandler.obtainMessage(PeerFileSender.SEND_FILE, msg.obj).sendToTarget();
+	        			break;
+	        		default:
+	        			Log.d(TAG, "Wrong request msg: "+ msg.what);
+	        			break;	
 	        	}
+	        	
+	        	
 	    	}
 	    	
 	 }

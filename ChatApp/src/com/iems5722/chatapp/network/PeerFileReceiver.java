@@ -88,7 +88,7 @@ public class PeerFileReceiver extends Handler {
 				
 				String fileInfoStr = new String(headerByteArray, "UTF-8");
 				String fileInfoUsefulPart = fileInfoStr.substring(0, fileInfoStr.indexOf(ENDING_STRING));
-				Log.i(TAG, "File info arrived "+fileInfoUsefulPart);
+				Log.d(TAG, "File info arrived "+fileInfoUsefulPart);
 				
 				String [] fileInfoStrArray = fileInfoUsefulPart.split(INFO_SEPARATOR); 
 				String filename = fileInfoStrArray[0];

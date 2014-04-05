@@ -40,6 +40,7 @@ public class PeerFileSender extends Handler {
 	
 	@Override
 	public void handleMessage(Message msg) {
+		Log.d(TAG, "handle msg :" + msg.what);
 		switch(msg.what) {
 		case SEND_FILE : Uri fileToSend = (Uri)msg.obj;
 						 sendFile(fileToSend); 
@@ -53,20 +54,20 @@ public class PeerFileSender extends Handler {
 	public void sendFile(Uri fileToSend) {
 		
 			try {
-					String[] filePathColumn = {MediaStore.Images.Media.DATA};
+				Log.d(TAG, "file to send URI : " + fileToSend);
+//					String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//
+//		            Cursor cursor = this.context.getContentResolver().query(
+//		                               fileToSend, filePathColumn, null, null, null);
+//		            cursor.moveToFirst();
+//
+//		            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//		            String filePath = cursor.getString(columnIndex);
+//		            cursor.close();
+//
+//		            Bitmap yourSelectedImage = BitmapFactory.decodeFile(filePath);
+				File file = new File(getRealPathFromURI(fileToSend));
 
-		            Cursor cursor = this.context.getContentResolver().query(
-		                               fileToSend, filePathColumn, null, null, null);
-		            cursor.moveToFirst();
-
-		            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-		            String filePath = cursor.getString(columnIndex);
-		            cursor.close();
-
-		            Bitmap yourSelectedImage = BitmapFactory.decodeFile(filePath);
-
-				String filename = "c1.jpg";
-				File file = new File("/sdcard/" + filename);
 				long fileSize= file.length();
 					
 				
@@ -79,7 +80,7 @@ public class PeerFileSender extends Handler {
 				
 				StringBuilder fileInfoMsgSb = new StringBuilder();
 				
-				fileInfoMsgSb.append(filename);
+				fileInfoMsgSb.append(file.getName());
 				fileInfoMsgSb.append(INFO_SEPARATOR);
 				fileInfoMsgSb.append(String.valueOf(fileSize));
 				fileInfoMsgSb.append(ENDING_STRING);
@@ -113,11 +114,24 @@ public class PeerFileSender extends Handler {
 				closeSocket();
 				
 				
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, "problem when sending files " + e.getMessage());
 			}
-				
 		
+	}
+	
+	private String getRealPathFromURI(Uri contentURI) {
+	    String result;
+	    Cursor cursor = this.context.getContentResolver().query(contentURI, null, null, null, null);
+	    if (cursor == null) { 
+	        result = contentURI.getPath();
+	    } else { 
+	        cursor.moveToFirst(); 
+	        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA); 
+	        result = cursor.getString(idx);
+	        cursor.close();
+	    }
+	    return result;
 	}
 	
 	public void closeSocket()

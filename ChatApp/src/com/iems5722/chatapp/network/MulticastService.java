@@ -1,8 +1,5 @@
 package com.iems5722.chatapp.network;
 
-import com.iems5722.chatapp.network.PeerFileService.PeerFileServiceBinder;
-import com.iems5722.chatapp.network.PeerFileService.PeerFileServiceHandler;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
