@@ -16,7 +16,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.iems5722.chatapp.gui.AttachmentVO;
+import com.iems5722.chatapp.gui.TcpAttachMsgVO;
 
 public class PeerFileSender extends Handler {
 	public final static  String TAG = "PeerFileSender";
@@ -28,6 +28,7 @@ public class PeerFileSender extends Handler {
 	private final static String ENDING_STRING = "@";
 	
 	public final static int SEND_FILE = 1;
+	public final static int SEND_MSG = 2;
 	
 	private Context context;
 	
@@ -42,59 +43,61 @@ public class PeerFileSender extends Handler {
 	public void handleMessage(Message msg) {
 		Log.d(TAG, "handle msg :" + msg.what);
 		switch(msg.what) {
-		case SEND_FILE : AttachmentVO fileToSendVO = (AttachmentVO)msg.obj;
+		case SEND_FILE : TcpAttachMsgVO fileToSendVO = (TcpAttachMsgVO)msg.obj;
 						 sendFile(fileToSendVO); 
 						 break;
+		case SEND_MSG : TcpAttachMsgVO msgToSendVO = (TcpAttachMsgVO)msg.obj;
+						sendMsg(msgToSendVO);				 
+						break; 
 			default: break;
 		}
 		
 	}
 	
+	public void sendMsg(TcpAttachMsgVO msgToSendVO) {
+		try{
+			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, msgToSendVO.getChatMsg());
+			byte [] infoByteArray = fileInfoString.toString().getBytes("UTF-8");
+			
+			tcpSend(msgToSendVO.getUserIp(), infoByteArray);
+			
+			Log.d(TAG, "TCP Msg sent : "+ msgToSendVO.getChatMsg());
+		}catch(Exception ex){
+			Log.d(TAG, ex.getMessage());
+		}
+	}
 	
-	public void sendFile(AttachmentVO fileToSendVO) {
+	
+	
+	
+	public void sendFile(TcpAttachMsgVO fileToSendVO) {
 		
 			try {
 				Log.d(TAG, "file to send URI : " + fileToSendVO.getAttachmentUri());
 				File file = new File(getRealPathFromURI(fileToSendVO.getAttachmentUri()));
-
 				long fileSize= file.length();
-					
-				
-				tcpSocket = new Socket(fileToSendVO.getUserIp(), TCP_PORT);
-				
 				
 				byte [] fileByteArray  = new byte [(int)(fileSize)];
 				byte [] outputByteArray = new byte [(int)(HEADER_SIZE+fileSize)];
 				
+				String fileInfoString = createFileInfoString(file.getName(), String.valueOf(fileSize));
 				
-				StringBuilder fileInfoMsgSb = new StringBuilder();
-				
-				fileInfoMsgSb.append(file.getName());
-				fileInfoMsgSb.append(INFO_SEPARATOR);
-				fileInfoMsgSb.append(String.valueOf(fileSize));
-				fileInfoMsgSb.append(ENDING_STRING);
-				
-				byte [] infoByteArray = fileInfoMsgSb.toString().getBytes("UTF-8");
+				byte [] infoByteArray = fileInfoString.getBytes("UTF-8");
 				
 				for (int j=0; j<infoByteArray.length; j++){				
 						outputByteArray[j] = infoByteArray[j];					
 				}
 				
 				//send file bytes  				
-				
-				
-                FileInputStream fis = new FileInputStream(file);
+				FileInputStream fis = new FileInputStream(file);
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 bis.read(fileByteArray ,0,fileByteArray.length);
                 
                 for (int k=HEADER_SIZE; k<outputByteArray.length; k++){
                 	outputByteArray[k] = fileByteArray[k-HEADER_SIZE];               	
                 }
-                                      
-                OutputStream os = tcpSocket.getOutputStream();
-                os.write(outputByteArray,0,outputByteArray.length);
-                os.flush();
                 
+                tcpSend(fileToSendVO.getUserIp(), outputByteArray);
                 
                 Log.d(TAG, "file is sent");
                 
@@ -107,6 +110,23 @@ public class PeerFileSender extends Handler {
 				Log.e(TAG, "problem when sending files " + e.getMessage());
 			}
 		
+	}
+	
+	private String createFileInfoString(String firstParam, String secondParam)throws Exception{
+		StringBuilder fileInfoMsgSb = new StringBuilder();
+		
+		fileInfoMsgSb.append(firstParam);
+		fileInfoMsgSb.append(INFO_SEPARATOR);
+		fileInfoMsgSb.append(secondParam);
+		fileInfoMsgSb.append(ENDING_STRING);
+		return fileInfoMsgSb.toString();
+	}
+	
+	private void tcpSend(String ipAddressToSend, byte[] byteArrayToSend) throws Exception {
+		tcpSocket = new Socket(ipAddressToSend, TCP_PORT);
+		OutputStream os = tcpSocket.getOutputStream();
+        os.write(byteArrayToSend,0,byteArrayToSend.length);
+        os.flush();
 	}
 	
 	private String getRealPathFromURI(Uri contentURI) {

@@ -2,8 +2,9 @@ package com.iems5722.chatapp.gui;
 
 import android.net.Uri;
 
-public class AttachmentVO {
+public class TcpAttachMsgVO {
 	private String userIp;
+	private String chatMsg;
 	private Uri attachmentUri;
 	
 	
@@ -20,5 +21,11 @@ public class AttachmentVO {
 		this.attachmentUri = attachmentUri;
 	}
 	
+	public String getChatMsg() {
+		return chatMsg;
+	}
+	public void setChatMsg(String chatMsg) {
+		this.chatMsg = chatMsg;
+	}
 	
 }

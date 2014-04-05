@@ -24,7 +24,7 @@ public class DialogAttachmentPicker extends Activity {
 	private static final int SELECT_AUDIO=200;
 	private static final int SELECT_VIDEO=300;
 	private static final int SELECT_FILE=400;
-	private int currentExtIntent;
+	private int currentExtIntent=0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

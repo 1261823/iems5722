@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.iems5722.chatapp.R;
@@ -125,6 +126,14 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		switch(buttonId) {
 		case(R.id.menu_chat_send):
 			//TODO Send message to recipient
+			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
+			
+			String ipAddress = peerIdAddress.replace("/", "");
+			TcpAttachMsgVO chatMsgVO = new TcpAttachMsgVO();
+			chatMsgVO.setUserIp(ipAddress);
+			chatMsgVO.setChatMsg(chatText.getText().toString());
+		
+			peerFileService.getPeerFileSender().obtainMessage(PeerFileSender.SEND_MSG, chatMsgVO).sendToTarget();
 			Toast.makeText(this, "Sent private message to " + peerIdAddress, Toast.LENGTH_SHORT).show();
 			break;
 		default:
@@ -211,7 +220,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		    		String ipAddress = peerIdAddress.replace("/", "");
 		    		Log.d(TAG, "prepare to send file ip: " + ipAddress + " file URI: " + selectedFileUri);
 		    		
-		    		AttachmentVO attachVO = new AttachmentVO();
+		    		TcpAttachMsgVO attachVO = new TcpAttachMsgVO();
 		    		attachVO.setUserIp(ipAddress);
 		    		attachVO.setAttachmentUri(selectedFileUri);
 		    		
@@ -247,7 +256,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
         	Log.d(TAG, "received message");
         	switch (msg.what) {
         	case (TOAST):
-        		Toast.makeText(privateChatContext,  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+        		Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
     			break;
     		}
         }

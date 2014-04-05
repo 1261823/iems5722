@@ -103,39 +103,47 @@ public class PeerFileReceiver extends Handler {
 				
 				
 				String [] fileInfoStrArray = fileInfoUsefulPart.split(INFO_SEPARATOR); 
-				String filename = fileInfoStrArray[0];
-				String filesizeStr = fileInfoStrArray[1];
-				int filesize = Integer.parseInt(filesizeStr);
-
+				String firstParam = fileInfoStrArray[0];
+				String secondParam = fileInfoStrArray[1];
 				
-				//receive file after info arrived
-				byte[] fileByteArray = new byte[filesize];
-				Log.d(TAG, "File comes");
-				this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File comes");
-
-				File newFile = new File(Environment.getExternalStorageDirectory(),filename);
-				FileOutputStream fos = new FileOutputStream(newFile);
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				
-				int bytesRead = inputStream.read(fileByteArray, 0, filesize);
-				int currentBytesRead = 0; 
-				while (bytesRead > -1){
-					 currentBytesRead += bytesRead;
-					 if (currentBytesRead>=filesize){ 
-						 break;
-					 }
-					 bytesRead = inputStream.read(fileByteArray, currentBytesRead, filesize-currentBytesRead);
+				if (firstParam.equals(PeerFileService.MSG_TYPE_CHAT)){
+					String chatMsg = secondParam;
+					Log.d(TAG, "Received Chat Msg: " + chatMsg);
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, chatMsg);					
+				}else{//assume other type must be file
+					int filesize = Integer.parseInt(secondParam);
+					
+					//receive file after info arrived
+					byte[] fileByteArray = new byte[filesize];
+					Log.d(TAG, "File comes");
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File comes");
+	
+					File newFile = new File(Environment.getExternalStorageDirectory(),firstParam);
+					FileOutputStream fos = new FileOutputStream(newFile);
+					BufferedOutputStream bos = new BufferedOutputStream(fos);
+					
+					int bytesRead = inputStream.read(fileByteArray, 0, filesize);
+					int currentBytesRead = 0; 
+					while (bytesRead > -1){
+						 currentBytesRead += bytesRead;
+						 if (currentBytesRead>=filesize){ 
+							 break;
+						 }
+						 bytesRead = inputStream.read(fileByteArray, currentBytesRead, filesize-currentBytesRead);
+					}
+					if(currentBytesRead!=-1){
+						bos.write(fileByteArray, 0, currentBytesRead);
+						bos.flush();					
+					}
+					
+					Log.d(TAG, "File receive finished");
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
+					
+					fos.close();
+					bos.close();
 				}
-				if(currentBytesRead!=-1){
-					bos.write(fileByteArray, 0, currentBytesRead);
-					bos.flush();					
-				}
 				
-				Log.d(TAG, "File receive finished");
-				this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
-				
-				fos.close();
-				bos.close();
 				inputStream.close();
 				receiveSocket.close();
 				

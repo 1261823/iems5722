@@ -22,6 +22,7 @@ public class PeerFileService extends Service{
 	
 	public final static int INIT_THREAD = 0;
 	public final static int SEND_FILE = 1;
+	public final static String MSG_TYPE_CHAT = "chatMsg";
 	
 	
 	
