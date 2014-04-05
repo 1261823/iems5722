@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.UserSetInactive;
+import com.iems5722.chatapp.network.MulticastReceiver;
 import com.iems5722.chatapp.network.MulticastService;
 import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
 import com.iems5722.chatapp.network.PeerFileService;
@@ -179,6 +180,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 			//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
 			//networkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
+			
+			chatText.setText("");
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -262,7 +265,13 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public void onDestroy() {
 		//inform other users 
 		networkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
+		
 		unbindService(netServiceConnection);
+		unbindService(peerFileServiceConnection);
+		unbindService(multicastServiceConnection);
+		
+		stopService(peerFileServiceIntent);
+		stopService(multicastServiceIntent);
 		super.onDestroy();
 	}
 
