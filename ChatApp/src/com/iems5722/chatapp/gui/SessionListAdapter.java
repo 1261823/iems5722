@@ -13,6 +13,7 @@ import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.preference.UnitConverter;
 
 //gets private chat sessions
 public class SessionListAdapter extends SimpleCursorAdapter {
@@ -51,7 +52,7 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 		
 		if (colUsername!=-1 && colTimestamp!=-1 && colLastMsg !=-1){
 			String username   = c.getString(colUsername);	
-			int timestamp     = c.getInt(colTimestamp);
+			Long timestamp     = c.getLong(colTimestamp);
 			String lastonline = c.getString(colLastMsg);
 			
 			TextView disp_peername  = (TextView) v.findViewById(R.id.chat_peer);
@@ -59,7 +60,7 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 			TextView disp_lastmsg   = (TextView) v.findViewById(R.id.chat_lastmessage);
 	
 			disp_peername.setText(username);
-			disp_timestamp.setText(Integer.toString(timestamp));
+			disp_timestamp.setText(UnitConverter.getDateTime(timestamp));
 			disp_lastmsg.setText(lastonline);
 		}
 	}

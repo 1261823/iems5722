@@ -1,39 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding= "10dip" >
-    <TextView
-        android:id="@+id/msg_author"
-        android:layout_width="wrap_content"
+    android:layout_marginTop="10dip" 
+    android:layout_marginLeft="10dip" 
+    android:layout_marginRight="60dip" >
+    <RelativeLayout
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:text="Author"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/msg_timestamp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/msg_author"
-        android:paddingLeft="16dip"
-        android:textStyle="italic"
-        android:text="timestamp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />     
-    <TextView
-        android:id="@+id/msg_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/msg_timestamp"
-        android:paddingLeft="16dip"
-        android:textStyle="italic"
-        android:text="msg_id"
-        android:textAppearance="?android:attr/textAppearanceSmall" />             
-    <TextView
-        android:id="@+id/msg_recv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/msg_author"
-        android:text="Message received"
-        android:textAppearance="?android:attr/textAppearanceSmall" />   
-</RelativeLayout>
+        android:layout_width="0dp"
+        android:layout_weight="9"
+    	android:padding="5dip" 
+        android:background="@drawable/msg_recv" >
+	    <TextView
+	        android:id="@+id/msg_author"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:text="Author"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+		<TextView
+	        android:id="@+id/msg_recv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/msg_author"
+	        android:paddingLeft="10dip"
+	        android:minWidth="180dp"
+	        android:text="Message received. This is a really long sentence to see what happens."
+	        android:textAppearance="?android:attr/textAppearanceSmall" />  
+	    <TextView
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:paddingLeft="10dip"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />   
+	    <TextView
+	        android:id="@+id/msg_timestamp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/msg_recv"
+	        android:layout_alignRight="@id/msg_recv"
+	        android:textStyle="italic"
+	        android:text="timestamp"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />     
+	    <TextView
+	        android:id="@+id/msg_id"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignLeft="@id/msg_author"
+	        android:layout_below="@id/msg_recv"
+	        android:textStyle="italic"
+	        android:text="msg_id"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />         
+    </RelativeLayout>
+</LinearLayout>

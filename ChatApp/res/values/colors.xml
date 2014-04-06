@@ -5,6 +5,7 @@
     <color name="android_green_dark">#669900</color>
     <color name="android_blue">#33b5e5</color>
     <color name="android_blue_dark">#0099cc</color>
+    
     <!-- Common -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
@@ -15,4 +16,9 @@
     <color name="teal">#008080</color>
     <color name="orange">#FFA500</color>    
     <color name="silver">#D3D7Cf</color>
+    
+    <!-- Pastel -->
+    <color name="p_orange">#ffecc0</color>
+    <color name="p_blue">#c5eaf8</color>
+    <color name="p_green">#e2f0b6</color>
 </resources>

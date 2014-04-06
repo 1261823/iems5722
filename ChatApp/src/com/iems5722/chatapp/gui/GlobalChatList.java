@@ -13,6 +13,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 
 public class GlobalChatList extends ListFragment implements LoaderCallbacks<Cursor> {
 	private static final String TAG = "GlobalChatList";
@@ -35,6 +36,10 @@ public class GlobalChatList extends ListFragment implements LoaderCallbacks<Curs
 		//Log.d(TAG, "onViewCreated");
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.chat_empty));
+		getListView().setDivider(getResources().getDrawable(android.R.color.transparent));
+		getListView().setDividerHeight(5);
+		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		getListView().setStackFromBottom(true);
 	}	
 	
 	@Override

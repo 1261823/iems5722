@@ -29,8 +29,8 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	//Message parts
 	public final static int MsgType = 0;
 	public final static int MsgUser = 1;
-	public final static int MsgContent = 2;
-	public final static int MsgChatSessionId = 3;
+	public final static int MsgChatSessionId = 2;
+	public final static int MsgContent = 3;
 	private final static String msgSeparator = "-";
 	
 	public MessageBuilder(Context mContext) {
@@ -55,9 +55,9 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 		sb.append(msgSeparator);
 		sb.append(msgUserId);
 		sb.append(msgSeparator);
-		sb.append(MessageContent);
-		sb.append(msgSeparator);
 		sb.append(chatSessionId);
+		sb.append(msgSeparator);
+		sb.append(MessageContent);
 		return sb.toString();
 	}
 	

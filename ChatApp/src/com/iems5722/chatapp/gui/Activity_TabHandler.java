@@ -38,10 +38,8 @@ import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
-<<<<<<< HEAD
 import com.iems5722.chatapp.network.MessageBuilder;
-=======
->>>>>>> branch 'master' of https://github.com/mtleung/iems5722.git
+
 import com.iems5722.chatapp.network.MulticastService;
 import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
 import com.iems5722.chatapp.network.ServiceNetwork;

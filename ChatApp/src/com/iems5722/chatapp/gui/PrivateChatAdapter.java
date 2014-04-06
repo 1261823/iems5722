@@ -4,6 +4,7 @@ import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.preference.UnitConverter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -75,6 +76,6 @@ public class PrivateChatAdapter extends SimpleCursorAdapter {
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);
 		vMsgContent.setText(dbMsgContent);
-		vMsgTimestamp.setText(Long.toString(dbMsgTimestamp));
+		vMsgTimestamp.setText(UnitConverter.getDateTime(dbMsgTimestamp));
 	}	
 }

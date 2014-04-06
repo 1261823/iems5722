@@ -3,14 +3,17 @@ package com.iems5722.chatapp.gui;
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.preference.UnitConverter;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 public class GlobalChatAdapter extends SimpleCursorAdapter {
@@ -44,16 +47,24 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
 		String dbMsgAuthor = c.getString(msgAuthor);
 
+		LayoutParams params;
 
 		//Log.i(TAG, "Msg " + Long.toString(dbMsgId) + " from " + dbMsgAuthor + " vs " + Activity_TabHandler.userId);
 		if (dbMsgAuthor.equals(Activity_TabHandler.msgUsername)) {
 			//Log.i(TAG, "sent");
 			v = inflater.inflate(R.layout.chat_message_sent, null);
+			params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			params.setMargins(60, 10, 10, 0);
+			params.gravity = Gravity.RIGHT;
 		}		
 		else {
 			//Log.i(TAG, "recv");
 			v = inflater.inflate(layout, null);
+			params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			params.setMargins(10, 10, 60, 0);
 		}
+
+		v.setLayoutParams(params);
 		loadView(v, context, c);
 		return v;
 	}
@@ -84,6 +95,6 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);
 		vMsgContent.setText(dbMsgContent);
-		vMsgTimestamp.setText(Long.toString(dbMsgTimestamp));
+		vMsgTimestamp.setText(UnitConverter.getDateTime(dbMsgTimestamp));
 	}	
 }

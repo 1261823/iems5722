@@ -1,40 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding= "10dip" >
-    <TextView
-        android:id="@+id/msg_author"
-        android:layout_width="wrap_content"
+    android:layout_marginTop="10dip" 
+    android:layout_marginLeft="60dip"
+    android:layout_marginRight="10dip" 
+    android:gravity="right" >
+    <RelativeLayout
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/msg_timestamp"
-        android:text="Author"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/msg_timestamp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dip"
-        android:layout_alignParentRight="true"        
-        android:textStyle="italic"
-        android:text="timestamp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />    
-    <TextView
-        android:id="@+id/msg_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/msg_author"
-        android:paddingRight="16dip"
-        android:textStyle="italic"
-        android:text="msg_id"
-        android:textAppearance="?android:attr/textAppearanceSmall" />                  
-    <TextView
-        android:id="@+id/msg_recv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/msg_author"
-        android:layout_alignParentRight="true"        
-        android:text="Message received"
-        android:textAppearance="?android:attr/textAppearanceSmall" />   
-</RelativeLayout>
+        android:background="@drawable/msg_sent"
+        android:padding="5dip" 
+        android:gravity="right">
+	    <TextView
+	        android:id="@+id/msg_author"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:minWidth="100dp"
+	        android:text="Author"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+		<TextView
+	        android:id="@+id/msg_recv"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/msg_author"
+	        android:paddingLeft="10dip"
+	        android:minWidth="180dp"
+	        android:text="a."
+	        android:textAppearance="?android:attr/textAppearanceSmall" />  
+	    <TextView
+	        android:layout_width="0dp"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:paddingLeft="10dip"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />   
+	    <TextView
+	        android:id="@+id/msg_timestamp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/msg_recv"
+	        android:layout_alignRight="@id/msg_recv"
+	        android:textStyle="italic"
+	        android:text="timestamp"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />     
+	    <TextView
+	        android:id="@+id/msg_id"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@id/msg_recv"
+	        android:layout_alignLeft="@id/msg_author"
+	        android:textStyle="italic"
+	        android:text="msg_id"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />         
+    </RelativeLayout>
+</LinearLayout>

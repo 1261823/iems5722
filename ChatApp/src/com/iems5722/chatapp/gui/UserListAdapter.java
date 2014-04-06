@@ -2,6 +2,7 @@ package com.iems5722.chatapp.gui;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.preference.UnitConverter;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -47,9 +48,9 @@ public class UserListAdapter extends SimpleCursorAdapter {
 		int colStatus     = c.getColumnIndex(TblUser.STATUS);
 		int colLastOnline = c.getColumnIndex(TblUser.USER_DATETIME);
 		
-		String username   = c.getString(colUsername);	
-		String status     = c.getString(colStatus);
-		int    lastonline = c.getInt(colLastOnline);
+		String username = c.getString(colUsername);	
+		String status   = c.getString(colStatus);
+		Long lastonline = c.getLong(colLastOnline);
 		
 		TextView disp_username = (TextView) v.findViewById(R.id.user_name);
 		TextView disp_status   = (TextView) v.findViewById(R.id.user_status);
@@ -59,7 +60,7 @@ public class UserListAdapter extends SimpleCursorAdapter {
 			disp_status.setText(status);
 		}
 		else {
-			disp_status.setText(Integer.toString(lastonline));
+			disp_status.setText(context.getText(R.string.user_offline_lastseen) + " " + UnitConverter.getDateTime(lastonline));
 		}
 	}
 }

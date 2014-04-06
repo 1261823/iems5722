@@ -57,6 +57,10 @@
 	<string name="user_offline_heading">Offline Users</string>
 	<string name="user_online_none">No online users</string>
 	<string name="user_offline_none">No offline users</string>
+	<string name="user_offline_lastseen">Last online:</string>
+	
+	<!-- Private chat tab -->
+	
 	
 	<!-- User context menu items -->
 	<string name="user_menu_ping">Check if online</string>
