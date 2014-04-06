@@ -47,8 +47,8 @@ public class UserListInactive extends ListFragment implements LoaderCallbacks<Cu
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 		//Log.d(TAG, "onCreateLoader");		
 		String[] column = {TblUser.USER_UFI, TblUser.USER_NAME, TblUser.STATUS, TblUser.USER_DATETIME};
-		String selection = TblUser.STATUS + " = ?";
-		String[] selectArgs = {"offline"};		
+		String selection = TblUser.STATUS + " = ? " + " AND " + TblUser.USER_ID + " != ? ";
+		String[] selectArgs = {"offline", Activity_TabHandler.userId};		
 		return new CursorLoader(getActivity(), DbProvider.USER_URI, column, selection, selectArgs, sortOrder);
 	}
 
