@@ -27,19 +27,19 @@ public class PrivateChatList extends ListFragment implements LoaderCallbacks<Cur
 		//Log.d(TAG, "onCreate");
 		Bundle arguments = getArguments();
 		//only load if session id available
-		if (arguments.containsKey(TblChat.SESSION_ID)) {
-			sessionId = arguments.getString(TblChat.SESSION_ID);
-			if (! sessionId.isEmpty()) {
-				getLoaderManager().initLoader(0, null, this);
+		if (arguments != null) {
+			if (arguments.containsKey(TblChat.SESSION_ID)) {
+				sessionId = arguments.getString(TblChat.SESSION_ID);
+				if (! sessionId.isEmpty()) {
+					getLoaderManager().initLoader(0, null, this);
+				}
 			}
 		}
 		
 		String[] from = new String[] {TblChat.MESSAGE_ID};
 		int[] to = new int[] {R.id.msg_id};
-		mAdapter = new PrivateChatAdapter(getActivity(), R.layout.chat_message_sent, null, from, to, 0);
+		mAdapter = new PrivateChatAdapter(getActivity(), R.layout.chat_message_recv, null, from, to, 0);
 		setListAdapter(mAdapter);
-
-
 	}	
 	
 	@Override

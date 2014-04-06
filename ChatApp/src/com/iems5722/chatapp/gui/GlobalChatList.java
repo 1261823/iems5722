@@ -39,7 +39,6 @@ public class GlobalChatList extends ListFragment implements LoaderCallbacks<Curs
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		SQLiteDatabase db = DbProvider.database.getReadableDatabase();
 		return new CursorLoader(getActivity(), DbProvider.GCHAT_URI, null, null, null, null);
 	}
 

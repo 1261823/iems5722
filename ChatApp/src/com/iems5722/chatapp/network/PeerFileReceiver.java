@@ -7,9 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Calendar;
 
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblGlobalChat;
+import com.iems5722.chatapp.gui.Activity_PrivateChat;
 import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -29,8 +35,9 @@ public class PeerFileReceiver extends Handler {
 	private final static String ENDING_STRING = "@";
 	
 	private Context context;
-	private Handler handler;
+	private Handler mHandler;
 
+	
 	public final static int INITIAL_TCP_PORT  = 1;
 	public final static int TCP_LISTEN = 2;
 	
@@ -38,6 +45,15 @@ public class PeerFileReceiver extends Handler {
 	public PeerFileReceiver(Looper looper, Context currentContext) {
 		this.context = currentContext;
 	}
+	
+	public Handler getmHandler() {
+		return mHandler;
+	}
+
+	public void setmHandler(Handler mHandler) {
+		this.mHandler = mHandler;
+	}
+
 	
 	@Override
 	public void handleMessage(Message msg) {
@@ -88,50 +104,82 @@ public class PeerFileReceiver extends Handler {
 				
 				String fileInfoStr = new String(headerByteArray, "UTF-8");
 				String fileInfoUsefulPart = fileInfoStr.substring(0, fileInfoStr.indexOf(ENDING_STRING));
-				Log.i(TAG, "File info arrived "+fileInfoUsefulPart);
+				Log.d(TAG, "File info arrived "+fileInfoUsefulPart);
+				
 				
 				String [] fileInfoStrArray = fileInfoUsefulPart.split(INFO_SEPARATOR); 
-				String filename = fileInfoStrArray[0];
-				String filesizeStr = fileInfoStrArray[1];
-				int filesize = Integer.parseInt(filesizeStr);
-
+				String firstParam = fileInfoStrArray[0];
+				String secondParam = fileInfoStrArray[1];
 				
-				//receive file after info arrived
-				byte[] fileByteArray = new byte[filesize];
-				Log.d(TAG, "File comes");
-
-				File newFile = new File(Environment.getExternalStorageDirectory(),filename);
-				FileOutputStream fos = new FileOutputStream(newFile);
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				
-				int bytesRead = inputStream.read(fileByteArray, 0, filesize);
-				int currentBytesRead = 0; 
-				while (bytesRead > -1){
-					 currentBytesRead += bytesRead;
-					 if (currentBytesRead>=filesize){ 
-						 break;
-					 }
-					 bytesRead = inputStream.read(fileByteArray, currentBytesRead, filesize-currentBytesRead);
+				if (firstParam.equals(PeerFileService.MSG_TYPE_CHAT)){
+					String chatMsg = secondParam;
+					Log.d(TAG, "Received Chat Msg: " + chatMsg);
+					updatePrivateMsg(chatMsg);
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, chatMsg);					
+				}else{//assume other type must be file
+					int filesize = Integer.parseInt(secondParam);
+					
+					//receive file after info arrived
+					byte[] fileByteArray = new byte[filesize];
+					Log.d(TAG, "File comes");
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File comes");
+	
+					File newFile = new File(Environment.getExternalStorageDirectory(),firstParam);
+					FileOutputStream fos = new FileOutputStream(newFile);
+					BufferedOutputStream bos = new BufferedOutputStream(fos);
+					
+					int bytesRead = inputStream.read(fileByteArray, 0, filesize);
+					int currentBytesRead = 0; 
+					while (bytesRead > -1){
+						 currentBytesRead += bytesRead;
+						 if (currentBytesRead>=filesize){ 
+							 break;
+						 }
+						 bytesRead = inputStream.read(fileByteArray, currentBytesRead, filesize-currentBytesRead);
+					}
+					if(currentBytesRead!=-1){
+						bos.write(fileByteArray, 0, currentBytesRead);
+						bos.flush();					
+					}
+					
+					Log.d(TAG, "File receive finished");
+					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
+					
+					fos.close();
+					bos.close();
 				}
-				if(currentBytesRead!=-1){
-					bos.write(fileByteArray, 0, currentBytesRead);
-					bos.flush();					
-				}
 				
-				Log.d(TAG, "File receive finished");
-				
-				
-				fos.close();
-				bos.close();
 				inputStream.close();
 				receiveSocket.close();
 				
-			} catch (IOException e) {
+			} catch (Exception e) {
 				Log.e(TAG, "Problem when receiving files " + e.getMessage());
 				socketOK = false;
 				closeSocket();
 			}
 		}
+	}
+	
+	public void updatePrivateMsg(String message) throws Exception{
+    	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
+    	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
+    	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
+    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent + " Session " + chatSessionId);
+    	
+    	Calendar c = Calendar.getInstance();
+		long curDateTimeMS = c.getTimeInMillis();     	
+    	    	
+		ContentValues values = new ContentValues();
+		values.put(TblChat.USER_ID, msgUser);
+		values.put(TblChat.MESSAGE, msgContent);
+		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
+		values.put(TblChat.SESSION_ID, chatSessionId);
+		//add new user
+		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
+		Log.d(TAG, "Added new private message " + itemUri.toString());    	
 	}
 	
 	public void closeSocket()

@@ -26,9 +26,11 @@ public class DbProvider extends ContentProvider{
 	public final static String BASE_PATH_USER = TblUser.TABLE_USER;
 	public final static String BASE_PATH_GCHAT = TblGlobalChat.TABLE_GLOBAL_CHAT;
 	public final static String BASE_PATH_PCHAT = TblChat.TABLE_CHAT;
+	public final static String BASE_PATH_PCTITLE = "PCHAT_TITLE";
 	public final static Uri USER_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_USER);
 	public final static Uri GCHAT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_GCHAT);
 	public final static Uri PCHAT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_PCHAT);
+	public final static Uri PCTITLE_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_PCTITLE);
 	
 	//MIME types
 	public static final String CONTENT_TYPE_USER = ContentResolver.CURSOR_DIR_BASE_TYPE + "/USERS";
@@ -37,6 +39,8 @@ public class DbProvider extends ContentProvider{
 	public static final String CONTENT_ITEM_GCHAT = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/GCHAT";	
 	public static final String CONTENT_TYPE_PCHAT = ContentResolver.CURSOR_DIR_BASE_TYPE + "/PCHATS";
 	public static final String CONTENT_ITEM_PCHAT = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/PCHAT";	
+	public static final String CONTENT_TYPE_PCTITLE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/PCTITLE";
+	
 	
 	//URI Matcher
 	private static final int USER_LIST = 10;
@@ -45,6 +49,7 @@ public class DbProvider extends ContentProvider{
 	private static final int GCHAT_ITEM = 21;	
 	private static final int PCHAT_LIST = 30;
 	private static final int PCHAT_ITEM = 31;
+	private static final int PCHAT_TITLE = 32;
 	private static final UriMatcher sURIMatcher = buildUriMatcher(); 
 
 	private static UriMatcher buildUriMatcher() {
@@ -54,9 +59,33 @@ public class DbProvider extends ContentProvider{
 		matcher.addURI(AUTHORITY, BASE_PATH_GCHAT, GCHAT_LIST);
 		matcher.addURI(AUTHORITY, BASE_PATH_GCHAT + "/#", GCHAT_ITEM);		
 		matcher.addURI(AUTHORITY, BASE_PATH_PCHAT, PCHAT_LIST);
-		matcher.addURI(AUTHORITY, BASE_PATH_PCHAT + "/#", PCHAT_ITEM);
+		matcher.addURI(AUTHORITY, BASE_PATH_PCHAT + "/#", PCHAT_ITEM);		
+		matcher.addURI(AUTHORITY, BASE_PATH_PCTITLE, PCHAT_TITLE);
 		return matcher;
 	}		
+	
+
+	@Override
+	public String getType(Uri uri) {
+		switch(sURIMatcher.match(uri)) {
+		case USER_LIST:
+			return CONTENT_TYPE_USER;
+		case USER_ITEM:
+			return CONTENT_ITEM_USER;	
+		case GCHAT_LIST:
+			return CONTENT_TYPE_GCHAT;
+		case GCHAT_ITEM:
+			return CONTENT_ITEM_GCHAT;				
+		case PCHAT_LIST:
+			return CONTENT_TYPE_PCHAT;
+		case PCHAT_ITEM:
+			return CONTENT_ITEM_PCHAT;
+		case PCHAT_TITLE:
+			return CONTENT_TYPE_PCTITLE;
+		default:
+			throw new IllegalArgumentException("Unknown Uri: " + uri);
+		}
+	}
 	
 	@Override
 	public boolean onCreate() {
@@ -66,8 +95,11 @@ public class DbProvider extends ContentProvider{
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		SQLiteDatabase sqlDB = database.getReadableDatabase();
 		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+		Cursor cursor;
 		checkColumns(projection);
+		
 		int uriType = sURIMatcher.match(uri);
 		switch(uriType) {
 			case USER_LIST:
@@ -87,42 +119,38 @@ public class DbProvider extends ContentProvider{
 				queryBuilder.appendWhere(TblGlobalChat.MESSAGE_ID + "=" + uri.getLastPathSegment());
 				break;				
 			case PCHAT_LIST:
-				queryBuilder.setTables(TblChat.TABLE_CHAT);
+				queryBuilder.setTables(TblChat.TABLE_CHAT + " LEFT OUTER JOIN " + TblUser.TABLE_USER
+						+ " ON (" + TblChat.TABLE_CHAT + "." + TblChat.USER_ID
+						+ " = " + TblUser.TABLE_USER + "." + TblUser.USER_ID + ")");
 				break;
 			case PCHAT_ITEM:
 				queryBuilder.setTables(TblChat.TABLE_CHAT);
 				queryBuilder.appendWhere(TblChat.MESSAGE_ID + "=" + uri.getLastPathSegment());
-				break;					
+				break;			
+			case PCHAT_TITLE:
+				//Log.d(TAG, "Querying PCHAT_TITLE");
+				break;
 			default:
 				throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		SQLiteDatabase sqlDB = database.getWritableDatabase();
-		Cursor cursor = queryBuilder.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder);
+		//Log.d(TAG, "URI Type " + Integer.toString(uriType));
+		if (uriType != PCHAT_TITLE) {
+			//Log.d(TAG, "Standard query");
+			cursor = queryBuilder.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder);
+		}
+		else {
+			//Log.d(TAG, "Raw query");
+			cursor = sqlDB.rawQuery(selection, selectionArgs);
+		}
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
+			//Log.d(TAG, "Moved to first");
+		}
+		else {
+			//Log.d(TAG, "Cursor null " + cursor.getCount());
 		}
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
-	}
-
-	@Override
-	public String getType(Uri uri) {
-		switch(sURIMatcher.match(uri)) {
-		case USER_LIST:
-			return CONTENT_TYPE_USER;
-		case USER_ITEM:
-			return CONTENT_ITEM_USER;	
-		case GCHAT_LIST:
-			return CONTENT_TYPE_GCHAT;
-		case GCHAT_ITEM:
-			return CONTENT_ITEM_GCHAT;				
-		case PCHAT_LIST:
-			return CONTENT_TYPE_PCHAT;
-		case PCHAT_ITEM:
-			return CONTENT_ITEM_PCHAT;
-		default:
-			throw new IllegalArgumentException("Unknown Uri: " + uri);
-		}
 	}
 
 	@Override
@@ -181,7 +209,7 @@ public class DbProvider extends ContentProvider{
 		int count;
 		switch(uriType) {
 			case USER_LIST:
-				count = database.getWritableDatabase().update(TblUser.TABLE_USER, values, null, null);
+				count = database.getWritableDatabase().update(TblUser.TABLE_USER, values, selection, selectionArgs);
 				break;
 			case USER_ITEM:
 				count = database.getWritableDatabase().update(TblUser.TABLE_USER, values, TblUser.USER_UFI + "=?",

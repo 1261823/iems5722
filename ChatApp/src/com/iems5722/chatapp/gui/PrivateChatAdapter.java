@@ -3,6 +3,7 @@ package com.iems5722.chatapp.gui;
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
+import com.iems5722.chatapp.database.TblUser;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class PrivateChatAdapter extends SimpleCursorAdapter {
+	public final static String TAG = "PrivateChatAdapter";
 	private Context context;
 	private int layout;
 	
@@ -31,8 +33,19 @@ public class PrivateChatAdapter extends SimpleCursorAdapter {
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		//log.d(APP_TAG, "newView");
 		Cursor c = getCursor();
-		final LayoutInflater inflater = LayoutInflater.from(context);
-		View v = inflater.inflate(layout, parent, false);
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View v;
+		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
+		String dbMsgAuthor = c.getString(msgAuthor);
+
+		if (dbMsgAuthor.equals(Activity_TabHandler.msgUsername)) {
+			//Log.i(TAG, "sent");
+			v = inflater.inflate(R.layout.chat_message_sent, null);
+		}
+		else {
+			//Log.i(TAG, "recv");
+			v = inflater.inflate(layout, null);
+		}
 		loadView(v, context, c);
 		return v;
 	}
@@ -45,7 +58,7 @@ public class PrivateChatAdapter extends SimpleCursorAdapter {
 	
 	private void loadView(View v, Context context, Cursor c) {
 		int msgId = c.getColumnIndex(TblChat.MESSAGE_ID);
-		int msgAuthor = c.getColumnIndex(TblChat.USER_ID);
+		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
 		int msgContent = c.getColumnIndex(TblChat.MESSAGE);
 		int msgTimestamp = c.getColumnIndex(TblChat.MSG_DATETIME);
 		
@@ -54,10 +67,10 @@ public class PrivateChatAdapter extends SimpleCursorAdapter {
 		String dbMsgContent = c.getString(msgContent);
 		long dbMsgTimestamp = c.getLong(msgTimestamp);
 		
-		vMsgId = (TextView) v.findViewById(R.id.msg_author);
-		vMsgAuthor = (TextView) v.findViewById(R.id.msg_timestamp);
-		vMsgContent = (TextView) v.findViewById(R.id.msg_id);
-		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_recv);
+		vMsgId = (TextView) v.findViewById(R.id.msg_id);
+		vMsgAuthor = (TextView) v.findViewById(R.id.msg_author);
+		vMsgContent = (TextView) v.findViewById(R.id.msg_recv);
+		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_timestamp);
 		
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);

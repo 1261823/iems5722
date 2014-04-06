@@ -30,6 +30,7 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	public final static int MsgType = 0;
 	public final static int MsgUser = 1;
 	public final static int MsgContent = 2;
+	public final static int MsgChatSessionId = 3;
 	private final static String msgSeparator = "-";
 	
 	public MessageBuilder(Context mContext) {
@@ -45,17 +46,24 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	}
 	
 	public String messageCreate(String MessageType, String MessageContent) {
+		return  messageCreate(MessageType, MessageContent, "");
+	}
+	
+	public String messageCreate(String MessageType, String MessageContent, String chatSessionId) {
 		StringBuilder sb = new StringBuilder(ServiceNetwork.Packet_Size);
 		sb.append(MessageType);
 		sb.append(msgSeparator);
 		sb.append(msgUserId);
 		sb.append(msgSeparator);
 		sb.append(MessageContent);
+		sb.append(msgSeparator);
+		sb.append(chatSessionId);
 		return sb.toString();
 	}
 	
+
 	public static String getMessagePart(String inMessage, int msgPart) {
-		String[] msgParts = inMessage.split(msgSeparator, 3);
+		String[] msgParts = inMessage.split(msgSeparator, 4);
 		//Log.i(TAG, "Type " + msgParts[MsgType]);
 		//Log.i(TAG, "User " + msgParts[MsgUser]);
 		//Log.i(TAG, "Content " + msgParts[MsgContent]);
@@ -67,5 +75,6 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 		if (key.equals(mContext.getString(R.string.pref_key_userid))) {
 			readPreferences();
 		}
-	}
+	}	
+	
 }

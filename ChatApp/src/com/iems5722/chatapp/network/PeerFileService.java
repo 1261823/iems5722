@@ -13,7 +13,7 @@ import android.util.Log;
 public class PeerFileService extends Service{
 	private final static String TAG = "PeerFileService";
 	private static Looper peerFileServiceLooper;
-	private Handler UIhandler;
+	private Handler uiHandler;
 	private final IBinder peerFileServiceBinder = new PeerFileServiceBinder();
 	
 	public static PeerFileServiceHandler peerFileServiceHandler;
@@ -21,7 +21,21 @@ public class PeerFileService extends Service{
 	private PeerFileReceiver peerFileReceiverHandler;
 	
 	public final static int INIT_THREAD = 0;
+	public final static int SEND_FILE = 1;
+	public final static String MSG_TYPE_CHAT = "chatMsg";
 	
+	
+	
+	public Handler getUiHandler() {
+		return uiHandler;
+	}
+
+
+	public void setUiHandler(Handler uiHandler) {
+		this.uiHandler = uiHandler;
+	}
+
+
 	@Override
 	public void onCreate() {
 		Log.d(TAG, "Creating service");
@@ -29,14 +43,15 @@ public class PeerFileService extends Service{
 		HandlerThread thread = new HandlerThread(TAG);
 		thread.start();
 		peerFileServiceLooper = thread.getLooper();
-		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper); 
+		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper);
+		
 	}
 	
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int StartId) {
 		Log.d(TAG, "onStartCommand");
-		UIhandler = new Handler(Looper.getMainLooper());
+		uiHandler = new Handler(Looper.getMainLooper());
 		peerFileServiceHandler.obtainMessage(INIT_THREAD).sendToTarget();
 		return Service.START_STICKY;
 	}
@@ -60,9 +75,13 @@ public class PeerFileService extends Service{
 		return peerFileServiceHandler;
 	}
 	
+	public PeerFileSender getPeerFileSender(){
+		return this.peerFileSenderHandler;		
+	}
+	
 	@Override
 	public void onDestroy() {
-		//Log.d(TAG, "onDestroy");
+		Log.d(TAG, "onDestroy");
 		stopSelf();
 	}
 	
@@ -74,6 +93,7 @@ public class PeerFileService extends Service{
 	    	@Override
 	    	public void handleMessage(Message msg) {
 	    		Log.d(TAG, "handling message");
+	    		
 	        	switch (msg.what) {
 	        		case PeerFileService.INIT_THREAD: 
 	        			
@@ -90,11 +110,20 @@ public class PeerFileService extends Service{
 	    	    		peerFileReceiverHandler = new PeerFileReceiver(peerFileReceiverLooper, getApplicationContext());
 	    	    		
 	    	    		Log.d(TAG, "Invoke Receiver Thread");
+	    	    		peerFileReceiverHandler.setmHandler(uiHandler);
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.INITIAL_TCP_PORT).sendToTarget();
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.TCP_LISTEN).sendToTarget();
 	    	    		break;
-	        		default: break;	
+	        		case PeerFileService.SEND_FILE:
+	        			Log.d(TAG, "send file : "+ msg.obj);
+	        			peerFileSenderHandler.obtainMessage(PeerFileSender.SEND_FILE, msg.obj).sendToTarget();
+	        			break;
+	        		default:
+	        			Log.d(TAG, "Wrong request msg: "+ msg.what);
+	        			break;	
 	        	}
+	        	
+	        	
 	    	}
 	    	
 	 }

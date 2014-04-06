@@ -5,8 +5,11 @@ import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblUser;
 
+import android.app.DownloadManager.Query;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -14,6 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 
 //shows private chat sessions
 public class SessionList extends ListFragment implements LoaderCallbacks<Cursor> {
@@ -21,7 +25,7 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	
 	private long mRowId;		
 	private SessionListAdapter mAdapter;
-	private Cursor cursor;
+	private Cursor mCursor;
 	
 	static SessionList init() {
 		SessionList fragSess = new SessionList();
@@ -31,23 +35,10 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//Log.d(TAG, "onCreate");
-		Bundle arguments = getArguments();
-		if (arguments != null) {
-			mRowId = arguments.getLong(TblUser.USER_UFI);
-		}
+		Log.d(TAG, "onCreate");
 		String[] from = new String[] {TblChat.USER_ID};
 		int[] to = new int[] {R.id.chat_peer};
-		SQLiteDatabase db = DbProvider.database.getReadableDatabase();
-		String sql = "SELECT " + TblChat.TABLE_CHAT + "." + TblChat.MESSAGE_ID + ", " + TblChat.MESSAGE + ", " + TblChat.SESSION_ID
-				+ ", MAX(" + TblChat.MSG_DATETIME + "), " + TblUser.USER_NAME 
-				+ ", " + TblUser.TABLE_USER + "." + TblUser.USER_ID + ", " + TblChat.TABLE_CHAT + "." + TblChat.USER_ID
-				+ " FROM " + TblChat.TABLE_CHAT + " INNER JOIN " + TblUser.TABLE_USER
-				+ " ON "  + TblChat.TABLE_CHAT  + "." + TblChat.USER_ID + " = " + TblUser.TABLE_USER + "." + TblUser.USER_ID
-				+ " GROUP BY " + TblChat.SESSION_ID;
-		//Log.d(SessionList.class.getName(), sql);
-		Cursor cursor = db.rawQuery(sql, null);
-		mAdapter = new SessionListAdapter(getActivity(), R.layout.chatlist_detail, cursor, from, to, 0);
+		mAdapter = new SessionListAdapter(getActivity(), R.layout.chatlist_detail, null, from, to, 0);
 		setListAdapter(mAdapter);
 		getLoaderManager().initLoader(0, null, this);		
 	}	
@@ -61,10 +52,13 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
-		String selection = TblChat.SESSION_ID + " != ?";
-		String[] selectionArgs = {"0"};
-		String sortOrder = TblChat.MSG_DATETIME;
-		return new CursorLoader(getActivity(), DbProvider.PCHAT_URI, null, selection, selectionArgs, sortOrder);
+		String selection = "SELECT " + TblChat.TABLE_CHAT + "." + TblChat.MESSAGE_ID + ", " + TblChat.MESSAGE + ", " + TblChat.SESSION_ID
+				+ ", MAX(" + TblChat.MSG_DATETIME + ") AS " + TblChat.MSG_DATETIME + " , " + TblUser.USER_NAME 
+				+ ", " + TblUser.TABLE_USER + "." + TblUser.USER_ID + ", " + TblChat.TABLE_CHAT + "." + TblChat.USER_ID
+				+ " FROM " + TblChat.TABLE_CHAT + " INNER JOIN " + TblUser.TABLE_USER
+				+ " ON "  + TblChat.TABLE_CHAT  + "." + TblChat.USER_ID + " = " + TblUser.TABLE_USER + "." + TblUser.USER_ID
+				+ " GROUP BY " + TblChat.SESSION_ID;
+		return new CursorLoader(getActivity(), DbProvider.PCTITLE_URI, null, selection, null, null);
 	}
 
 	@Override
@@ -73,10 +67,16 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
+	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);		
 	}
 	
-
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent i = new Intent(getActivity(), Activity_PrivateChat.class);
+		i.putExtra(TblChat.KEY_MSG_ID, id);
+		startActivity(i);
+	}
 
 }

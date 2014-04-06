@@ -152,7 +152,9 @@ public class ServiceNetwork extends Service {
 	@Override
 	public void onDestroy() {
 		//Log.d(TAG, "onDestroy");
+		SocketOK = false;
 		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
+		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_CLOSE).sendToTarget();
 		stopSelf();
 	}		
 	

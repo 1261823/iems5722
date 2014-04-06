@@ -351,8 +351,11 @@ public class Activity_TabHandler extends FragmentActivity implements
 			//update user with new information
 			
 			Log.d(TAG, "User MD5 is " + userId);
+			String selection = TblUser.USER_ID + " =? ";
+			String[] selArgs = {userId};
 			int count = this.getApplicationContext().getContentResolver().update(
-						ContentUris.withAppendedId(DbProvider.USER_URI, mRowId), values, null, null);
+						DbProvider.USER_URI, values, selection, selArgs);
+			Log.d(TAG, "User update result " + count);
 			if (count != 1) {
 				Log.d(TAG, "Inserting user " + msgUsername);
 				Uri itemUri = this.getApplicationContext().getContentResolver().insert(DbProvider.USER_URI, values);

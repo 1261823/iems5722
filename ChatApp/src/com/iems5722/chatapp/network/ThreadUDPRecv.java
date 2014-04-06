@@ -37,6 +37,7 @@ public class ThreadUDPRecv extends Handler {
 	//commands recognised by udp service
 	public final static int UDP_INIT = 1;
 	public final static int UDP_LISTEN = 2;
+	public final static int UDP_CLOSE = 3;
 	
 	//List of users to recognise messages from
 	List<UserDetail> UserList = new ArrayList<UserDetail>();
@@ -60,13 +61,16 @@ public class ThreadUDPRecv extends Handler {
 			case UDP_LISTEN:
 				listenUDP();
 				break;
+			case UDP_CLOSE:
+				stopUDP();
+				break;
 			default:
 				Log.e(TAG, "Unknown command: " + msg.what);
 		}
 	}
 	
 	//set up sockets for sending udp
-	public void setupUDP() {
+	private void setupUDP() {
 		try	{
 			//Log.i(TAG,"trying to create the datagram...");
 			ServiceNetwork.serverSocket = new DatagramSocket(ServiceNetwork.UDP_PORT);
@@ -81,7 +85,7 @@ public class ThreadUDPRecv extends Handler {
 	}	
 	
 	//main part for handling incoming udp messages
-	public void listenUDP() {
+	private void listenUDP() {
 		//UDP socket
 		byte[] receiveData = new byte[ServiceNetwork.Packet_Size]; 
 		while(ServiceNetwork.SocketOK) {
@@ -121,6 +125,19 @@ public class ThreadUDPRecv extends Handler {
 			} 	
 		}
 	}	
+	
+	//clean up
+	private void stopUDP() {
+		try	{
+			//Log.i(TAG,"trying to create the datagram...");
+			ServiceNetwork.serverSocket.setBroadcast(false);
+			ServiceNetwork.serverSocket.close();
+		} 
+		catch(Exception e) {
+			Log.e(TAG,"Cannot close socket"+e.getMessage());
+			return;
+		}			
+	}
 	
 	//updates user database
 	public void updateUser(String message) {

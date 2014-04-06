@@ -26,7 +26,6 @@ public class SessionListAdapter extends SimpleCursorAdapter {
 		super(context, layout, c, from, to, flags);
 		this.context = context;
 		this.layout = layout;
-		this.cursor = c;
 	}
 
 	@Override

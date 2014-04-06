@@ -12,6 +12,9 @@ public class TblChat {
 	public static final String MESSAGE = "msg";
 	public static final String MSG_DATETIME = "msg_dt";
 
+	//keys for referencing in bundles
+	public static final String KEY_MSG_ID = "key_msgid";
+	
 	//create database
 	private static final String DATABASE_CREATE = "CREATE TABLE  IF NOT EXISTS " 
 			+ TABLE_CHAT + " ("
