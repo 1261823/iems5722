@@ -3,6 +3,7 @@ package com.iems5722.chatapp.gui;
 
 import java.util.Set;
 
+
 import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,7 +41,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	private final static int ACTIVIITY_ATTACHMENT_PICKER=100;
 	public final static int TOAST = 1;
 	private ActionBar actionBar;
-	
+
 	//Peer File Transfer service
 	PeerFileService peerFileService;
 	private Intent peerFileServiceIntent;

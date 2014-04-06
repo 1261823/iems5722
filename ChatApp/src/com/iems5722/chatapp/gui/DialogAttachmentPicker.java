@@ -2,28 +2,36 @@ package com.iems5722.chatapp.gui;
 
 
 
-import com.iems5722.chatapp.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Window;
-import android.widget.Toast;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.network.ThreadUDPSend;
 
 public class DialogAttachmentPicker extends Activity { 
 	public final static String TAG = "DialogAttachmentPicker";
 	final Context context = this;
 	
+	private static final int SELECT_PHOTO=100;	
+	private static final int SELECT_AUDIO=200;
+	private static final int SELECT_VIDEO=300;
+	private static final int SELECT_FILE=400;
+	private int currentExtIntent=0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//Log.d(APP_TAG, "onCreate");
 		super.onCreate(savedInstanceState);
+		
+		
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		buildDialog();
 	}
@@ -38,22 +46,79 @@ public class DialogAttachmentPicker extends Activity {
 				switch(which) {
 					case(0):
 						//photos
-						Toast.makeText(getParent(), "Photo", Toast.LENGTH_SHORT).show();
+						currentExtIntent = SELECT_PHOTO;
+						Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+						startActivityForResult(photoPickerIntent, SELECT_PHOTO);   
+						break;
 					case(1):
-						//audio
-						Toast.makeText(getParent(), "Audio", Toast.LENGTH_SHORT).show();
-					case(2):
 						//video
-						Toast.makeText(getParent(), "Video", Toast.LENGTH_SHORT).show();
+						currentExtIntent =  SELECT_VIDEO;
+						Intent videoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+						startActivityForResult(videoPickerIntent, SELECT_VIDEO);
+						break;
+					case(2):
+						//audio
+						currentExtIntent = SELECT_AUDIO;
+						Intent audioPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+						startActivityForResult(audioPickerIntent, SELECT_AUDIO);
+						break;
+						
 					case(3):
 						//file
-						Toast.makeText(getParent(), "File", Toast.LENGTH_SHORT).show();
+						currentExtIntent = SELECT_FILE;
+						Intent filePickerIntent = new Intent(Intent.ACTION_GET_CONTENT);
+						filePickerIntent.setType("file/*");
+						startActivityForResult(filePickerIntent, SELECT_FILE);
+						break;
 					default:
 						Log.e(TAG, "Unknown command: " + which);
+						break;
 				}
 			}
 		});
 		attachDialog.setCancelable(true);
 		attachDialog.show();
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent returnedIntent) { 
+	    super.onActivityResult(requestCode, resultCode, returnedIntent); 
+	    	
+	    	if(resultCode == RESULT_OK){  
+	        	try{
+		            Uri selectedFileUri = returnedIntent.getData();
+		            Log.d(TAG,"selected file : " + selectedFileUri.getPath());
+		            Intent resultIntent = new Intent();
+		            resultIntent.setData(selectedFileUri);
+		            setResult(RESULT_OK, resultIntent);
+		            this.finishActivity(requestCode);
+		            this.finish();
+		            currentExtIntent=0;
+	        	}catch(Exception ex){
+	        		Log.d(TAG, ex.getMessage());	        		
+	        	}
+	        	
+	        }
+	  
+	}	
+	
+	@Override
+	public void onDestroy() {
+		//inform other users 
+		super.onDestroy();
+		if (currentExtIntent!=0){
+			this.finishActivity(currentExtIntent);
+		}
+		this.finish();
+	}
+	
+	@Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        super.onDestroy();
+		if (currentExtIntent!=0){
+			this.finishActivity(currentExtIntent);
+		}
+		this.finish();
+    }
 }
