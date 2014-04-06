@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.content.ComponentName;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -38,10 +35,6 @@ import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
-<<<<<<< HEAD
-import com.iems5722.chatapp.network.MessageBuilder;
-=======
->>>>>>> branch 'master' of https://github.com/mtleung/iems5722.git
 import com.iems5722.chatapp.network.MulticastService;
 import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
 import com.iems5722.chatapp.network.ServiceNetwork;
