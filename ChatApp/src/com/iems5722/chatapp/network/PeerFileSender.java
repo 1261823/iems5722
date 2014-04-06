@@ -64,7 +64,7 @@ public class PeerFileSender extends Handler {
 			String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, msgToSendVO.getChatMsg());
 			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, formattedChatMsg);
 			byte [] infoByteArray = fileInfoString.toString().getBytes("UTF-8");
-			updatePrivateMsg(formattedChatMsg);
+			updatePrivateMsg(formattedChatMsg, msgToSendVO.getChatMsg());
 			tcpSend(msgToSendVO.getUserIp(), infoByteArray);
 			
 			Log.d(TAG, "TCP Msg sent : "+ msgToSendVO.getChatMsg());
@@ -149,7 +149,7 @@ public class PeerFileSender extends Handler {
 	    return result;
 	}
 	
-	public void updatePrivateMsg(String message) throws Exception{
+	public void updatePrivateMsg(String message, String chatSessionId) throws Exception{
     	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
     	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
     	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
@@ -163,7 +163,7 @@ public class PeerFileSender extends Handler {
 		values.put(TblChat.USER_ID, msgUser);
 		values.put(TblChat.MESSAGE, msgContent);
 		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-		values.put(TblChat.SESSION_ID,  msgUser);
+		values.put(TblChat.SESSION_ID,  chatSessionId);
 		//add new user
 		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 		Log.d(TAG, "Added new private message " + itemUri.toString());    	
