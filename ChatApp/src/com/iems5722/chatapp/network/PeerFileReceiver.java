@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Calendar;
 
+import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
@@ -17,11 +18,14 @@ import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class PeerFileReceiver extends Handler {
@@ -174,9 +178,9 @@ public class PeerFileReceiver extends Handler {
     	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
     	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
     	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
-    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
     	
-    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent + " Session " + chatSessionId);
+    		
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
     	
     	Calendar c = Calendar.getInstance();
 		long curDateTimeMS = c.getTimeInMillis();     	
@@ -185,7 +189,7 @@ public class PeerFileReceiver extends Handler {
 		values.put(TblChat.USER_ID, msgUser);
 		values.put(TblChat.MESSAGE, msgContent);
 		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-		values.put(TblChat.SESSION_ID, chatSessionId);
+		
 		//add new user
 		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 		Log.d(TAG, "Added new private message " + itemUri.toString());    	
