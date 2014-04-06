@@ -179,7 +179,10 @@ public class PeerFileReceiver extends Handler {
     	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
     	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
     	
-    		
+    	String userIdKey = context.getString(R.string.pref_key_userid);
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		String receiverUserId = prefs.getString(userIdKey, "");
+    	
     	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
     	
     	Calendar c = Calendar.getInstance();
@@ -189,7 +192,7 @@ public class PeerFileReceiver extends Handler {
 		values.put(TblChat.USER_ID, msgUser);
 		values.put(TblChat.MESSAGE, msgContent);
 		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-		
+		values.put(TblChat.SESSION_ID, receiverUserId);
 		//add new user
 		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 		Log.d(TAG, "Added new private message " + itemUri.toString());    	
