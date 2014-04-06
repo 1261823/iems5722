@@ -25,6 +25,7 @@ public class DialogAttachmentPicker extends Activity {
 	private static final int SELECT_VIDEO=300;
 	private static final int SELECT_FILE=400;
 	private int currentExtIntent=0;
+	private AlertDialog.Builder attachDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class DialogAttachmentPicker extends Activity {
 	}
 	
 	public void buildDialog() {
-		AlertDialog.Builder attachDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.Theme_AlertDialog));
+		attachDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.Theme_AlertDialog));
 		
 		attachDialog.setTitle(R.string.att_title);
 		attachDialog.setItems(R.array.attachment, new DialogInterface.OnClickListener() {
@@ -76,6 +77,14 @@ public class DialogAttachmentPicker extends Activity {
 				}
 			}
 		});
+		
+		attachDialog.setOnCancelListener( new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				stopAllRunningActivity();
+			}
+		});
+		
 		attachDialog.setCancelable(true);
 		attachDialog.show();
 	}
@@ -98,6 +107,8 @@ public class DialogAttachmentPicker extends Activity {
 	        		Log.d(TAG, ex.getMessage());	        		
 	        	}
 	        	
+	        }else{
+	        	stopAllRunningActivity();
 	        }
 	  
 	}	
@@ -106,19 +117,18 @@ public class DialogAttachmentPicker extends Activity {
 	public void onDestroy() {
 		//inform other users 
 		super.onDestroy();
+		stopAllRunningActivity();
+	}	
+	
+	private void stopAllRunningActivity(){
+		
 		if (currentExtIntent!=0){
 			this.finishActivity(currentExtIntent);
 		}
 		this.finish();
 	}
 	
-	@Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        super.onDestroy();
-		if (currentExtIntent!=0){
-			this.finishActivity(currentExtIntent);
-		}
-		this.finish();
-    }
+
+	
+	
 }
