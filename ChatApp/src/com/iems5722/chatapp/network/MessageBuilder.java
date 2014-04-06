@@ -58,6 +58,7 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 		sb.append(chatSessionId);
 		sb.append(msgSeparator);
 		sb.append(MessageContent);
+		Log.d(TAG, "Built message " + sb.toString());
 		return sb.toString();
 	}
 	

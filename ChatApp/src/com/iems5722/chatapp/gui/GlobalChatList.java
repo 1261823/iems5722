@@ -37,7 +37,7 @@ public class GlobalChatList extends ListFragment implements LoaderCallbacks<Curs
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.chat_empty));
 		getListView().setDivider(getResources().getDrawable(android.R.color.transparent));
-		getListView().setDividerHeight(5);
+		getListView().setDividerHeight(10);
 		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		getListView().setStackFromBottom(true);
 	}	
