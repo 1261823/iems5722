@@ -109,11 +109,11 @@ public class PeerFileSender extends Handler {
                 
                 bis.close();
                 fis.close();
-				closeSocket();
-				
 				
 			} catch (Exception e) {
 				Log.e(TAG, "problem when sending files " + e.getMessage());
+			} finally{
+				closeSocket();
 			}
 		
 	}
@@ -173,7 +173,9 @@ public class PeerFileSender extends Handler {
 	public void closeSocket()
 	{
 		try {
-			tcpSocket.close();
+			if (!tcpSocket.isClosed()){
+				tcpSocket.close();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			Log.e(TAG, "Cannot stop TCP server " + e.getMessage());

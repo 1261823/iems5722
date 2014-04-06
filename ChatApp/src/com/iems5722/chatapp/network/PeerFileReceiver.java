@@ -84,6 +84,7 @@ public class PeerFileReceiver extends Handler {
 	public void tcpListen() {
 			
 		while(socketOK) {
+			Socket receiveSocket = null;
 			try {
 				
 				/*//assume file info is sent first
@@ -95,7 +96,7 @@ public class PeerFileReceiver extends Handler {
 		
 				byte[] headerByteArray = new byte[HEADER_SIZE];
 				
-				Socket receiveSocket = serverSocket.accept();
+				receiveSocket = serverSocket.accept();
 				
 				Log.d(TAG, "Incoming TCP accepted");
 				
@@ -151,12 +152,20 @@ public class PeerFileReceiver extends Handler {
 				}
 				
 				inputStream.close();
-				receiveSocket.close();
+				
 				
 			} catch (Exception e) {
 				Log.e(TAG, "Problem when receiving files " + e.getMessage());
 				socketOK = false;
 				closeSocket();
+			}finally{
+				try{					
+					if (receiveSocket!=null && !receiveSocket.isClosed()){
+						receiveSocket.close();
+					}
+				}catch(IOException ioe){
+					Log.d(TAG, ioe.getMessage());
+				}
 			}
 		}
 	}
@@ -185,14 +194,19 @@ public class PeerFileReceiver extends Handler {
 	public void closeSocket()
 	{
 		try {
-			serverSocket.close();
+			if(!serverSocket.isClosed()){
+				serverSocket.close();
+			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "Cannot stop TCP server " + e.getMessage());
+			Log.e(TAG, "Cannot stop TCP receive server socket " + e.getMessage());
 		}
 	}
 	
 	public boolean socketIsOK() {
 		return socketOK;
+	}
+	
+	public void setSocketOK(boolean socketOk) {
+		this.socketOK=socketOK;
 	}
 }
