@@ -46,7 +46,7 @@ public class ThreadUDPRecv extends Handler {
 	
 	public ThreadUDPRecv (Looper looper, Context serviceContext, ServiceHandler serviceHandler) {
 		super(looper);
-		//Log.i(TAG, "Creating UDP Recv Thread");
+		Log.i(TAG, "Creating UDP Recv Thread");
 		handlerReady = true;
 		mContext = serviceContext;
 		mServiceHandler = serviceHandler;

@@ -1,5 +1,6 @@
 package com.iems5722.chatapp.gui;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -75,37 +76,74 @@ public class Activity_TabHandler extends FragmentActivity implements
 	MulticastService multicastService;
 	private Intent multicastServiceIntent;
 	private Handler multicastServiceHandler;
+
+	
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setUpInterface();
-
+		
+		Calendar c = Calendar.getInstance();
+		long diff;
+		long start = c.getTimeInMillis();     
+		
+		//get name from preferences
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(this);		
+		initPreference();			
+		
+		long prefdone = c.getTimeInMillis();
+		diff = prefdone - start;
+		Log.i(TAG, "prefloadtime " + Long.toString(diff));
+		
+		
+		final UncaughtExceptionHandler subclass = Thread.currentThread().getUncaughtExceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		    @Override
+		    public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+		    	Log.getStackTraceString(paramThrowable);
+		    	Log.e(TAG, "uncaughtException", paramThrowable);
+		    subclass.uncaughtException(paramThread, paramThrowable);
+		    }
+		});
+		
 		//Log.d(TAG, "onCreate");
 		globalChat  = new FragmentGlobalChat();
 		userList    = new UserList();
 		privateChat = new SessionList();
 		
+		long fragdone = c.getTimeInMillis();
+		diff = fragdone - prefdone;
+		Log.i(TAG, "fragloadtime " + Long.toString(diff));		
+		
 		//create connections to service
 		netServiceIntent = new Intent(this, ServiceNetwork.class);
 		bindService(netServiceIntent, netServiceConnection, Context.BIND_AUTO_CREATE);
 		
+		long servdone = c.getTimeInMillis();
+		diff = servdone - fragdone;
+		Log.i(TAG, "servloadtime " + Long.toString(diff));			
 		
 		//create Multicast Message service
 		multicastServiceIntent = new Intent(this, MulticastService.class);
 		startService(multicastServiceIntent);
 		bindService(multicastServiceIntent, multicastServiceConnection, Context.BIND_AUTO_CREATE);
 		
-		//get name from preferences
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		prefs.registerOnSharedPreferenceChangeListener(this);		
-		
+		long servdone2 = c.getTimeInMillis();
+		diff = servdone2 - servdone;
+		Log.i(TAG, "servloadtime2 " + Long.toString(diff));			
+
 		//this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//final ActionBar actionBar = getActionBar();
 		//actionBar.setDisplayShowTitleEnabled(false);
 		//actionBar.setDisplayShowHomeEnabled(false);	
 		//Note: this removes the action bar and preference menu
 		//actionBar.hide();
+		setUpInterface();
+		
+		long intdone = c.getTimeInMillis();
+		diff = intdone - servdone2;
+		Log.i(TAG, "intdone " + Long.toString(diff));	
 	}
 	
 	public void setUpInterface() {
@@ -238,8 +276,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 			NetworkBinder networkBinder = (NetworkBinder) binder;
 			networkService = networkBinder.getService();
 			serviceHandler = networkService.getServiceHandler();
-			initPreference();
 			postLocaleChange();
+			networkService.setUsername(msgUsername);
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
@@ -264,10 +302,12 @@ public class Activity_TabHandler extends FragmentActivity implements
 
 	private void initPreference() {
 		//Log.d(TAG, "initPreference");
+		
 		String usernameKey = this.getString(R.string.pref_key_name);	
-		readUsername(usernameKey);
+		msgUsername = prefs.getString(usernameKey, "");
 		String useridKey = this.getString(R.string.pref_key_userid);
-		readUserId(useridKey);
+		userId = prefs.getString(useridKey, "");
+		
 		String languageKey = this.getString(R.string.pref_key_lang);
 		languageToLoad = prefs.getString(languageKey, "");
 		updateDatabase();
@@ -284,16 +324,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 		stopService(multicastServiceIntent);
 		super.onDestroy();
 	}
-	
-	private void readUsername(String key) {
-		msgUsername = prefs.getString(key, "");
-		networkService.setUsername(msgUsername);
-		pingAllUsers();
-	}
-	
-	private void readUserId(String key) {
-		userId = prefs.getString(key, "");
-	}	
 	
 	private void pingAllUsers() {
 		//set all users to offline then wait for response to confirm user still online
@@ -346,8 +376,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(this.getString(R.string.pref_key_name))) {
-			readUsername(key);
+			msgUsername = prefs.getString(key, "");
 			updateDatabase();
+			networkService.setUsername(msgUsername);
 		}
 		else if (key.equals(this.getString(R.string.pref_key_lang))) {
 			languageToLoad = prefs.getString(key, "");

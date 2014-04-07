@@ -34,7 +34,7 @@ public class ThreadUDPSend extends Handler {
 	
 	public ThreadUDPSend(Looper looper, Context serviceContext) {
 		super(looper);
-		//Log.i(TAG, "Creating UDP Sender Thread");
+		Log.i(TAG, "Creating UDP Sender Thread");
 		mContext = serviceContext;
 		handlerReady = true;
 		msgBuilder = new MessageBuilder(mContext);

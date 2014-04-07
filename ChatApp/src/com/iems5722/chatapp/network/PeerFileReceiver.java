@@ -44,6 +44,7 @@ public class PeerFileReceiver extends Handler {
 	
 	public PeerFileReceiver(Looper looper, Context currentContext) {
 		this.context = currentContext;
+		Log.d(TAG, "Creating service");
 	}
 	
 	public Handler getmHandler() {

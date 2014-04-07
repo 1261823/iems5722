@@ -27,9 +27,10 @@ public class ServiceNetwork extends Service {
 	private static Looper mServiceLooper;
 	public static ServiceHandler mServiceHandler;
 	public final static int INIT_THREAD = 0;
-	public final static int WIFI_INACTIVE = 1;
-	public final static int SEND_PING_ACK = 2;
-	public final static int PREF_NAME = 3;
+	public final static int SEND_PING_ACK = 5;
+	public final static int PREF_NAME = 10;
+	public final static int WIFI_INACTIVE = 20;
+	public final static int DEREGISTER_WIFI_BCR = 21;
 	
 	//references to threads started by service
 	private static Looper looperNetwork;
@@ -88,6 +89,7 @@ public class ServiceNetwork extends Service {
     public final class ServiceHandler extends Handler {
     	public ServiceHandler(Looper looper) {
     		super(looper);
+    		Log.i(TAG, "Creating ServiceHandler Thread");
     	}
     	
     	@Override
@@ -117,9 +119,15 @@ public class ServiceNetwork extends Service {
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_LISTEN).sendToTarget();
 	    		break;
         	case(WIFI_INACTIVE):
-        		//inform UI thread that wifi is disconnected
-        		UIhandler.obtainMessage(Activity_Login.WIFI_INACTIVE).sendToTarget();
-   		 		//stop monitoring to avoid repeat dialogs
+        		//don't show again if now showing
+        		if (!DialogWifiAvailable.nowShowing) {
+	        		//inform UI thread that wifi is disconnected
+	        		UIhandler.obtainMessage(Activity_Login.WIFI_INACTIVE).sendToTarget();
+	   		 		//stop monitoring to avoid repeat dialogs
+	        		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
+        		}
+        		break;
+        	case(DEREGISTER_WIFI_BCR):
         		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
         		break;
         	case(SEND_PING_ACK):

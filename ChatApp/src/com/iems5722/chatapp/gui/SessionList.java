@@ -45,13 +45,14 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		//Log.d(APP_TAG, "onViewCreated");
+		Log.d(TAG, "onViewCreated");
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.priv_chat_empty));
 	}	
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
+		Log.d(TAG, "Creating loader");
 		String selection = "SELECT " + TblChat.TABLE_CHAT + "." + TblChat.MESSAGE_ID + ", " + TblChat.MESSAGE + ", " + TblChat.SESSION_ID
 				+ ", MAX(" + TblChat.MSG_DATETIME + ") AS " + TblChat.MSG_DATETIME + " , " + TblUser.USER_NAME 
 				+ ", " + TblUser.TABLE_USER + "." + TblUser.USER_ID + ", " + TblChat.TABLE_CHAT + "." + TblChat.USER_ID
@@ -63,6 +64,7 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		Log.d(TAG, "Load finished");
 		mAdapter.swapCursor(cursor);		
 	}
 

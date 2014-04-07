@@ -14,6 +14,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 
 public class PrivateChatList extends ListFragment implements LoaderCallbacks<Cursor> {
 	private static final String TAG = "PrivateChatList";
@@ -47,6 +48,10 @@ public class PrivateChatList extends ListFragment implements LoaderCallbacks<Cur
 		//Log.d(TAG, "onViewCreated");
 		super.onViewCreated(view, savedInstanceState);
 		setEmptyText(getResources().getString(R.string.chat_empty));
+		getListView().setDivider(getResources().getDrawable(android.R.color.transparent));
+		getListView().setDividerHeight(10);
+		getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		getListView().setStackFromBottom(true);		
 	}	
 	
 	@Override

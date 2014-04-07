@@ -40,6 +40,7 @@ public class PeerFileSender extends Handler {
 	
 	public PeerFileSender(Looper looper, Context currentContext) {
 		super(looper);
+		Log.d(TAG, "Creating service");
 		this.context = currentContext;
 		msgBuilder = new MessageBuilder(context);
 	}

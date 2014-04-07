@@ -136,21 +136,47 @@ public class DbProvider extends ContentProvider{
 		//Log.d(TAG, "URI Type " + Integer.toString(uriType));
 		if (uriType != PCHAT_TITLE) {
 			//Log.d(TAG, "Standard query");
-			cursor = queryBuilder.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder);
+			try {
+				cursor = queryBuilder.query(sqlDB, projection, selection, selectionArgs, null, null, sortOrder);
+				if (cursor != null && cursor.getCount() > 0) {
+					cursor.moveToFirst();
+					//Log.d(TAG, "Moved to first");
+				}
+				else {
+					//Log.d(TAG, "Cursor null " + cursor.getCount());
+				}
+				cursor.setNotificationUri(getContext().getContentResolver(), uri);
+				return cursor;
+			}
+			catch (Exception e) {
+				Log.e(TAG, "Failed query " + selection + " args " + selectionArgs + " e " + e.getMessage());
+				for(String s:selectionArgs) {
+					Log.e(TAG, "args " + s);
+				}
+			}
 		}
 		else {
-			//Log.d(TAG, "Raw query");
-			cursor = sqlDB.rawQuery(selection, selectionArgs);
+			try {
+				//Log.d(TAG, "Raw query");
+				cursor = sqlDB.rawQuery(selection, selectionArgs);
+				if (cursor != null && cursor.getCount() > 0) {
+					cursor.moveToFirst();
+					//Log.d(TAG, "Moved to first");
+				}
+				else {
+					//Log.d(TAG, "Cursor null " + cursor.getCount());
+				}
+				cursor.setNotificationUri(getContext().getContentResolver(), uri);
+				return cursor;
+			}
+			catch (Exception e) {
+				Log.e(TAG, "Failed raw query " + selection + " args " + selectionArgs + " e " + e.getMessage());
+				for(String s:selectionArgs) {
+					Log.e(TAG, "args " + s);
+				}
+			}
 		}
-		if (cursor != null && cursor.getCount() > 0) {
-			cursor.moveToFirst();
-			//Log.d(TAG, "Moved to first");
-		}
-		else {
-			//Log.d(TAG, "Cursor null " + cursor.getCount());
-		}
-		cursor.setNotificationUri(getContext().getContentResolver(), uri);
-		return cursor;
+		return null;
 	}
 
 	@Override

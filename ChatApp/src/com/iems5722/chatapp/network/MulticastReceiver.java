@@ -36,6 +36,7 @@ public class MulticastReceiver extends Handler{
 
 	public MulticastReceiver(Looper looper, Context currentContext) {
 		super(looper);
+		Log.d(TAG, "Creating service");
 		this.context = currentContext;
 		this.looper = looper;
 	}

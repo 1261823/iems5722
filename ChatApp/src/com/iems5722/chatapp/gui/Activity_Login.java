@@ -1,5 +1,6 @@
 package com.iems5722.chatapp.gui;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -23,6 +24,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -59,6 +61,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	//events recognised by handler
 	public static final int SERV_READY = 0;
 	public static final int WIFI_INACTIVE = 1;
+	public static final int DEREGISTER_WIFI_BCR = 2;
 	
 	private final Handler mHandler = new Handler() {
         @Override
@@ -68,7 +71,10 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
         	case (WIFI_INACTIVE):
         		createWifiDialog();
     			break;
-    		}
+        	case (DEREGISTER_WIFI_BCR):
+        		ServiceHandler.obtainMessage(DEREGISTER_WIFI_BCR).sendToTarget();;
+        		break;
+        	}	
         }
 	};
 	
@@ -80,12 +86,23 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
     	iWifiDialog.addFlags(Intent.FLAG_FROM_BACKGROUND);
 		//not sure if session information needs to be passed to intent
 		startActivity(iWifiDialog);
+		DialogWifiAvailable.setHandler(mHandler);
 	}
-
+	
 	@Override
  	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		final UncaughtExceptionHandler subclass = Thread.currentThread().getUncaughtExceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+		    @Override
+		    public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+		    	Log.e(TAG, "uncaughtException", paramThrowable);
+
+		    subclass.uncaughtException(paramThread, paramThrowable);
+		    }
+		});		
+		
 		setUpInterface();
 		
 		//start network services
@@ -101,6 +118,8 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		UserSetInactive setInactive = new UserSetInactive();
 		setInactive.setContext(getApplicationContext());
 		setInactive.execute();
+		
+		
 	}
 	
 	private void setUpInterface() {
@@ -119,17 +138,33 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	
 	private void loadPreference() {
 		Log.d(TAG, "loadPreference");
+		
 		String usernameKey = getString(R.string.pref_key_name);
 		prefUsername = prefs.getString(usernameKey, "");
 		if (!prefUsername.equals("")) {
 			login_username.setText(prefUsername);
 			
 		}
+		
+		String userIdKey = getString(R.string.pref_key_userid);
+		userId = prefs.getString(userIdKey, "");
+		//if user id is null then generate a new one
+		if (userId.equals("") || userId.equals(getString(R.string.pref_userid_default))) {
+			userId = generateUserId();
+			SharedPreferences.Editor prefEditor = prefs.edit();
+			prefEditor.putString(userIdKey, userId).commit();
+		}
+		else {
+			Log.d(TAG, "Existing User Id " + userId);
+		}		
+		
+		
 		String languageKey = getString(R.string.pref_key_lang);
 		languageToLoad = prefs.getString(languageKey, "");
 	}
 	
 	private void updatePreference() {
+		//update preferences based on name input
 		Log.d(TAG, "updatePreference");
 		SharedPreferences.Editor prefEditor = prefs.edit();
 		
@@ -138,22 +173,11 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		if (!username.equals("")) {
 			prefEditor.putString(usernameKey, username).commit();
 		}
-		
-		String userIdKey = getString(R.string.pref_key_userid);
-		userId = prefs.getString(userIdKey, "");
-		//if user id is null then generate a new one
-		if (userId.equals("") || userId.equals(getString(R.string.pref_userid_default))) {
-			userId = generateUserId();
-			prefEditor.putString(userIdKey, userId).commit();
-		}
-		else {
-			Log.d(TAG, "Existing User Id " + userId);
-		}
 	}
 
 	private String generateUserId() {
-		String MACAddress = NetworkService.getMACAddress();
-		byte[] macAddrByte = MACAddress.getBytes();
+		String deviceId = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
+		byte[] macAddrByte = deviceId.getBytes();
 		//Log.i(TAG, "MACByte " + macAddrByte.toString());
 		
 		SecureRandom sr = new SecureRandom();
@@ -197,10 +221,9 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 				//Log.d(TAG, Integer.toString(username.length()));
 				try {
 					//test if network has been initialised
-					String MACAddress = NetworkService.getMACAddress();
 					if (username.length() > 0 ) {
-						//Log.d(TAG, "Entering chat");
 						updatePreference();
+						//Log.d(TAG, "Entering chat");
 						Intent intent = new Intent(Activity_Login.this, Activity_TabHandler.class);
 						intent.putExtra(URI_USERNAME, username);
 						startActivity(intent);
@@ -223,7 +246,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		super.onCreateOptionsMenu(menu);
 		this.menu = menu;
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.private_chat, menu);
+		inflater.inflate(R.menu.setting_menu, menu);
 		return true;
 	}	
 	

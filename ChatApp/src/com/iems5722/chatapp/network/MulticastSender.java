@@ -21,6 +21,7 @@ public class MulticastSender extends Handler{
 	
 	public MulticastSender(Looper looper, Context currentContext) {
 		super(looper);
+		Log.d(TAG, "Creating service");
 		this.context = currentContext;
 		this.looper = looper;
 		msgBuilder = new MessageBuilder(context);
