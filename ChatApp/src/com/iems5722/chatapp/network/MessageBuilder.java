@@ -29,8 +29,7 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	//Message parts
 	public final static int MsgType = 0;
 	public final static int MsgUser = 1;
-	public final static int MsgChatSessionId = 2;
-	public final static int MsgContent = 3;
+	public final static int MsgContent = 2;
 	private final static String msgSeparator = "-";
 	
 	public MessageBuilder(Context mContext) {
@@ -46,22 +45,15 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 	}
 	
 	public String messageCreate(String MessageType, String MessageContent) {
-		return  messageCreate(MessageType, MessageContent, "");
-	}
-	
-	public String messageCreate(String MessageType, String MessageContent, String chatSessionId) {
 		StringBuilder sb = new StringBuilder(ServiceNetwork.Packet_Size);
 		sb.append(MessageType);
 		sb.append(msgSeparator);
 		sb.append(msgUserId);
 		sb.append(msgSeparator);
-		sb.append(chatSessionId);
-		sb.append(msgSeparator);
 		sb.append(MessageContent);
 		Log.d(TAG, "Built message " + sb.toString());
 		return sb.toString();
 	}
-	
 
 	public static String getMessagePart(String inMessage, int msgPart) {
 		String[] msgParts = inMessage.split(msgSeparator, 4);

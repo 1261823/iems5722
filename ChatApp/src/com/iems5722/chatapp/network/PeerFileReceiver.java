@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Calendar;
 
+import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblChat;
 import com.iems5722.chatapp.database.TblGlobalChat;
@@ -17,11 +18,14 @@ import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class PeerFileReceiver extends Handler {
@@ -85,6 +89,7 @@ public class PeerFileReceiver extends Handler {
 	public void tcpListen() {
 			
 		while(socketOK) {
+			Socket receiveSocket = null;
 			try {
 				
 				/*//assume file info is sent first
@@ -96,7 +101,7 @@ public class PeerFileReceiver extends Handler {
 		
 				byte[] headerByteArray = new byte[HEADER_SIZE];
 				
-				Socket receiveSocket = serverSocket.accept();
+				receiveSocket = serverSocket.accept();
 				
 				Log.d(TAG, "Incoming TCP accepted");
 				
@@ -152,12 +157,20 @@ public class PeerFileReceiver extends Handler {
 				}
 				
 				inputStream.close();
-				receiveSocket.close();
+				
 				
 			} catch (Exception e) {
 				Log.e(TAG, "Problem when receiving files " + e.getMessage());
 				socketOK = false;
 				closeSocket();
+			}finally{
+				try{					
+					if (receiveSocket!=null && !receiveSocket.isClosed()){
+						receiveSocket.close();
+					}
+				}catch(IOException ioe){
+					Log.d(TAG, ioe.getMessage());
+				}
 			}
 		}
 	}
@@ -166,9 +179,12 @@ public class PeerFileReceiver extends Handler {
     	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
     	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
     	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
-    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
     	
-    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent + " Session " + chatSessionId);
+    	String userIdKey = context.getString(R.string.pref_key_userid);
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		String receiverUserId = prefs.getString(userIdKey, "");
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
     	
     	Calendar c = Calendar.getInstance();
 		long curDateTimeMS = c.getTimeInMillis();     	
@@ -177,7 +193,7 @@ public class PeerFileReceiver extends Handler {
 		values.put(TblChat.USER_ID, msgUser);
 		values.put(TblChat.MESSAGE, msgContent);
 		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-		values.put(TblChat.SESSION_ID, chatSessionId);
+		values.put(TblChat.SESSION_ID, receiverUserId);
 		//add new user
 		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 		Log.d(TAG, "Added new private message " + itemUri.toString());    	
@@ -186,14 +202,19 @@ public class PeerFileReceiver extends Handler {
 	public void closeSocket()
 	{
 		try {
-			serverSocket.close();
+			if(!serverSocket.isClosed()){
+				serverSocket.close();
+			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			Log.e(TAG, "Cannot stop TCP server " + e.getMessage());
+			Log.e(TAG, "Cannot stop TCP receive server socket " + e.getMessage());
 		}
 	}
 	
 	public boolean socketIsOK() {
 		return socketOK;
+	}
+	
+	public void setSocketOK(boolean socketOk) {
+		this.socketOK=socketOK;
 	}
 }

@@ -62,10 +62,10 @@ public class PeerFileSender extends Handler {
 	
 	public void sendMsg(TcpAttachMsgVO msgToSendVO) {
 		try{
-			String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, msgToSendVO.getChatMsg(), msgToSendVO.getChatSessionId());
+			String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, msgToSendVO.getChatMsg());
 			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, formattedChatMsg);
 			byte [] infoByteArray = fileInfoString.toString().getBytes("UTF-8");
-			updatePrivateMsg(formattedChatMsg);
+			updatePrivateMsg(formattedChatMsg, msgToSendVO.getChatMsg());
 			tcpSend(msgToSendVO.getUserIp(), infoByteArray);
 			
 			Log.d(TAG, "TCP Msg sent : "+ msgToSendVO.getChatMsg());
@@ -110,11 +110,11 @@ public class PeerFileSender extends Handler {
                 
                 bis.close();
                 fis.close();
-				closeSocket();
-				
 				
 			} catch (Exception e) {
 				Log.e(TAG, "problem when sending files " + e.getMessage());
+			} finally{
+				closeSocket();
 			}
 		
 	}
@@ -150,13 +150,12 @@ public class PeerFileSender extends Handler {
 	    return result;
 	}
 	
-	public void updatePrivateMsg(String message) throws Exception{
+	public void updatePrivateMsg(String message, String chatSessionId) throws Exception{
     	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
     	String msgUser = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
     	String msgContent = MessageBuilder.getMessagePart(message, MessageBuilder.MsgContent);
-    	String chatSessionId = MessageBuilder.getMessagePart(message, MessageBuilder.MsgChatSessionId);
     	
-    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent + " Session " + chatSessionId);
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
     	
     	Calendar c = Calendar.getInstance();
 		long curDateTimeMS = c.getTimeInMillis();     	
@@ -165,7 +164,7 @@ public class PeerFileSender extends Handler {
 		values.put(TblChat.USER_ID, msgUser);
 		values.put(TblChat.MESSAGE, msgContent);
 		values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-		values.put(TblChat.SESSION_ID, chatSessionId);
+		values.put(TblChat.SESSION_ID,  chatSessionId);
 		//add new user
 		Uri itemUri = context.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 		Log.d(TAG, "Added new private message " + itemUri.toString());    	
@@ -174,7 +173,9 @@ public class PeerFileSender extends Handler {
 	public void closeSocket()
 	{
 		try {
-			tcpSocket.close();
+			if (!tcpSocket.isClosed()){
+				tcpSocket.close();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			Log.e(TAG, "Cannot stop TCP server " + e.getMessage());

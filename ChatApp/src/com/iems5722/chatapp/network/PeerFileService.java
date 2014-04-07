@@ -82,8 +82,13 @@ public class PeerFileService extends Service{
 	@Override
 	public void onDestroy() {
 		Log.d(TAG, "onDestroy");
+		peerFileReceiverHandler.setSocketOK(false);
+		peerFileReceiverHandler.closeSocket();
 		stopSelf();
 	}
+	
+	
+	
 	
 	 public final class PeerFileServiceHandler extends Handler {
 	    	public PeerFileServiceHandler(Looper looper) {
