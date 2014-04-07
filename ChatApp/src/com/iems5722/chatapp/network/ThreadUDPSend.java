@@ -24,11 +24,12 @@ public class ThreadUDPSend extends Handler {
 	MessageBuilder msgBuilder;
 
 	//commands recognised by udp service
-	public final static int     PING_REQUEST_ALL = 1;	
-	public final static int     PING_REQUEST_ONE = 2;	
-	public final static int     PING_ITERATE_ALL = 3;
-	public final static int     PING_ACKNOWLEDGE = 4;
-	public final static int     SIGN_OUT    = 5;
+	public final static int	PING_REQUEST_ALL = 1;	
+	public final static int PING_REQUEST_ONE = 2;	
+	public final static int PING_ITERATE_ALL = 3;
+	public final static int PING_ACKNOWLEDGE = 4;
+	public final static int SIGN_OUT    	 = 5;
+	public final static int	SEND_MSG		 = 6;
 	
 	public ThreadUDPSend(Looper looper, Context serviceContext) {
 		super(looper);
@@ -87,6 +88,10 @@ public class ThreadUDPSend extends Handler {
 				outMessage = msgBuilder.messageCreate(MessageBuilder.SIGN_OUT, ServiceNetwork.username);
 	    		Log.i(TAG, "SO " + ServiceNetwork.BroadcastAddress + " " + outMessage);	        		
 	    		udpSendMessage(outMessage, ServiceNetwork.BroadcastAddress);
+				break;
+			case SEND_MSG:
+				Log.d(TAG, "Send message");
+				udpSendMessage((String)msg.obj, ServiceNetwork.BroadcastAddress);
 				break;
 			default:
 				Log.e(TAG, "Unknown command: " + msg.what);		

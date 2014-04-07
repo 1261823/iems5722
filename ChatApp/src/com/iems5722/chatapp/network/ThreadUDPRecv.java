@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.gui.Activity_TabHandler;
 import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
 
 import android.content.ContentUris;
@@ -30,6 +31,7 @@ public class ThreadUDPRecv extends Handler {
 	boolean handlerReady = false;
 	private Context mContext;	
 	private ServiceHandler mServiceHandler;
+	private MessageBuilder msgBuilder;
 	
 	//information for service to send ack back to
 	private InetAddress sourceIPAddress;	
@@ -50,6 +52,7 @@ public class ThreadUDPRecv extends Handler {
 		handlerReady = true;
 		mContext = serviceContext;
 		mServiceHandler = serviceHandler;
+		msgBuilder = new MessageBuilder(serviceContext);
 	}
 	@Override
 	public void handleMessage(Message msg) {
@@ -98,6 +101,7 @@ public class ThreadUDPRecv extends Handler {
 		        Log.i(TAG,"Received a packet | Source IP Address: " + sourceIPAddress);
 		        String message = new String(receivePacket.getData(),0,receivePacket.getLength());
 	        	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
+	        	String msgSender = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
 		        //check if it is own packet
 		        if(sourceIPAddress.equals(ServiceNetwork.inetIPAddress)) {
 		        	//network discovery success
@@ -109,14 +113,23 @@ public class ThreadUDPRecv extends Handler {
 		        }
 		        else {
 		        	Log.d(TAG, message + " type " + msgType);		
-		        	getAllUserId();
-		        	//if it is a request, send ack reply
+
 		        	if (msgType.equals(MessageBuilder.PING_REQ_MSG)) {
+			        	getAllUserId();
 		    			Log.i(TAG,  "Ping received");
+			        	//if it is a request, send ack reply
 		    			//tell service to send ping ack back to user
 		    			mServiceHandler.obtainMessage(ServiceNetwork.SEND_PING_ACK, sourceIPAddress).sendToTarget();	
+		    			updateUser(message);
 		        	}
-	    			updateUser(message);
+		        	else if (msgType.equals(MessageBuilder.PING_ACK_MSG)) {
+		        		getAllUserId();
+		        		Log.i(TAG, "Ping ack received");
+		        		updateUser(message);
+		        	} 
+		        	else if (msgType.equals(MessageBuilder.GLOBAL_MSG) && !msgSender.equals(ServiceNetwork.user_id)) {
+		        		msgBuilder.saveGlobalMessage(message);
+		        	}
 		        }
 			}
 		}

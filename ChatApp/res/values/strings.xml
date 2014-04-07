@@ -26,7 +26,15 @@
 	<string name="pref_userid_sum">This is your ID: </string>
 	<string name="pref_userid_default">User Id Not Initialised</string>
 	
+    <string name="pref_gm_title">Global Chat Messages</string>
+    <string name="pref_gm_sum_udp">Messages sent via UDP</string>
+    <string name="pref_gm_sum_mc">Messages sent via Multicast</string>
+    <string name="pref_gm_default">UDP</string>
+    <string name="pref_gm_udp">UDP</string>
+    <string name="pref_gm_mc">Multicast</string>
+	
 	<string name="pref_key_name">pref_key_name</string>
+	<string name="pref_key_gm">pref_key_gm</string>
 	<string name="pref_key_vibrate">pref_key_vibrate</string>
 	<string name="pref_key_ringtone">pref_key_ringtone</string>
 	<string name="pref_key_lang">pref_key_lang</string>

@@ -34,6 +34,7 @@ public class ServiceNetwork extends Service {
 	public final static int WIFI_INACTIVE = 20;
 	public final static int DEREGISTER_WIFI_BCR = 21;
 	public final static int MC_SEND = 30;
+	public final static int UDP_SEND = 31;
 	
 	//references to threads started by service
 	private static Looper looperNetwork;
@@ -175,6 +176,10 @@ public class ServiceNetwork extends Service {
 				Log.d(TAG, "call sender to send message " + (String)msg.obj);
         		mcSendHandler.obtainMessage(ThreadMCSend.SEND_MSG, msg.obj).sendToTarget();
         		break;
+        	case(UDP_SEND):
+        		Log.d(TAG, "Calling UDP sender to send " + (String)msg.obj);
+        		udpSendHandler.obtainMessage(ThreadUDPSend.SEND_MSG, msg.obj).sendToTarget();
+        	break;
         	}
     	}
     }

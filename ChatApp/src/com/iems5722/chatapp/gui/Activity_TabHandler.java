@@ -56,6 +56,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 	private SharedPreferences prefs;	
 	static String msgUsername;
 	static String userId;
+	static boolean sendGlobalMsg_UDP;
 	
 	//view objects
 	private ViewPager mViewPager;
@@ -252,7 +253,15 @@ public class Activity_TabHandler extends FragmentActivity implements
 			String outputString = chatText.getText().toString().trim();
 			if (outputString.length() > 0) {
 				String outMessage = msgBuilder.messageCreate(MessageBuilder.GLOBAL_MSG, outputString);
-				serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, outMessage).sendToTarget();
+				if (sendGlobalMsg_UDP)	{
+					Log.d(TAG, "Sending messages via UDP");
+					serviceHandler.obtainMessage(ServiceNetwork.UDP_SEND, outMessage).sendToTarget();
+				}
+				else {
+					Log.d(TAG, "Sending messages via multicast");
+					serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, outMessage).sendToTarget();
+				}
+				
 				msgBuilder.saveGlobalMessage(outMessage);
 				//Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 				//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
@@ -315,9 +324,11 @@ public class Activity_TabHandler extends FragmentActivity implements
 		msgUsername = prefs.getString(usernameKey, "");
 		String useridKey = this.getString(R.string.pref_key_userid);
 		userId = prefs.getString(useridKey, "");
-		
 		String languageKey = this.getString(R.string.pref_key_lang);
 		languageToLoad = prefs.getString(languageKey, "");
+		//true = udp
+		String sendGlobalKey = this.getString(R.string.pref_key_gm);
+		sendGlobalMsg_UDP = prefs.getBoolean(sendGlobalKey, true);
 		updateDatabase();
 	}	
 	
@@ -392,6 +403,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 		else if (key.equals(this.getString(R.string.pref_key_lang))) {
 			languageToLoad = prefs.getString(key, "");
 			postLocaleChange();
+		}
+		else if (key.equals(this.getString(R.string.pref_key_gm))) {
+			sendGlobalMsg_UDP = prefs.getBoolean(key, true);
 		}
 	}	
 

@@ -174,7 +174,6 @@ public class ThreadNetwork extends Handler {
 				Log.e(TAG,"Cannot get WiFI details");
 				e.printStackTrace();
 			}
-	
 	        String outMsg = "My IP: " + ServiceNetwork.inetIPAddress + " " + ServiceNetwork.inetNetMask + " MAC " + ServiceNetwork.MACAddress;
 	        Log.d(TAG, outMsg);
     	}
