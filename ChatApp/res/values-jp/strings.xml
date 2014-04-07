@@ -2,16 +2,16 @@
 <resources>
 
     <!-- General Strings -->
-    <string name="app_name">傾計apps</string>
+    <string name="app_name">はなしアプリ</string>
     <string name="action_settings">設定</string>
-    <string name="yes">是</string>
-	<string name="no">否</string>
-	<string name="enter">進入</string>
-	<string name="send">傳送</string>
-	<string name="cancel">取消</string>
+    <string name="yes">はい</string>
+	<string name="no">いいえ</string>
+	<string name="enter">入り</string>
+	<string name="send">送る</string>
+	<string name="cancel">キャンセル</string>
 	
 	<!-- Preference -->
-	<string name="pref_title">傾計設定</string>
+	<string name="pref_title">はなし設定</string>
 	<string name="pref_chat_setting_cat">zh Chat Setting</string>
 	<string name="pref_name_title">zh Name</string>
 	<string name="pref_name_sum">zh Your Username is: </string>
@@ -38,25 +38,25 @@
 	<string name="menu_ping_toast">zh Refreshing Users</string>
 	
 	<!-- Log in screen -->
-	<string name="login_username">用戶名</string>
-	<string name="login_username_hint">請輸入用戶名</string>
-	<string name="login_btn_enter">開始傾</string>
-	<string name="login_username_empty">請最少輸入一個字母</string>
+	<string name="login_username">ユーザー名前</string>
+	<string name="login_username_hint">名前を入れてください</string>
+	<string name="login_btn_enter">はなしを始まる</string>
+	<string name="login_username_empty">せめてひとのキャラクラーを入れてください</string>
 
 	<!-- General Chat screen -->
 	<string name="chat_said"> zh_said</string>
 	<string name="chat_empty">zh No chat history</string>
 	
 	<!-- Tab screen -->
-	<string name="tab_globalchat">大家傾</string>
-	<string name="tab_users">用戶</string>
-	<string name="tab_privatechat">私密傾</string>
+	<string name="tab_globalchat">みなとはなし</string>
+	<string name="tab_users">ユーザー</string>
+	<string name="tab_privatechat">私語</string>
 	
 	<!-- User tab -->
-	<string name="user_online_heading">在線用戶</string>
-	<string name="user_offline_heading">離線用戶</string>
-	<string name="user_online_none">冇在線用戶</string>
-	<string name="user_offline_none">冇離線用戶</string>
+	<string name="user_online_heading">オンラインユーザー</string>
+	<string name="user_offline_heading">オフラインユーザー</string>
+	<string name="user_online_none">オンラインユーザーなし</string>
+	<string name="user_offline_none">オフラインユーザーなし</string>
 	
 	<!-- User context menu items -->
 	<string name="user_menu_ping">zh Check if online</string>
@@ -66,15 +66,15 @@
 	<string name="priv_chat_empty">zh No private conversations</string>
 	
 	<!-- Private chat screen -->
-	<string name="priv_chat_title">傾緊計的 </string>	
-	<string name="priv_chat_attach">傳送附件</string>	
+	<string name="priv_chat_title">受ける者の</string>	
+	<string name="priv_chat_attach">ファイルを送る</string>	
 	
 	<!-- Attachment dialog -->
-	<string name="att_title">相</string>	
-	<string name="att_photo">相</string>	
-	<string name="att_audio">聲音</string>	
-	<string name="att_video">錄像</string>	
-	<string name="att_file">檔案</string>	
+	<string name="att_title">写真</string>	
+	<string name="att_photo">写真</string>	
+	<string name="att_audio">音</string>	
+	<string name="att_video">映画</string>	
+	<string name="att_file">ファイル</string>	
 
 	<!-- Wifi Dialog -->
 	<string name="dialog_wifi_title">zh WiFi Connection Required</string>
