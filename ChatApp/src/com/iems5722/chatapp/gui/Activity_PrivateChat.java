@@ -113,7 +113,6 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		
 		//create Peer File Transfer service
 		peerFileServiceIntent = new Intent(this, PeerFileService.class);
-		startService(peerFileServiceIntent);
 		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
@@ -124,14 +123,19 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			//TODO Send message to recipient
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
 			
-			String ipAddress = peerIdAddress.replace("/", "");
-			TcpAttachMsgVO chatMsgVO = new TcpAttachMsgVO();
-			chatMsgVO.setUserIp(ipAddress);
-			chatMsgVO.setChatMsg(chatText.getText().toString());
-			chatMsgVO.setChatSessionId(dbSessionId);
-		
-			peerFileService.getPeerFileSender().obtainMessage(PeerFileSender.SEND_MSG, chatMsgVO).sendToTarget();
-			Toast.makeText(this, "Sent private message to " + peerIdAddress, Toast.LENGTH_SHORT).show();
+			String msgToSend = chatText.getText().toString().trim();
+			if (msgToSend.length() > 0) {
+				String ipAddress = peerIdAddress.replace("/", "");
+				TcpAttachMsgVO chatMsgVO = new TcpAttachMsgVO();
+				chatMsgVO.setUserIp(ipAddress);
+				chatMsgVO.setChatMsg(msgToSend);
+				chatMsgVO.setChatSessionId(dbSessionId);
+				
+			
+				peerFileService.getPeerFileSender().obtainMessage(PeerFileSender.SEND_MSG, chatMsgVO).sendToTarget();
+				//Toast.makeText(this, "Sent private message to " + peerIdAddress, Toast.LENGTH_SHORT).show();
+				chatText.setText("");
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -284,8 +288,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	
 	@Override
 	public void onDestroy() {
-		unbindService(peerFileServiceConnection);
-		stopService(peerFileServiceIntent);	
+		unbindService(peerFileServiceConnection);		
 		super.onDestroy();
 	}
 	

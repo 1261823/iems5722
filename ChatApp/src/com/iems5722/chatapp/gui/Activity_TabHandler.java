@@ -39,6 +39,7 @@ import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
 
 import com.iems5722.chatapp.network.MessageBuilder;
+import com.iems5722.chatapp.network.PeerFileService;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.network.ThreadUDPSend;
@@ -72,6 +73,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 	ServiceNetwork networkService;
 	private Intent netServiceIntent;
 	Handler serviceHandler;
+
+	PeerFileService peerFileService;
+	private Intent peerFileServiceIntent;
+	
 	//Wifi dialog handler
 	static Handler wifiDialogHandler;
 
@@ -149,6 +154,10 @@ public class Activity_TabHandler extends FragmentActivity implements
 		netServiceIntent = new Intent(this, ServiceNetwork.class);
 		startService(netServiceIntent);
 		bindService(netServiceIntent, netServiceConnection, Context.BIND_AUTO_CREATE);
+		
+		//create Peer File Transfer service
+		peerFileServiceIntent = new Intent(this, PeerFileService.class);
+		startService(peerFileServiceIntent);
 		
 		long servdone = c.getTimeInMillis();
 		diff = servdone - fragdone;
@@ -341,6 +350,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		unbindService(netServiceConnection);
 		stopService(netServiceIntent);
 		
+		
+		stopService(peerFileServiceIntent);
 		//unbindService(multicastServiceConnection);
 		//stopService(multicastServiceIntent);
 

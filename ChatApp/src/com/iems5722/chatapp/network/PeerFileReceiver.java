@@ -9,24 +9,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Calendar;
 
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.database.DbProvider;
-import com.iems5722.chatapp.database.TblChat;
-import com.iems5722.chatapp.database.TblGlobalChat;
-import com.iems5722.chatapp.gui.Activity_PrivateChat;
-import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
-
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.gui.Activity_PrivateChat;
+import com.iems5722.chatapp.preference.MsgNotifier;
 
 public class PeerFileReceiver extends Handler {
 	public final static String TAG = "PeerFileReceiver";
@@ -40,6 +36,7 @@ public class PeerFileReceiver extends Handler {
 	
 	private Context context;
 	private Handler mHandler;
+	private MsgNotifier msgNotifier;
 
 	
 	public final static int INITIAL_TCP_PORT  = 1;
@@ -49,6 +46,7 @@ public class PeerFileReceiver extends Handler {
 	public PeerFileReceiver(Looper looper, Context currentContext) {
 		this.context = currentContext;
 		Log.d(TAG, "Creating service");
+		msgNotifier = new  MsgNotifier(currentContext);
 	}
 	
 	public Handler getmHandler() {
@@ -122,7 +120,7 @@ public class PeerFileReceiver extends Handler {
 					String chatMsg = secondParam;
 					Log.d(TAG, "Received Chat Msg: " + chatMsg);
 					updatePrivateMsg(chatMsg);
-					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, chatMsg);					
+					msgNotifier.messageReceive();					
 				}else{//assume other type must be file
 					int filesize = Integer.parseInt(secondParam);
 					
@@ -150,7 +148,9 @@ public class PeerFileReceiver extends Handler {
 					}
 					
 					Log.d(TAG, "File receive finished");
-					this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
+					//this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File received!");
+					Toast.makeText(this.context, "File receive finished", Toast.LENGTH_SHORT).show();
+					msgNotifier.messageReceive();
 					
 					fos.close();
 					bos.close();
