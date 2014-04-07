@@ -11,6 +11,7 @@ import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.gui.Activity_TabHandler;
 import com.iems5722.chatapp.network.ServiceNetwork.ServiceHandler;
+import com.iems5722.chatapp.preference.MsgNotifier;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -32,6 +33,7 @@ public class ThreadUDPRecv extends Handler {
 	private Context mContext;	
 	private ServiceHandler mServiceHandler;
 	private MessageBuilder msgBuilder;
+	private MsgNotifier msgNotifier; 
 	
 	//information for service to send ack back to
 	private InetAddress sourceIPAddress;	
@@ -53,6 +55,7 @@ public class ThreadUDPRecv extends Handler {
 		mContext = serviceContext;
 		mServiceHandler = serviceHandler;
 		msgBuilder = new MessageBuilder(serviceContext);
+		msgNotifier = new MsgNotifier(serviceContext);
 	}
 	@Override
 	public void handleMessage(Message msg) {
@@ -129,6 +132,7 @@ public class ThreadUDPRecv extends Handler {
 		        	} 
 		        	else if (msgType.equals(MessageBuilder.GLOBAL_MSG) && !msgSender.equals(ServiceNetwork.user_id)) {
 		        		msgBuilder.saveGlobalMessage(message);
+		        		msgNotifier.messageReceive();
 		        	}
 		        }
 			}
