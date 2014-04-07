@@ -1,7 +1,5 @@
 package com.iems5722.chatapp.gui;
 
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;

@@ -91,8 +91,8 @@
 	<!-- Wifi Dialog -->
 	<string name="dialog_wifi_title">WiFi Connection Required</string>
 	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
-	<string name="dialog_wifi_accept">Go to WiFi settings</string>
-	<string name="dialog_wifi_decline">Continue in offline mode</string>
+	<string name="dialog_wifi_accept">Check WiFi settings</string>
+	<string name="dialog_wifi_decline">Continue Offline</string>
 	<string name="dialog_wifi_dismiss">Dismiss</string>
 	
 	

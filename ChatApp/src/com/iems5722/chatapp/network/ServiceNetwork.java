@@ -155,12 +155,11 @@ public class ServiceNetwork extends Service {
 	    		mcRecvHandler.obtainMessage(ThreadMCRecv.MULTICAST_LISTEN).sendToTarget();
 	    		break;
         	case(WIFI_INACTIVE):
+        		Log.i(TAG, "Recv WiFi inactive notice");
         		//don't show again if now showing
-        		if (!DialogWifiAvailable.nowShowing) {
+        		if (DialogWifiAvailable.notShowing) {
 	        		//inform UI thread that wifi is disconnected
 	        		UIhandler.obtainMessage(Activity_TabHandler.WIFI_INACTIVE).sendToTarget();
-	   		 		//stop monitoring to avoid repeat dialogs
-	        		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
         		}
         		break;
         	case(DEREGISTER_WIFI_BCR):

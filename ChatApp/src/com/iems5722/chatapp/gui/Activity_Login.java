@@ -8,25 +8,16 @@ import java.util.Locale;
 
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.UserSetInactive;
-import com.iems5722.chatapp.network.ServiceNetwork;
-import com.iems5722.chatapp.network.ThreadUDPSend;
-import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.preference.Settings;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -152,7 +143,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		//Log.i(TAG, "Prepend " + predigest.toString());
 		
 		try {
-			MessageDigest digester = MessageDigest.getInstance("MD5");
+			MessageDigest digester = MessageDigest.getInstance("SHA-512");
 			digester.update(predigest);
 			byte messageDigest[] = digester.digest();
 			
@@ -164,7 +155,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	            hexString.append(h);
 	        }
 	        
-	        Log.i(TAG, "MD5 " + hexString.toString());
+	        Log.i(TAG, "SHA-512 " + hexString.toString());
 	        return hexString.toString();
 		} catch (NoSuchAlgorithmException e) {
 	        e.printStackTrace();

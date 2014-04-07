@@ -103,12 +103,13 @@ public class ThreadNetwork extends Handler {
     private boolean checkWifiActive() {
     	Boolean wifiActive = false;
     	Log.i(TAG, "Checking WiFi connectivity");
-    	 ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(mContext.getApplicationContext().CONNECTIVITY_SERVICE);
+    	ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(mContext.getApplicationContext().CONNECTIVITY_SERVICE);
     	 if (connectivityManager == null) {
              Log.e(TAG,"Cannot Get Connection Info");
     	 }
     	 else {
     		 networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    		 Log.d(TAG, networkInfo.getExtraInfo());
     		 if (networkInfo.isConnected()) {
     			 Log.i(TAG, "Wifi connected");
     			 wifiActive = true;

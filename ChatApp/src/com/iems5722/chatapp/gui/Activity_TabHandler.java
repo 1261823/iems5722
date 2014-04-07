@@ -50,13 +50,12 @@ public class Activity_TabHandler extends FragmentActivity implements
 	OnSharedPreferenceChangeListener {
 	private static final String TAG = "Activity_TabHandler";
 	
-	MessageBuilder msgBuilder;
-	
 	//Preferences
 	private SharedPreferences prefs;	
 	public static String msgUsername;
 	public static String userId;
 	static boolean sendGlobalMsg_UDP;
+	MessageBuilder msgBuilder;
 	
 	//view objects
 	private ViewPager mViewPager;
@@ -73,6 +72,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	ServiceNetwork networkService;
 	private Intent netServiceIntent;
 	Handler serviceHandler;
+	//Wifi dialog handler
+	static Handler wifiDialogHandler;
 
 	//events recognised by handler
 	public static final int SERV_READY = 0;
@@ -95,6 +96,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 	};
 	
 	public void createWifiDialog() {
+		Log.i(TAG, "Creating wifi dialog");
 		//inform user that wifi inactive
 		Intent iWifiDialog = new Intent(this, DialogWifiAvailable.class);
     	iWifiDialog.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -310,6 +312,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 			postLocaleChange();
 			networkService.setUsername(msgUsername);
 			networkService.setUserid(userId);
+			networkService.setUIHandler(mHandler);
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {

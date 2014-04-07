@@ -84,14 +84,14 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		String msg = c.getString(colMsg);
 
 		//LayoutParams params;
-		Log.i(TAG, "Msg " + msg + " from " + msgAuthor + " vs " + Activity_TabHandler.userId);
+		//Log.i(TAG, "Msg " + msg + " from " + msgAuthor + " vs " + Activity_TabHandler.userId);
 		if (msgAuthor.equals(Activity_TabHandler.userId)) {
-			Log.i(TAG, "Msg from self");
+			//Log.i(TAG, "Msg from self");
 			v = mInflater.inflate(R.layout.chat_message_sent, parent, false);
 			holder.viewholder = (View) v.findViewById(R.id.chat_message_sent);
 		}		
 		else {
-			Log.i(TAG, "Msg from other");
+			//Log.i(TAG, "Msg from other");
 			v = mInflater.inflate(R.layout.chat_message_recv, parent, false);
 			holder.viewholder = (View) v.findViewById(R.id.chat_message_recv);
 		}

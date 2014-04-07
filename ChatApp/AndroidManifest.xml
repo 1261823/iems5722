@@ -33,6 +33,9 @@
         <activity
             android:name=".gui.DialogWifiAvailable" 
             android:theme="@android:style/Theme.Translucent" >
+            <intent-filter>
+        		<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+        	</intent-filter>
         </activity>
         <activity
             android:name=".gui.Activity_TabHandler"
