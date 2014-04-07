@@ -66,9 +66,5 @@
 			android:exported="false"
     		>    		
         </service>
-        <service android:name=".network.MulticastService"
-			android:exported="false"
-    		>    		
-        </service>
     </application>
 </manifest>

@@ -2,6 +2,7 @@ package com.iems5722.chatapp.network;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 
 import com.iems5722.chatapp.gui.Activity_Login;
 import com.iems5722.chatapp.gui.Activity_TabHandler;
@@ -32,6 +33,7 @@ public class ServiceNetwork extends Service {
 	public final static int PREF_NAME = 10;
 	public final static int WIFI_INACTIVE = 20;
 	public final static int DEREGISTER_WIFI_BCR = 21;
+	public final static int MC_SEND = 30;
 	
 	//references to threads started by service
 	private static Looper looperNetwork;
@@ -40,6 +42,11 @@ public class ServiceNetwork extends Service {
 	public ThreadUDPSend udpSendHandler;
 	private static Looper looperUDPRecv;
 	public ThreadUDPRecv udpRecvHandler;	
+	
+	private static Looper looperMCSend;
+	public ThreadMCSend mcSendHandler;
+	private static Looper looperMCRecv;
+	public ThreadMCRecv mcRecvHandler;
 	
 	//Network parameters used by all threads
 	//own username
@@ -61,9 +68,19 @@ public class ServiceNetwork extends Service {
 
 	//UDP details
 	static final int UDP_PORT = 6666;
-	static boolean SocketOK = false;
+	static boolean UDP_SOCKET_OK = false;
 	static DatagramSocket serverSocket;  
 	static final int Packet_Size = 1024;
+	
+	//common definitions for multicast
+	public final static int MULTI_PORT = 26669;
+	//group set to 230.0.0.1
+	public static InetAddress group;
+	public static MulticastSocket multiSocket = null;
+	//checks if part of multicast group
+	public static boolean multicastGroup = false;
+	public static boolean MC_SOCKET_OK = false;
+	
 	
 	//binder to this service
 	private final IBinder mBinder = new NetworkBinder();	
@@ -114,10 +131,26 @@ public class ServiceNetwork extends Service {
 	    		udpRecvThread.start();
 	    		looperUDPRecv = udpRecvThread.getLooper();
 	    		udpRecvHandler = new ThreadUDPRecv(looperUDPRecv, getApplicationContext(), mServiceHandler);
+	    		
+				Log.d(TAG, "Initial Sender and Receiver Thread");
+				//multicast sending thread
+    			HandlerThread multicastSenderThread = new HandlerThread(ThreadMCSend.TAG);
+    			multicastSenderThread.start();
+    			looperMCSend =  multicastSenderThread.getLooper();
+	    		mcSendHandler = new ThreadMCSend(looperMCSend, getApplicationContext());
+	    		//multicast recv thread
+	    		HandlerThread multicastReceiverThread = new HandlerThread(ThreadMCRecv.TAG);
+    			multicastReceiverThread.start();
+	    		looperMCRecv =  multicastReceiverThread.getLooper();
+	    		mcRecvHandler = new ThreadMCRecv(looperMCRecv, getApplicationContext());	    		
+	    		
 	    		//get threads to do work
 	    		networkHandler.obtainMessage(ThreadNetwork.NTWK_START_MONITOR).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_INIT).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_LISTEN).sendToTarget();
+	    		
+	    		mcRecvHandler.obtainMessage(ThreadMCRecv.INITIAL_MUTLICAST).sendToTarget();
+	    		mcRecvHandler.obtainMessage(ThreadMCRecv.MULTICAST_LISTEN).sendToTarget();
 	    		break;
         	case(WIFI_INACTIVE):
         		//don't show again if now showing
@@ -135,6 +168,11 @@ public class ServiceNetwork extends Service {
         		//get udp thread to send ack to host
         		InetAddress pingTo = (InetAddress) msg.obj;
         		udpSendHandler.obtainMessage(ThreadUDPSend.PING_ACKNOWLEDGE, pingTo).sendToTarget();
+        		break;
+        	case(MC_SEND):
+        		//get multicast send thread to send message
+				Log.d(TAG, "call sender to send message " + (String)msg.obj);
+        		mcSendHandler.obtainMessage(ThreadMCSend.SEND_MSG, msg.obj).sendToTarget();
         		break;
         	}
     	}
@@ -160,11 +198,18 @@ public class ServiceNetwork extends Service {
 	
 	@Override
 	public void onDestroy() {
-		Log.d(TAG, "onDestroy - attempting to stop ports");
-		SocketOK = false;
+		Log.d(TAG, "onDestroy - attempting to close udp ports");
+		UDP_SOCKET_OK = false;
 		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
 		//udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_CLOSE).sendToTarget();
 		udpRecvHandler.stopUDP();
+		Log.d(TAG, "stopping multicast");
+		if (multicastGroup) {
+			Log.i(TAG, "Setting socket to false");
+			mcRecvHandler.leaveGroup();
+			mcRecvHandler.closeSocket();
+		}
+		
 		stopSelf();
 	}		
 	

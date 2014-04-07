@@ -38,8 +38,6 @@ import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
 
-import com.iems5722.chatapp.network.MulticastService;
-import com.iems5722.chatapp.network.MulticastService.MulticastServiceBinder;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.network.ThreadUDPSend;
@@ -71,12 +69,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 	ServiceNetwork networkService;
 	private Intent netServiceIntent;
 	Handler serviceHandler;
-	
-	
-	//Peer File Transfer service
-	MulticastService multicastService;
-	private Intent multicastServiceIntent;
-	private Handler multicastServiceHandler;
 
 	//events recognised by handler
 	public static final int SERV_READY = 0;
@@ -154,11 +146,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 		long servdone = c.getTimeInMillis();
 		diff = servdone - fragdone;
 		Log.i(TAG, "servloadtime " + Long.toString(diff));			
-		
-		//create Multicast Message service
-		multicastServiceIntent = new Intent(this, MulticastService.class);
-		startService(multicastServiceIntent);
-		bindService(multicastServiceIntent, multicastServiceConnection, Context.BIND_AUTO_CREATE);
 		
 		long servdone2 = c.getTimeInMillis();
 		diff = servdone2 - servdone;
@@ -259,10 +246,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 			
 			//Send message to global chat
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
-		
-			multicastServiceHandler.obtainMessage(MulticastService.SEND_MSG, chatText.getText().toString()).sendToTarget();
-			 
-			Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
+			serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, chatText.getText().toString()).sendToTarget();
+			//Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 			//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
 			//networkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 			
@@ -315,21 +300,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 			Log.d(TAG, "onServiceDisconnected");				
 		}
 	};
-	
-	
-	
-	private ServiceConnection multicastServiceConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName className, IBinder binder) {
-			Log.d(TAG, "onMulticastConnected");	
-			MulticastServiceBinder multicastServiceBinder = (MulticastServiceBinder) binder;
-			multicastService = multicastServiceBinder.getService();
-			multicastServiceHandler = multicastService.getServiceHandler();
-		}
-		
-		public void onServiceDisconnected(ComponentName className) {
-			Log.d(TAG, "onMulticastDisconnected");				
-		}
-	};
 
 	private void initPreference() {
 		//Log.d(TAG, "initPreference");
@@ -350,8 +320,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		unbindService(netServiceConnection);
 		stopService(netServiceIntent);
 		
-		unbindService(multicastServiceConnection);
-		stopService(multicastServiceIntent);
+		//unbindService(multicastServiceConnection);
+		//stopService(multicastServiceIntent);
 
 		super.onDestroy();
 	}

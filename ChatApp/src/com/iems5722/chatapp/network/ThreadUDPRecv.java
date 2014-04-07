@@ -75,11 +75,11 @@ public class ThreadUDPRecv extends Handler {
 			//Log.i(TAG,"trying to create the datagram...");
 			ServiceNetwork.serverSocket = new DatagramSocket(ServiceNetwork.UDP_PORT);
 			ServiceNetwork.serverSocket.setBroadcast(true);	
-			ServiceNetwork.SocketOK = true;
+			ServiceNetwork.UDP_SOCKET_OK = true;
 		} 
 		catch(Exception e) {
 			Log.e(TAG,"Cannot open socket"+e.getMessage());
-			ServiceNetwork.SocketOK = false;
+			ServiceNetwork.UDP_SOCKET_OK = false;
 			return;
 		}		
 	}	
@@ -89,7 +89,7 @@ public class ThreadUDPRecv extends Handler {
 		try {
 			//UDP socket
 			byte[] receiveData = new byte[ServiceNetwork.Packet_Size]; 
-			while(ServiceNetwork.SocketOK) {
+			while(ServiceNetwork.UDP_SOCKET_OK) {
 				Log.i(TAG,  "in listening loop waiting for packet");
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
 
@@ -122,7 +122,7 @@ public class ThreadUDPRecv extends Handler {
 		}
 		catch (Exception e) {
 			Log.e(TAG,"Problems receiving packet: "+e.getMessage());
-			ServiceNetwork.SocketOK = false;
+			ServiceNetwork.UDP_SOCKET_OK = false;
 		} 	
 		Log.d(TAG, "Socket not ok");
 	}	
@@ -133,7 +133,7 @@ public class ThreadUDPRecv extends Handler {
 			Log.i(TAG,"Stopping UDP service");
 			ServiceNetwork.serverSocket.setBroadcast(false);
 			ServiceNetwork.serverSocket.close();
-			ServiceNetwork.SocketOK = false;
+			ServiceNetwork.UDP_SOCKET_OK = false;
 		} 
 		catch(Exception e) {
 			Log.e(TAG,"Cannot close socket"+e.getMessage());

@@ -9,7 +9,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-public class MulticastSender extends Handler{
+public class ThreadMCSend extends Handler{
 	public final static  String TAG = "MulticastSender";
 
 	private Context context;
@@ -19,7 +19,7 @@ public class MulticastSender extends Handler{
 	
 	public final static int SEND_MSG = 0;
 	
-	public MulticastSender(Looper looper, Context currentContext) {
+	public ThreadMCSend(Looper looper, Context currentContext) {
 		super(looper);
 		Log.d(TAG, "Creating service");
 		this.context = currentContext;
@@ -40,26 +40,26 @@ public class MulticastSender extends Handler{
 	public void sendMulticastMsg(String msg) {
 		Log.d(TAG, "send multicast msg " + msg);
 		//only send if currently part of group and socket is ok
-		if (MulticastService.multicastGroup && MulticastService.socketOK) {
+		if (ServiceNetwork.multicastGroup && ServiceNetwork.MC_SOCKET_OK) {
 			try {
 				String outMessage = msgBuilder.messageCreate(MessageBuilder.GLOBAL_MSG, msg);
 				byte[] requestData = new byte[1024];
 				requestData = outMessage.getBytes();
 				Log.d(TAG, Integer.toString(requestData.length));
 				
-				DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, MulticastService.group, MulticastService.MULTI_PORT);
-		        MulticastService.multiSocket.send(requestPacket); 
+				DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, ServiceNetwork.group, ServiceNetwork.MULTI_PORT);
+				ServiceNetwork.multiSocket.send(requestPacket); 
 				Log.d(TAG, "Sent message " + outMessage);
-				Log.d(TAG, "Group status " + MulticastService.multicastGroup);
-				Log.d(TAG, "MC service status " + MulticastService.socketOK);
+				Log.d(TAG, "Group status " + ServiceNetwork.multicastGroup);
+				Log.d(TAG, "MC service status " + ServiceNetwork.MC_SOCKET_OK);
 			} catch (IOException e) {
 				Log.e(TAG, "problem when sending files " + e);
 			}
 		}
 		else {
 			Log.d(TAG, "Did not send");
-			Log.d(TAG, "Group status " + MulticastService.multicastGroup);
-			Log.d(TAG, "MC service status " + MulticastService.socketOK);
+			Log.d(TAG, "Group status " + ServiceNetwork.multicastGroup);
+			Log.d(TAG, "MC service status " + ServiceNetwork.MC_SOCKET_OK);
 		}
 	}
 }

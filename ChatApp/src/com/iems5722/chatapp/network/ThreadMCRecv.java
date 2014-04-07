@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 
 import com.iems5722.chatapp.database.DbProvider;
@@ -22,7 +23,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-public class MulticastReceiver extends Handler{
+public class ThreadMCRecv extends Handler{
 	public final static String TAG = "MulticastReceiver";
 	
 	public final static int INITIAL_MUTLICAST = 1;
@@ -34,7 +35,7 @@ public class MulticastReceiver extends Handler{
 	
 	MulticastLock mLock;
 
-	public MulticastReceiver(Looper looper, Context currentContext) {
+	public ThreadMCRecv(Looper looper, Context currentContext) {
 		super(looper);
 		Log.d(TAG, "Creating service");
 		this.context = currentContext;
@@ -66,12 +67,19 @@ public class MulticastReceiver extends Handler{
 	    mLock = wifi.createMulticastLock("mylock");
 	    mLock.acquire();
 	    try{
-		    MulticastService.multiSocket = new MulticastSocket(MulticastService.MULTI_PORT);
-		    MulticastService.multiSocket.joinGroup(MulticastService.group);
-		    MulticastService.multicastGroup = true;
-		    MulticastService.socketOK = true;
+	    	try{
+	    		ServiceNetwork.group = InetAddress.getByName("230.0.0.1");
+			}
+	    	catch (UnknownHostException e) {
+	    		Log.e(TAG, "Error converting to inetaddress " + e.getMessage());
+				e.printStackTrace();
+			}
+	    	ServiceNetwork.multiSocket = new MulticastSocket(ServiceNetwork.MULTI_PORT);
+	    	ServiceNetwork.multiSocket.joinGroup(ServiceNetwork.group);
+	    	ServiceNetwork.multicastGroup = true;
+	    	ServiceNetwork.MC_SOCKET_OK = true;
 	    }catch(Exception e){
-	    	MulticastService.socketOK = false;
+	    	ServiceNetwork.MC_SOCKET_OK = false;
 	    	Log.e(TAG, "Multicast Receiver initial problem : " + e.getMessage());
 	    }
 	}
@@ -79,15 +87,15 @@ public class MulticastReceiver extends Handler{
 	public void	multicastListen() {
 			Log.d(TAG, "multicast listening");
 			try {
-				byte[] requestData = new byte[MulticastService.Packet_Size];
+				byte[] requestData = new byte[ServiceNetwork.Packet_Size];
 		           
-				while(MulticastService.socketOK)
+				while(ServiceNetwork.MC_SOCKET_OK)
 					{
 						Log.i(TAG, "in listening loop waiting for multicast");
 						Log.i(TAG, mLock.toString());
 						Log.i(TAG, Boolean.toString(mLock.isHeld()));
 					 	DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length);
-					 	MulticastService.multiSocket.receive(requestPacket);
+					 	ServiceNetwork.multiSocket.receive(requestPacket);
 
 			            String requestString = new String(requestPacket.getData(), 0, requestPacket.getLength());
 			            //Toast.makeText(context, requestString, Toast.LENGTH_SHORT).show();
@@ -132,8 +140,8 @@ public class MulticastReceiver extends Handler{
 	public void leaveGroup() {
 		try {
 			Log.d(TAG, "Leaving group");
-			MulticastService.multiSocket.leaveGroup(MulticastService.group);
-			MulticastService.multicastGroup = false;
+			ServiceNetwork.multiSocket.leaveGroup(ServiceNetwork.group);
+			ServiceNetwork.multicastGroup = false;
 		} catch (IOException e) {
 			Log.e(TAG, "Could not leave group " + e.getMessage());
 			e.printStackTrace();
@@ -145,8 +153,8 @@ public class MulticastReceiver extends Handler{
 	{
 		try {
 			Log.d(TAG, "Socket closed");
-			MulticastService.multiSocket.close();
-			MulticastService.socketOK = false;
+			ServiceNetwork.multiSocket.close();
+			ServiceNetwork.MC_SOCKET_OK = false;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Log.e(TAG, "Cannot stop TCP server " + e.getMessage());
