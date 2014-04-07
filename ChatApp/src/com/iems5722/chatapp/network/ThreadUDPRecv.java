@@ -86,12 +86,13 @@ public class ThreadUDPRecv extends Handler {
 	
 	//main part for handling incoming udp messages
 	private void listenUDP() {
-		//UDP socket
-		byte[] receiveData = new byte[ServiceNetwork.Packet_Size]; 
-		while(ServiceNetwork.SocketOK) {
-			Log.i(TAG,  "in listening loop waiting for packet");
-			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
-			try {
+		try {
+			//UDP socket
+			byte[] receiveData = new byte[ServiceNetwork.Packet_Size]; 
+			while(ServiceNetwork.SocketOK) {
+				Log.i(TAG,  "in listening loop waiting for packet");
+				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length); 
+
 				ServiceNetwork.serverSocket.receive(receivePacket);
 		        sourceIPAddress = receivePacket.getAddress();
 		        Log.i(TAG,"Received a packet | Source IP Address: " + sourceIPAddress);
@@ -118,20 +119,21 @@ public class ThreadUDPRecv extends Handler {
 	    			updateUser(message);
 		        }
 			}
-			catch (Exception e) {
-				Log.e(TAG,"Problems receiving packet: "+e.getMessage());
-				Log.e(TAG, "Error message " + e);
-				ServiceNetwork.SocketOK = false;
-			} 	
 		}
+		catch (Exception e) {
+			Log.e(TAG,"Problems receiving packet: "+e.getMessage());
+			ServiceNetwork.SocketOK = false;
+		} 	
+		Log.d(TAG, "Socket not ok");
 	}	
 	
 	//clean up
-	private void stopUDP() {
+	public void stopUDP() {
 		try	{
-			//Log.i(TAG,"trying to create the datagram...");
+			Log.i(TAG,"Stopping UDP service");
 			ServiceNetwork.serverSocket.setBroadcast(false);
 			ServiceNetwork.serverSocket.close();
+			ServiceNetwork.SocketOK = false;
 		} 
 		catch(Exception e) {
 			Log.e(TAG,"Cannot close socket"+e.getMessage());

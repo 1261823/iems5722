@@ -81,7 +81,7 @@ public class DialogWifiAvailable extends Activity {
 			new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					nowShowing = false;
-					uiHandler.obtainMessage(Activity_Login.DEREGISTER_WIFI_BCR).sendToTarget();
+					uiHandler.obtainMessage(Activity_TabHandler.DEREGISTER_WIFI_BCR).sendToTarget();
 					dialog.cancel();
 					finish();
 				}

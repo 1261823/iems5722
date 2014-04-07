@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import com.iems5722.chatapp.gui.Activity_Login;
+import com.iems5722.chatapp.gui.Activity_TabHandler;
 import com.iems5722.chatapp.gui.DialogWifiAvailable;
 
 import android.app.Service;
@@ -122,7 +123,7 @@ public class ServiceNetwork extends Service {
         		//don't show again if now showing
         		if (!DialogWifiAvailable.nowShowing) {
 	        		//inform UI thread that wifi is disconnected
-	        		UIhandler.obtainMessage(Activity_Login.WIFI_INACTIVE).sendToTarget();
+	        		UIhandler.obtainMessage(Activity_TabHandler.WIFI_INACTIVE).sendToTarget();
 	   		 		//stop monitoring to avoid repeat dialogs
 	        		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
         		}
@@ -159,10 +160,11 @@ public class ServiceNetwork extends Service {
 	
 	@Override
 	public void onDestroy() {
-		//Log.d(TAG, "onDestroy");
+		Log.d(TAG, "onDestroy - attempting to stop ports");
 		SocketOK = false;
 		networkHandler.obtainMessage(ThreadNetwork.NTWK_STOP_MONITOR).sendToTarget();
-		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_CLOSE).sendToTarget();
+		//udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_CLOSE).sendToTarget();
+		udpRecvHandler.stopUDP();
 		stopSelf();
 	}		
 	

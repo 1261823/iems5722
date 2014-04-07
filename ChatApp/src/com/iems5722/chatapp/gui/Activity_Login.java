@@ -9,6 +9,7 @@ import java.util.Locale;
 import com.iems5722.chatapp.R;
 import com.iems5722.chatapp.database.UserSetInactive;
 import com.iems5722.chatapp.network.ServiceNetwork;
+import com.iems5722.chatapp.network.ThreadUDPSend;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.preference.Settings;
 
@@ -52,42 +53,6 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	
 	//Preferences
 	private SharedPreferences prefs;
-
-	//Networking service
-	ServiceNetwork NetworkService;
-	private Intent NetServiceIntent;	
-	Handler ServiceHandler;
-	
-	//events recognised by handler
-	public static final int SERV_READY = 0;
-	public static final int WIFI_INACTIVE = 1;
-	public static final int DEREGISTER_WIFI_BCR = 2;
-	
-	private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-        	Log.d(TAG, "received message");
-        	switch (msg.what) {
-        	case (WIFI_INACTIVE):
-        		createWifiDialog();
-    			break;
-        	case (DEREGISTER_WIFI_BCR):
-        		ServiceHandler.obtainMessage(DEREGISTER_WIFI_BCR).sendToTarget();;
-        		break;
-        	}	
-        }
-	};
-	
-	public void createWifiDialog() {
-		//inform user that wifi inactive
-		Intent iWifiDialog = new Intent(this, DialogWifiAvailable.class);
-    	iWifiDialog.addCategory(Intent.CATEGORY_LAUNCHER);
-    	iWifiDialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    	iWifiDialog.addFlags(Intent.FLAG_FROM_BACKGROUND);
-		//not sure if session information needs to be passed to intent
-		startActivity(iWifiDialog);
-		DialogWifiAvailable.setHandler(mHandler);
-	}
 	
 	@Override
  	public void onCreate(Bundle savedInstanceState) {
@@ -104,10 +69,6 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 		});		
 		
 		setUpInterface();
-		
-		//start network services
-		NetServiceIntent = new Intent(this, ServiceNetwork.class);
-		initNetworkServices();
 	
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		loadPreference();
@@ -265,30 +226,10 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 	
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
 		//stop all services on app exit
-		stopService(NetServiceIntent);
-		unbindService(NetServiceConnection);
 		prefs.unregisterOnSharedPreferenceChangeListener(this);
+		super.onDestroy();
 	}
-	
-	private void initNetworkServices() {
-		startService(NetServiceIntent);
-		bindService(NetServiceIntent, NetServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private ServiceConnection NetServiceConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName className, IBinder binder) {
-			Log.d(TAG, "onServiceConnected");	
-			NetworkBinder networkBinder = (NetworkBinder) binder;
-			NetworkService = networkBinder.getService();
-			NetworkService.setUIHandler(mHandler);
-		}
-		
-		public void onServiceDisconnected(ComponentName className) {
-			Log.d(TAG, "onServiceDisconnected");				
-		}
-	};
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

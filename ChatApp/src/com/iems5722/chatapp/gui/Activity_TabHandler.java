@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -77,7 +78,36 @@ public class Activity_TabHandler extends FragmentActivity implements
 	private Intent multicastServiceIntent;
 	private Handler multicastServiceHandler;
 
+	//events recognised by handler
+	public static final int SERV_READY = 0;
+	public static final int WIFI_INACTIVE = 1;
+	public static final int DEREGISTER_WIFI_BCR = 2;	
 	
+	private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+        	Log.d(TAG, "received message");
+        	switch (msg.what) {
+        	case (WIFI_INACTIVE):
+        		createWifiDialog();
+    			break;
+        	case (DEREGISTER_WIFI_BCR):
+        		serviceHandler.obtainMessage(DEREGISTER_WIFI_BCR).sendToTarget();;
+        		break;
+        	}	
+        }
+	};
+	
+	public void createWifiDialog() {
+		//inform user that wifi inactive
+		Intent iWifiDialog = new Intent(this, DialogWifiAvailable.class);
+    	iWifiDialog.addCategory(Intent.CATEGORY_LAUNCHER);
+    	iWifiDialog.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    	iWifiDialog.addFlags(Intent.FLAG_FROM_BACKGROUND);
+		//not sure if session information needs to be passed to intent
+		startActivity(iWifiDialog);
+		DialogWifiAvailable.setHandler(mHandler);
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -118,6 +148,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 		
 		//create connections to service
 		netServiceIntent = new Intent(this, ServiceNetwork.class);
+		startService(netServiceIntent);
 		bindService(netServiceIntent, netServiceConnection, Context.BIND_AUTO_CREATE);
 		
 		long servdone = c.getTimeInMillis();
@@ -302,7 +333,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 
 	private void initPreference() {
 		//Log.d(TAG, "initPreference");
-		
 		String usernameKey = this.getString(R.string.pref_key_name);	
 		msgUsername = prefs.getString(usernameKey, "");
 		String useridKey = this.getString(R.string.pref_key_userid);
@@ -317,11 +347,12 @@ public class Activity_TabHandler extends FragmentActivity implements
 	public void onDestroy() {
 		//inform other users 
 		networkService.udpSendHandler.obtainMessage(ThreadUDPSend.SIGN_OUT).sendToTarget();
-		
 		unbindService(netServiceConnection);
-		unbindService(multicastServiceConnection);
+		stopService(netServiceIntent);
 		
+		unbindService(multicastServiceConnection);
 		stopService(multicastServiceIntent);
+
 		super.onDestroy();
 	}
 	
