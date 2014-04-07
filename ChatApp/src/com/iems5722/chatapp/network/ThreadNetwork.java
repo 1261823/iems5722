@@ -109,7 +109,7 @@ public class ThreadNetwork extends Handler {
     	 }
     	 else {
     		 networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-    		 Log.d(TAG, networkInfo.getExtraInfo());
+    		 //Log.d(TAG, networkInfo.getExtraInfo());
     		 if (networkInfo.isConnected()) {
     			 Log.i(TAG, "Wifi connected");
     			 wifiActive = true;

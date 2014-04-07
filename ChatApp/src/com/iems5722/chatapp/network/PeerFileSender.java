@@ -65,7 +65,7 @@ public class PeerFileSender extends Handler {
 			String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, msgToSendVO.getChatMsg());
 			String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_CHAT, formattedChatMsg);
 			byte [] infoByteArray = fileInfoString.toString().getBytes("UTF-8");
-			updatePrivateMsg(formattedChatMsg, msgToSendVO.getChatMsg());
+			updatePrivateMsg(formattedChatMsg, msgToSendVO.getChatSessionId());
 			tcpSend(msgToSendVO.getUserIp(), infoByteArray);
 			
 			Log.d(TAG, "TCP Msg sent : "+ msgToSendVO.getChatMsg());
