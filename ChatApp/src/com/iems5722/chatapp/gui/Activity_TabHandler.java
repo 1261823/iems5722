@@ -38,6 +38,7 @@ import com.iems5722.chatapp.database.DbProvider;
 import com.iems5722.chatapp.database.TblUser;
 import com.iems5722.chatapp.database.UserSetInactive;
 
+import com.iems5722.chatapp.network.MessageBuilder;
 import com.iems5722.chatapp.network.ServiceNetwork;
 import com.iems5722.chatapp.network.ServiceNetwork.NetworkBinder;
 import com.iems5722.chatapp.network.ThreadUDPSend;
@@ -48,7 +49,9 @@ public class Activity_TabHandler extends FragmentActivity implements
 	FragmentChatMenu.OnButtonClickListener,
 	OnSharedPreferenceChangeListener {
 	private static final String TAG = "Activity_TabHandler";
-
+	
+	MessageBuilder msgBuilder;
+	
 	//Preferences
 	private SharedPreferences prefs;	
 	static String msgUsername;
@@ -112,7 +115,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 		//get name from preferences
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);		
-		initPreference();			
+		initPreference();
+		msgBuilder = new MessageBuilder(this);
 		
 		long prefdone = c.getTimeInMillis();
 		diff = prefdone - start;
@@ -242,16 +246,19 @@ public class Activity_TabHandler extends FragmentActivity implements
 	@Override
 	public void buttonClick(int buttonId) {
 		switch(buttonId) {
-		case(R.id.menu_chat_send):
-			
+		case(R.id.menu_chat_send):			
 			//Send message to global chat
 			EditText chatText = (EditText)this.findViewById(R.id.menu_chat_input);
-			serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, chatText.getText().toString()).sendToTarget();
-			//Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
-			//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
-			//networkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
-			
-			chatText.setText("");
+			String outputString = chatText.getText().toString().trim();
+			if (outputString.length() > 0) {
+				String outMessage = msgBuilder.messageCreate(MessageBuilder.GLOBAL_MSG, outputString);
+				serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, outMessage).sendToTarget();
+				msgBuilder.saveGlobalMessage(outMessage);
+				//Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
+				//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
+				//networkService.udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
+				chatText.setText("");
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown button clicked " + Integer.toString(buttonId));
@@ -294,6 +301,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 			serviceHandler = networkService.getServiceHandler();
 			postLocaleChange();
 			networkService.setUsername(msgUsername);
+			networkService.setUserid(userId);
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {

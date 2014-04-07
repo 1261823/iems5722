@@ -32,6 +32,7 @@ public class ThreadMCRecv extends Handler{
 	
 	private Context context;
 	private Looper looper;
+	private MessageBuilder msgBuilder;
 	
 	MulticastLock mLock;
 
@@ -78,6 +79,7 @@ public class ThreadMCRecv extends Handler{
 	    	ServiceNetwork.multiSocket.joinGroup(ServiceNetwork.group);
 	    	ServiceNetwork.multicastGroup = true;
 	    	ServiceNetwork.MC_SOCKET_OK = true;
+	    	msgBuilder = new MessageBuilder(context);
 	    }catch(Exception e){
 	    	ServiceNetwork.MC_SOCKET_OK = false;
 	    	Log.e(TAG, "Multicast Receiver initial problem : " + e.getMessage());
@@ -101,8 +103,10 @@ public class ThreadMCRecv extends Handler{
 			            //Toast.makeText(context, requestString, Toast.LENGTH_SHORT).show();
 			            Log.d(TAG,"Got Msg = "+ requestString); 
 			            String msgType = MessageBuilder.getMessagePart(requestString, MessageBuilder.MsgType);
-			            if(msgType.equals(MessageBuilder.GLOBAL_MSG)) {
-			            	updateGlobalMsg(requestString);
+			            String msgSender = MessageBuilder.getMessagePart(requestString, MessageBuilder.MsgUser);
+			            if(msgType.equals(MessageBuilder.GLOBAL_MSG) && !msgSender.equals(ServiceNetwork.user_id)) {
+			            	//don't add string if is from self
+			            	msgBuilder.saveGlobalMessage(requestString);
 			            }
 					}
 				Log.d(TAG, "Stopping listen");

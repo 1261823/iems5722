@@ -14,8 +14,6 @@ public class ThreadMCSend extends Handler{
 
 	private Context context;
 	private Looper looper;
-	MessageBuilder msgBuilder;
-	
 	
 	public final static int SEND_MSG = 0;
 	
@@ -24,7 +22,6 @@ public class ThreadMCSend extends Handler{
 		Log.d(TAG, "Creating service");
 		this.context = currentContext;
 		this.looper = looper;
-		msgBuilder = new MessageBuilder(context);
 	}
 	
 	@Override
@@ -42,14 +39,13 @@ public class ThreadMCSend extends Handler{
 		//only send if currently part of group and socket is ok
 		if (ServiceNetwork.multicastGroup && ServiceNetwork.MC_SOCKET_OK) {
 			try {
-				String outMessage = msgBuilder.messageCreate(MessageBuilder.GLOBAL_MSG, msg);
 				byte[] requestData = new byte[1024];
-				requestData = outMessage.getBytes();
+				requestData = msg.getBytes();
 				Log.d(TAG, Integer.toString(requestData.length));
 				
 				DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, ServiceNetwork.group, ServiceNetwork.MULTI_PORT);
 				ServiceNetwork.multiSocket.send(requestPacket); 
-				Log.d(TAG, "Sent message " + outMessage);
+				Log.d(TAG, "Sent message " + msg);
 				Log.d(TAG, "Group status " + ServiceNetwork.multicastGroup);
 				Log.d(TAG, "MC service status " + ServiceNetwork.MC_SOCKET_OK);
 			} catch (IOException e) {

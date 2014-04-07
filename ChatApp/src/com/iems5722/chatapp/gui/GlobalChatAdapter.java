@@ -79,7 +79,7 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(60, 10, 10, 0);
 		v.setLayoutParams(params);
-		Log.d(TAG, "Applying params");
+		//Log.d(TAG, "Applying params");
 		
 		int msgId = c.getColumnIndex(TblGlobalChat.MESSAGE_ID);
 		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);

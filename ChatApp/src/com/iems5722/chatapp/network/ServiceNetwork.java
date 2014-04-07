@@ -51,6 +51,7 @@ public class ServiceNetwork extends Service {
 	//Network parameters used by all threads
 	//own username
 	static String		username;
+	static String		user_id;
 	//WiFi Parameters
 	static int 			intIPAddress;
 	static InetAddress 	inetIPAddress;
@@ -245,8 +246,12 @@ public class ServiceNetwork extends Service {
 		return null;
 	}
 	
-	public void setUsername(String username) {
-		this.username = username;
-		udpSendHandler.obtainMessage(ThreadUDPSend.PREF_UPDATE_USER, username).sendToTarget();
+	public void setUsername(String newname) {
+		username = newname;
 	}
+	
+	public void setUserid(String newid) {
+		user_id = newid;
+	}
+	
 }

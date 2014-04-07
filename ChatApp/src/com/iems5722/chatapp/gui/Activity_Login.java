@@ -177,7 +177,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 			@Override
 			public void onClick(View v) {
 				// check if username has been entered
-				username = login_username.getText().toString();
+				username = login_username.getText().toString().trim();
 				//Log.d(TAG, username);
 				//Log.d(TAG, Integer.toString(username.length()));
 				try {

@@ -1,11 +1,18 @@
 package com.iems5722.chatapp.network;
 
+import java.util.Calendar;
+
 import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.DbProvider;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblGlobalChat;
 import com.iems5722.chatapp.preference.Settings;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -62,6 +69,55 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 		//Log.i(TAG, "Content " + msgParts[MsgContent]);
 		return msgParts[msgPart];
 	}
+	
+	public void saveGlobalMessage(String inMessage) {
+    	String msgType = getMessagePart(inMessage, MsgType);
+    	String msgUser = getMessagePart(inMessage, MsgUser);
+    	String msgContent = getMessagePart(inMessage, MsgContent);
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
+
+		if (msgType.equals(GLOBAL_MSG)) {
+			Calendar c = Calendar.getInstance();
+			long curDateTimeMS = c.getTimeInMillis();  
+			
+			ContentValues values = new ContentValues();
+			
+			values.put(TblGlobalChat.USER_ID, msgUser);
+			values.put(TblGlobalChat.MESSAGE, msgContent);
+			values.put(TblGlobalChat.MSG_DATETIME, curDateTimeMS);
+			//add new global chat message
+			Uri itemUri = mContext.getApplicationContext().getContentResolver().insert(DbProvider.GCHAT_URI, values);
+			Log.d(TAG, "Added new global message " + itemUri.toString());  			
+		}
+	}
+	
+	public void savePrivateMessage(String inMessage, String session) {
+    	String msgType = getMessagePart(inMessage, MsgType);
+    	String msgUser = getMessagePart(inMessage, MsgUser);
+    	String msgContent = getMessagePart(inMessage, MsgContent);
+    	
+    	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
+    	
+		if (msgType.equals(PRIVATE_MSG)) {
+			Calendar c = Calendar.getInstance();
+			long curDateTimeMS = c.getTimeInMillis(); 
+			
+			ContentValues values = new ContentValues();
+			
+			values.put(TblChat.USER_ID, msgUser);
+			values.put(TblChat.MESSAGE, msgContent);
+			values.put(TblChat.MSG_DATETIME, curDateTimeMS);
+			values.put(TblChat.SESSION_ID, session);
+			//add new private chat message
+			Uri itemUri = mContext.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
+			Log.d(TAG, "Added new private message " + itemUri.toString());  	
+		}
+		
+
+		
+	}
+	
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

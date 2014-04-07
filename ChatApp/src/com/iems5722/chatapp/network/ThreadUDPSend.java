@@ -22,7 +22,6 @@ public class ThreadUDPSend extends Handler {
 
 	//message builder
 	MessageBuilder msgBuilder;
-	String username = "";
 
 	//commands recognised by udp service
 	public final static int     PING_REQUEST_ALL = 1;	
@@ -30,7 +29,6 @@ public class ThreadUDPSend extends Handler {
 	public final static int     PING_ITERATE_ALL = 3;
 	public final static int     PING_ACKNOWLEDGE = 4;
 	public final static int     SIGN_OUT    = 5;
-	public final static int		PREF_UPDATE_USER = 10;
 	
 	public ThreadUDPSend(Looper looper, Context serviceContext) {
 		super(looper);
@@ -48,14 +46,14 @@ public class ThreadUDPSend extends Handler {
 		switch(msg.what) {	
 			case PING_REQUEST_ALL:
 				Log.i(TAG, "PING_REQUEST_ALL");
-				outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, username);
+				outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, ServiceNetwork.username);
 	    		Log.i(TAG, "PIA " + ServiceNetwork.BroadcastAddress + " " + outMessage);	        		
 	    		udpSendMessage(outMessage, ServiceNetwork.BroadcastAddress);
 				break;
 			case PING_REQUEST_ONE:
 				Log.i(TAG, "PING_REQUEST_ONE");
 	    		peerAddress = (InetAddress) msg.obj;
-	    		outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, username);
+	    		outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, ServiceNetwork.username);
 	    		udpSendMessage(outMessage, peerAddress);					
 				break;
 			case PING_ITERATE_ALL:
@@ -63,7 +61,7 @@ public class ThreadUDPSend extends Handler {
 				//send individual packet to all possible ip addresses based on subnet mask
 				//use as last resort
 	    		int outIP = ServiceNetwork.intFirstAddress;
-	    		outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, username);
+	    		outMessage = msgBuilder.messageCreate(MessageBuilder.PING_REQ_MSG, ServiceNetwork.username);
 	    		for(long i = 0; outIP < ServiceNetwork.intBroadcastAddress; i++) {
 	    			InetAddress outAddress;
 					try {
@@ -79,20 +77,16 @@ public class ThreadUDPSend extends Handler {
 			case PING_ACKNOWLEDGE:
 				Log.d(TAG, "PING_ACKNOWLEDGE");
 	    		//Send username and WiFi MAC address back	
-				outMessage = msgBuilder.messageCreate(MessageBuilder.PING_ACK_MSG, username);
+				outMessage = msgBuilder.messageCreate(MessageBuilder.PING_ACK_MSG, ServiceNetwork.username);
 	    		peerAddress = (InetAddress) msg.obj;
 	    		Log.i(TAG, "ACK " + peerAddress + " " + outMessage);	        		
 	        	udpSendMessage(outMessage, peerAddress);					
 				break;
 			case SIGN_OUT:
 				Log.d(TAG, "SIGN_OUT");
-				outMessage = msgBuilder.messageCreate(MessageBuilder.SIGN_OUT, username);
+				outMessage = msgBuilder.messageCreate(MessageBuilder.SIGN_OUT, ServiceNetwork.username);
 	    		Log.i(TAG, "SO " + ServiceNetwork.BroadcastAddress + " " + outMessage);	        		
 	    		udpSendMessage(outMessage, ServiceNetwork.BroadcastAddress);
-				break;
-			case PREF_UPDATE_USER:
-				username = (String) msg.obj;
-				Log.d(TAG, "New username set: " + username);
 				break;
 			default:
 				Log.e(TAG, "Unknown command: " + msg.what);		
@@ -101,7 +95,7 @@ public class ThreadUDPSend extends Handler {
 
 	public void udpSendMessage(String msg, InetAddress peerInetAddress) {
 		//username cannot be empty
-		if (!username.isEmpty()) {
+		if (!ServiceNetwork.user_id.isEmpty()) {
 			byte[] sendData  = new byte[1024]; 
 			sendData = msg.getBytes(); 
 			InetAddress peerAddress = peerInetAddress;
