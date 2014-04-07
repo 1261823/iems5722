@@ -19,6 +19,10 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 	public final static String TAG = "GlobalChatAdapter";
 	private Context context;
 	private int layout;
+	private LayoutInflater mInflater;
+	
+	private static final int TYPE_SENT = 0;
+	private static final int TYPE_RECV = 1;
 	
 	private TextView vMsgId;
 	private TextView vMsgAuthor;
@@ -29,56 +33,86 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		super(context, layout, c, from, to, flags);
 		this.context = context;
 		this.layout = layout;	
+		mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+	
+	private int getItemViewType(Cursor cursor) {
+		//String[] colname = cursor.getColumnNames();
+		//int i = 0;
+		//int counter = cursor.getCount();
+		//Log.d(TAG, Integer.toString(counter));
+		//for (String s:colname) {
+		//	Log.d(TAG, "col " + s + " val " + cursor.getString(i));
+		//	i++;
+		//}
+		int colAuthor = cursor.getColumnIndex(TblUser.USER_ID);
+		String msgAuthor = cursor.getString(colAuthor);
+		if (msgAuthor.equals(Activity_TabHandler.userId)) {
+			return TYPE_SENT;
+		}
+		else {
+			return TYPE_RECV;
+		}
+	}
+	
+	@Override
+	public int getItemViewType(int position) {
+		Cursor cursor = (Cursor) getItem(position);
+		return getItemViewType(cursor);
+	}
+	
+	@Override
+	public int getViewTypeCount() {
+		return 2;
+	}
+	
+	public static class ViewHolder {
+		public View viewholder;
 	}
 	
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		//Log.d(TAG, "newView");
 		Cursor c = getCursor();
-		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
-		//for (int i = 0 ; i < cursor.getColumnCount(); i++) {
-		//	Log.i(TAG, cursor.getColumnName(i) + " : " + cursor.getString(i));
-		//}
+		ViewHolder holder = new ViewHolder();
+		View v = null;
 		
 		//change the message display if is own message
-		View v;
-		int msgAuthor = c.getColumnIndex(TblUser.USER_NAME);
-		String dbMsgAuthor = c.getString(msgAuthor);
+		int colAuthor = c.getColumnIndex(TblUser.USER_ID);
+		String msgAuthor = c.getString(colAuthor);
+		int colMsg = c.getColumnIndex(TblGlobalChat.MESSAGE);
+		String msg = c.getString(colMsg);
 
 		//LayoutParams params;
-
-		//Log.i(TAG, "Msg " + Long.toString(dbMsgId) + " from " + dbMsgAuthor + " vs " + Activity_TabHandler.userId);
-		if (dbMsgAuthor.equals(Activity_TabHandler.msgUsername)) {
-			//Log.i(TAG, "sent");
-			v = inflater.inflate(R.layout.chat_message_sent, null);
-			//params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			//params.setMargins(60, 10, 10, 0);
-			//params.gravity = Gravity.RIGHT;
+		Log.i(TAG, "Msg " + msg + " from " + msgAuthor + " vs " + Activity_TabHandler.userId);
+		if (msgAuthor.equals(Activity_TabHandler.userId)) {
+			Log.i(TAG, "Msg from self");
+			v = mInflater.inflate(R.layout.chat_message_sent, parent, false);
+			holder.viewholder = (View) v.findViewById(R.id.chat_message_sent);
 		}		
 		else {
-			//Log.i(TAG, "recv");
-			v = inflater.inflate(layout, null);
-			//params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			//params.setMargins(10, 10, 60, 0);
+			Log.i(TAG, "Msg from other");
+			v = mInflater.inflate(R.layout.chat_message_recv, parent, false);
+			holder.viewholder = (View) v.findViewById(R.id.chat_message_recv);
 		}
-
+		v.setTag(holder);
 		//v.setLayoutParams(params);
-		loadView(v, context, c);
+		//loadView(v, context, c);
 		return v;
 	}
 	
 	@Override
 	public void bindView(View v, Context context, Cursor c) {
 		//log.d(APP_TAG, "bindView");
-		loadView(v, context, c);
+		ViewHolder holder = (ViewHolder) v.getTag();
+		loadView(holder, context, c);
 	}
 	
-	private void loadView(View v, Context context, Cursor c) {
-		LayoutParams params;
-		params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		params.setMargins(60, 10, 10, 0);
-		v.setLayoutParams(params);
+	private void loadView(ViewHolder v, Context context, Cursor c) {
+		//LayoutParams params;
+		//params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		//params.setMargins(60, 10, 10, 0);
+		//v.setLayoutParams(params);
 		//Log.d(TAG, "Applying params");
 		
 		int msgId = c.getColumnIndex(TblGlobalChat.MESSAGE_ID);
@@ -91,11 +125,10 @@ public class GlobalChatAdapter extends SimpleCursorAdapter {
 		String dbMsgContent = c.getString(msgContent);
 		long dbMsgTimestamp = c.getLong(msgTimestamp);
 
-		
-		vMsgId = (TextView) v.findViewById(R.id.msg_id);
-		vMsgAuthor = (TextView) v.findViewById(R.id.msg_author);
-		vMsgContent = (TextView) v.findViewById(R.id.msg_recv);
-		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_timestamp);
+		vMsgId = (TextView) v.viewholder.findViewById(R.id.msg_id);
+		vMsgAuthor = (TextView) v.viewholder.findViewById(R.id.msg_author);
+		vMsgContent = (TextView) v.viewholder.findViewById(R.id.msg_recv);
+		vMsgTimestamp = (TextView) v.viewholder.findViewById(R.id.msg_timestamp);
 		
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);

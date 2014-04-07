@@ -103,7 +103,7 @@ public class ThreadUDPRecv extends Handler {
 	        	String msgType = MessageBuilder.getMessagePart(message, MessageBuilder.MsgType);
 	        	String msgSender = MessageBuilder.getMessagePart(message, MessageBuilder.MsgUser);
 		        //check if it is own packet
-		        if(sourceIPAddress.equals(ServiceNetwork.inetIPAddress)) {
+		        if(sourceIPAddress.equals(ServiceNetwork.inetIPAddress) || msgSender.equals(Activity_TabHandler.userId)) {
 		        	//network discovery success
 		        	//Log.d(TAG, message + " type " + msgType);		        	
 		        	//if it is a request, send ack reply

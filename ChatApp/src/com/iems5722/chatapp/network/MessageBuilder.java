@@ -88,7 +88,7 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 			values.put(TblGlobalChat.MSG_DATETIME, curDateTimeMS);
 			//add new global chat message
 			Uri itemUri = mContext.getApplicationContext().getContentResolver().insert(DbProvider.GCHAT_URI, values);
-			Log.d(TAG, "Added new global message " + itemUri.toString());  			
+			Log.d(TAG, "Added new global message " + itemUri.toString());  		
 		}
 	}
 	

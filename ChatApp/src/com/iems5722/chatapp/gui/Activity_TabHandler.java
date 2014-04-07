@@ -54,8 +54,8 @@ public class Activity_TabHandler extends FragmentActivity implements
 	
 	//Preferences
 	private SharedPreferences prefs;	
-	static String msgUsername;
-	static String userId;
+	public static String msgUsername;
+	public static String userId;
 	static boolean sendGlobalMsg_UDP;
 	
 	//view objects
@@ -261,7 +261,6 @@ public class Activity_TabHandler extends FragmentActivity implements
 					Log.d(TAG, "Sending messages via multicast");
 					serviceHandler.obtainMessage(ServiceNetwork.MC_SEND, outMessage).sendToTarget();
 				}
-				
 				msgBuilder.saveGlobalMessage(outMessage);
 				//Toast.makeText(getApplicationContext(), "Global message sent clicked", Toast.LENGTH_SHORT).show();
 				//networkService.networkHandler.obtainMessage(ThreadNetwork.NTWK_UPDATE).sendToTarget();
