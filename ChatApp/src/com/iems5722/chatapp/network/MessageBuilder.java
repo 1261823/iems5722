@@ -96,7 +96,15 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
     	String msgType = getMessagePart(inMessage, MsgType);
     	String msgUser = getMessagePart(inMessage, MsgUser);
     	String msgContent = getMessagePart(inMessage, MsgContent);
+    	String chatSession;
     	
+    	if (session ==null){
+    		chatSession = msgUser;    		
+    	}else{
+    		chatSession = session;    		
+    	}
+    	
+    	    	
     	Log.d(TAG, "Msg " + msgType + " UserId " + msgUser + " Username " + msgContent);
     	
 		if (msgType.equals(PRIVATE_MSG)) {
@@ -108,7 +116,7 @@ public class MessageBuilder implements OnSharedPreferenceChangeListener {
 			values.put(TblChat.USER_ID, msgUser);
 			values.put(TblChat.MESSAGE, msgContent);
 			values.put(TblChat.MSG_DATETIME, curDateTimeMS);
-			values.put(TblChat.SESSION_ID, session);
+			values.put(TblChat.SESSION_ID, chatSession);
 			//add new private chat message
 			Uri itemUri = mContext.getApplicationContext().getContentResolver().insert(DbProvider.PCHAT_URI, values);
 			Log.d(TAG, "Added new private message " + itemUri.toString());  	
