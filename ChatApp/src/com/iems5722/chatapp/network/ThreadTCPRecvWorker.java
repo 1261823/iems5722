@@ -32,7 +32,7 @@ public class ThreadTCPRecvWorker extends Thread{
 	private static final String TAG="ThreadTCPRecvWorker";
 	private final static int HEADER_SIZE=1024;
 	private final static String INFO_SEPARATOR=";";
-	private final static String SD_CARD_PATH="/sdcard/";
+	private final static String PRESERVED_DIR="chatApp";
 	private final static String ENDING_STRING = "@";
 	
 	public ThreadTCPRecvWorker(Socket receiptSocket, Context context, Handler handler){
@@ -83,9 +83,14 @@ public class ThreadTCPRecvWorker extends Thread{
 				//receive file after info arrived
 				byte[] fileByteArray = new byte[filesize];
 				Log.d(TAG, "File comes");
-				this.mHandler.obtainMessage(Activity_PrivateChat.TOAST, "File comes");
-
-				File newFile = new File(Environment.getExternalStorageDirectory(),firstParam);
+				
+				createFileWorkspace();
+				
+				File newFile = new File(Environment.getExternalStorageDirectory()+"/"+PRESERVED_DIR, firstParam);
+				
+				if(newFile==null){
+					Log.d(TAG, "no space to create file in external storage");
+				}
 				FileOutputStream fos = new FileOutputStream(newFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				
@@ -128,6 +133,30 @@ public class ThreadTCPRecvWorker extends Thread{
 
 	}
 	
-	
+	public static void ensure_dir(File new_dir) { 
+		 if (!new_dir.exists()) { 
+			 if (!new_dir.mkdirs()) { 
+				 Log.d(TAG, "Failed to create directory " + new_dir); 
+			 } else { 
+				 Log.d(TAG, "Directory created " + new_dir); 
+			 } 
+		} 
+	}
+
+	 private void createFileWorkspace() { 
+		 Log.d(TAG, "createWorkspace"); 
+		 if (isExternalStorageWritable()) { 
+			 File newFile = new File(Environment.getExternalStorageDirectory(), PRESERVED_DIR); 
+			 ensure_dir(newFile); 
+		 }		 
+	 } 
+
+	 public boolean isExternalStorageWritable() { 
+		 String state = Environment.getExternalStorageState(); 
+		 if (Environment.MEDIA_MOUNTED.equals(state)) { 
+			 return true; 
+		 } 
+		 	return false; 
+	 } 
 	
 }
