@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -381,9 +382,27 @@ public class Activity_PrivateChat extends FragmentActivity implements
         	case DONE_AND_PREVIEW:
         		//progressBar.dismiss();
         		//Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+        		Uri receivedFileUri = (Uri)msg.obj;
+        		Intent intent = new Intent();  
+        		intent.setAction(android.content.Intent.ACTION_VIEW);  
+        		intent.setDataAndType(receivedFileUri, getMimeType(receivedFileUri.getPath()));  
+        		startActivity(intent);  
     			break;	
     		}
         }
 	};
+	
+	public  String getMimeType(String url)
+	{
+		 String type = null;
+		 	String extensionLastPart=url.substring(url.lastIndexOf(".")); 
+		    String extension = MimeTypeMap.getFileExtensionFromUrl(extensionLastPart);
+		    if (extension != null) {
+		        MimeTypeMap mime = MimeTypeMap.getSingleton();
+		        type = mime.getMimeTypeFromExtension(extension.toLowerCase());
+		    }
+		    return type;
+
+	}
 	
 }

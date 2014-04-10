@@ -117,7 +117,7 @@ public class ThreadTCPRecvWorker extends Thread{
 				
 				msgNotifier.messageReceive();				
 				
-				peerFileService.previewFileProcess();
+				peerFileService.previewFileProcess(Uri.fromFile(newFile));
 				
 				fos.close();
 				bos.close();

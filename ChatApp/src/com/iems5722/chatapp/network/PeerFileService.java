@@ -1,9 +1,8 @@
 package com.iems5722.chatapp.network;
 
-import com.iems5722.chatapp.gui.Activity_PrivateChat;
-
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -11,6 +10,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+
+import com.iems5722.chatapp.gui.Activity_PrivateChat;
 
 public class PeerFileService extends Service{
 	private final static String TAG = "PeerFileService";
@@ -89,8 +90,8 @@ public class PeerFileService extends Service{
 		stopSelf();
 	}
 	
-	public void previewFileProcess(){
-		uiHandler.obtainMessage(Activity_PrivateChat.DONE_AND_PREVIEW).sendToTarget();
+	public void previewFileProcess(Uri fileUri){
+		uiHandler.obtainMessage(Activity_PrivateChat.DONE_AND_PREVIEW, fileUri).sendToTarget();
 	}
 	
 	public void updateFileDownloadProgress(int percentage){
