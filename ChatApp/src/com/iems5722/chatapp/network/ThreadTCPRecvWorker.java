@@ -28,6 +28,7 @@ public class ThreadTCPRecvWorker extends Thread{
 	private MsgNotifier msgNotifier;
 	private Handler mHandler;
 	private MessageBuilder msgBuilder;
+	private PeerFileService peerFileService;
 	
 	private static final String TAG="ThreadTCPRecvWorker";
 	private final static int HEADER_SIZE=1024;
@@ -35,11 +36,11 @@ public class ThreadTCPRecvWorker extends Thread{
 	private final static String PRESERVED_DIR="chatApp";
 	private final static String ENDING_STRING = "@";
 	
-	public ThreadTCPRecvWorker(Socket receiptSocket, Context context, Handler handler){
+	public ThreadTCPRecvWorker(Socket receiptSocket, Context context, PeerFileService peerFileService){
 		this.receiptSocket = receiptSocket;
 		this.context = context;
 		this.msgNotifier = new  MsgNotifier(context);
-		this.mHandler = handler;
+		this.peerFileService = peerFileService;
 		msgBuilder = new MessageBuilder(context);
 	}
 	
@@ -94,10 +95,14 @@ public class ThreadTCPRecvWorker extends Thread{
 				FileOutputStream fos = new FileOutputStream(newFile);
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
 				
+				peerFileService.initFileDownloadProgress();
+				
 				int bytesRead = inputStream.read(fileByteArray, 0, filesize);
 				int currentBytesRead = 0; 
 				while (bytesRead > -1){
 					 currentBytesRead += bytesRead;
+					 
+					 peerFileService.updateFileDownloadProgress(getFileProgressPercentage(currentBytesRead,filesize));
 					 if (currentBytesRead>=filesize){ 
 						 break;
 					 }
@@ -110,7 +115,9 @@ public class ThreadTCPRecvWorker extends Thread{
 				
 				Log.d(TAG, "File receive finished");
 				
-				msgNotifier.messageReceive();
+				msgNotifier.messageReceive();				
+				
+				peerFileService.previewFileProcess();
 				
 				fos.close();
 				bos.close();
@@ -158,5 +165,12 @@ public class ThreadTCPRecvWorker extends Thread{
 		 } 
 		 	return false; 
 	 } 
+	 
+	 private int getFileProgressPercentage(int receivedSize, int totalSize){
+		 double receivedSizeDouble = new Double(receivedSize).doubleValue();
+		 double totalSizeDouble = new Double(totalSize).doubleValue();
+		 double resultPercent = (receivedSizeDouble/totalSizeDouble) * 100.00f;
+		 return new Double(resultPercent).intValue();
+	 }
 	
 }

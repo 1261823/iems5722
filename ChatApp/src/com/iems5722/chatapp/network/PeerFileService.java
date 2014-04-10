@@ -1,5 +1,7 @@
 package com.iems5722.chatapp.network;
 
+import com.iems5722.chatapp.gui.Activity_PrivateChat;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -43,7 +45,7 @@ public class PeerFileService extends Service{
 		HandlerThread thread = new HandlerThread(TAG);
 		thread.start();
 		peerFileServiceLooper = thread.getLooper();
-		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper);
+		peerFileServiceHandler = new PeerFileServiceHandler(peerFileServiceLooper, this);
 		
 	}
 	
@@ -87,12 +89,25 @@ public class PeerFileService extends Service{
 		stopSelf();
 	}
 	
+	public void previewFileProcess(){
+		uiHandler.obtainMessage(Activity_PrivateChat.DONE_AND_PREVIEW).sendToTarget();
+	}
 	
+	public void updateFileDownloadProgress(int percentage){
+		uiHandler.obtainMessage(Activity_PrivateChat.UPDATE_PROGRESS_BAR, percentage).sendToTarget();		
+	}
+	
+	public void initFileDownloadProgress(){
+		uiHandler.obtainMessage(Activity_PrivateChat.INIT_PROGRESS_BAR).sendToTarget();	
+	}
 	
 	
 	 public final class PeerFileServiceHandler extends Handler {
-	    	public PeerFileServiceHandler(Looper looper) {
+		 	private PeerFileService peerFileService; 
+		 
+	    	public PeerFileServiceHandler(Looper looper, PeerFileService peerFileService) {
 	    		super(looper);
+	    		this.peerFileService  = peerFileService;
 	    	}
 	    	
 	    	@Override
@@ -116,6 +131,8 @@ public class PeerFileService extends Service{
 	    	    		
 	    	    		Log.d(TAG, "Invoke Receiver Thread");
 	    	    		peerFileReceiverHandler.setmHandler(uiHandler);
+	    	    		peerFileReceiverHandler.setPeerFileService(this.peerFileService); 
+	    	    		
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.INITIAL_TCP_PORT).sendToTarget();
 	    	    		peerFileReceiverHandler.obtainMessage(PeerFileReceiver.TCP_LISTEN).sendToTarget();
 	    	    		break;

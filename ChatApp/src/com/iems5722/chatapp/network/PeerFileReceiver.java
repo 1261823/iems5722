@@ -18,7 +18,9 @@ public class PeerFileReceiver extends Handler {
 	
 	private Context context;
 	private Handler mHandler;
+	private PeerFileService peerFileService;
 
+	
 	
 	public final static int INITIAL_TCP_PORT  = 1;
 	public final static int TCP_LISTEN = 2;
@@ -36,6 +38,15 @@ public class PeerFileReceiver extends Handler {
 	public void setmHandler(Handler mHandler) {
 		this.mHandler = mHandler;
 	}
+	
+	public PeerFileService getPeerFileService() {
+		return peerFileService;
+	}
+
+	public void setPeerFileService(PeerFileService peerFileService) {
+		this.peerFileService = peerFileService;
+	}
+
 
 	
 	@Override
@@ -68,7 +79,7 @@ public class PeerFileReceiver extends Handler {
 			
 		while(socketOK) {
 			try{
-				ThreadTCPRecvWorker threadTCPRecvWorker = new ThreadTCPRecvWorker(serverSocket.accept(), this.context, this.mHandler);
+				ThreadTCPRecvWorker threadTCPRecvWorker = new ThreadTCPRecvWorker(serverSocket.accept(), this.context, this.peerFileService);
 				threadTCPRecvWorker.start();
 			}catch(Exception exception){
 				Log.d(TAG, "Error while waiting incoming TCP connection:"+ exception.getMessage());

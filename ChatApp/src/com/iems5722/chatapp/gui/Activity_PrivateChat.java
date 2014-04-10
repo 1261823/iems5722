@@ -3,8 +3,8 @@ package com.iems5722.chatapp.gui;
 
 import java.util.Set;
 
-
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +39,11 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	LoaderCallbacks<Cursor> {
 	public final static String TAG = "Activity_PrivateChat";
 	private final static int ACTIVIITY_ATTACHMENT_PICKER=100;
-	public final static int TOAST = 1;
+	
+	public final static int INIT_PROGRESS_BAR = 1;
+	public final static int UPDATE_PROGRESS_BAR = 2;
+	public final static int DONE_AND_PREVIEW = 3;
+	
 	private ActionBar actionBar;
 
 	//Peer File Transfer service
@@ -64,6 +68,11 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	private String dbSessionId = "";
 	
 	private Context privateChatContext = this;
+	private ProgressDialog progressBar;
+	private int progressBarStatus = 0;
+	
+
+	private Handler progressBarHandler = new Handler();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -114,7 +123,19 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		//create Peer File Transfer service
 		peerFileServiceIntent = new Intent(this, PeerFileService.class);
 		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
+		
+		//initial progress bar
+		progressBar = new ProgressDialog(this);
+		progressBar.setCancelable(false);
+		progressBar.setMessage("File downloading... :D");
+		progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressBar.setProgress(0);
+		progressBar.setMax(100);
 	}
+	
+	
+	
+	
 	
 	@Override
 	public void buttonClick(int buttonId) {
@@ -292,15 +313,75 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		super.onDestroy();
 	}
 	
+	public int getProgressBarStatus() {
+		return progressBarStatus;
+	}
+
+	public void setProgressBarStatus(int progressBarStatus) {
+		this.progressBarStatus = progressBarStatus;
+	}
+	
+	public Thread createProgressBarThread(){
+		
+		return new Thread(new Runnable() {
+			  public void run() {
+				while (progressBarStatus < 100) {
+
+				  // process some tasks
+				  progressBarStatus = getProgressBarStatus();
+
+				  // your computer is too fast, sleep 1 second
+				  try {
+					Thread.sleep(200);
+				  } catch (InterruptedException e) {
+					e.printStackTrace();
+				  }
+
+				  // Update the progress bar
+				  progressBarHandler.post(new Runnable() {
+					public void run() {
+					  progressBar.setProgress(progressBarStatus);
+					}
+				  });
+				}
+
+				if (progressBarStatus >= 100) {
+
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+				
+					progressBar.dismiss();
+				}
+			  }
+		       });
+		
+	}
+	
 	
 	private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
         	Log.d(TAG, "received message");
         	switch (msg.what) {
-        	case (TOAST):
-        		Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+        	case INIT_PROGRESS_BAR:
+        		progressBar.setProgress(0);
+        		progressBarStatus = 0;
+        		progressBar.show();
+        		Thread  thread = createProgressBarThread();
+        		thread.start();
+        		//Log.d(TAG, "File percentage"+ msg.. + "%");
     			break;
+        	case UPDATE_PROGRESS_BAR:
+        		setProgressBarStatus(Integer.parseInt(msg.obj.toString()));
+    			break;
+        	case DONE_AND_PREVIEW:
+        		//progressBar.dismiss();
+        		//Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+    			break;	
     		}
         }
 	};
