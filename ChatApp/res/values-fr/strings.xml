@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- General Strings -->
+    <string name="app_name">bavarder app</string>
+    <string name="action_settings">réglage</string>
+    <string name="yes">oui</string>
+	<string name="no">aucun</string>
+	<string name="enter">entrer</string>
+	<string name="send">envoyer</string>
+	<string name="cancel">annuler</string>
+	
+	<!-- Preference -->
+	<string name="pref_title">préférence</string>
+	<string name="pref_chat_setting_cat">bavarder réglage</string>
+	<string name="pref_name_title">nom</string>
+	<string name="pref_name_sum">votre nom: </string>
+	<string name="pref_vibrate_title">vibrer</string>
+	<string name="pref_vibrate_sum">si le message est arrivé, vibrer</string>
+	<string name="pref_ringtone_title">sonnerie</string>
+	<string name="pref_ringtone_sum">aide: </string>
+	<string name="pref_lang_title">langue</string>
+	<string name="pref_lang_sum">aid: </string>
+	<string name="pref_lang_default">EN-US</string>
+	<string name="pref_userid_title">utilisateur ID</string>
+	<string name="pref_userid_sum">lutilisateur de ID: </string>
+	<string name="pref_userid_default">ID utilisateur na pas initialisé</string>
+	
+	<string name="pref_key_name">pref_key_name</string>
+	<string name="pref_key_vibrate">pref_key_vibrate</string>
+	<string name="pref_key_ringtone">pref_key_ringtone</string>
+	<string name="pref_key_lang">pref_key_lang</string>
+	<string name="pref_key_userid">pref_key_userid</string>
+	
+	<!-- Optons menu -->
+	<string name="menu_pref">préférence</string>		
+	<string name="menu_ping">rafraîchir utilisateur</string>
+	<string name="menu_ping_toast">utilisateur rafraîchissante</string>
+	
+	<!-- Log in screen -->
+	<string name="login_username">nom dutilisateur</string>
+	<string name="login_username_hint">veuillez saisir votre nom</string>
+	<string name="login_btn_enter">commencer le chat</string>
+	<string name="login_username_empty">au moins une entrée de caractère</string>
+
+	<!-- General Chat screen -->
+	<string name="chat_said">dit</string>
+	<string name="chat_empty">lhistorique des chats vide</string>
+	
+	<!-- Tab screen -->
+	<string name="tab_globalchat">chat global</string>
+	<string name="tab_users">utilisateur</string>
+	<string name="tab_privatechat">chat privé</string>
+	
+	<!-- User tab -->
+	<string name="user_online_heading">utilisateur en ligne</string>
+	<string name="user_offline_heading">déconnecté utilisateur</string>
+	<string name="user_online_none">aucun utilisateur en ligne</string>
+	<string name="user_offline_none">aucun déconnecté utilisateur</string>
+	
+	<!-- User context menu items -->
+	<string name="user_menu_ping">la recherche de lutilisateur</string>
+	<string name="user_menu_chat">utilisateur bavarder</string>
+	
+	<!-- Private chat tab -->
+	<string name="priv_chat_empty">pas dhistoire de chat privé</string>
+	
+	<!-- Private chat screen -->
+	<string name="priv_chat_title">discuter avec</string>	
+	<string name="priv_chat_attach">fichier denvoi</string>	
+	
+	<!-- Attachment dialog -->
+	<string name="att_title">photo</string>	
+	<string name="att_photo">photo</string>	
+	<string name="att_audio">acoustique</string>	
+	<string name="att_video">film</string>	
+	<string name="att_file">dossier</string>	
+
+	<!-- Wifi Dialog -->
+	<string name="dialog_wifi_title">doit avoir WiFi</string>
+	<string name="dialog_wifi_message">chatapp nécessite WiFi connnection</string>
+	<string name="dialog_wifi_accept">passer au réglage de WiFiく</string>
+	<string name="dialog_wifi_decline">garder hors ligne</string>
+	
+	
+</resources>
