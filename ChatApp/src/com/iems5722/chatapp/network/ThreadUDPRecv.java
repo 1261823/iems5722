@@ -130,6 +130,10 @@ public class ThreadUDPRecv extends Handler {
 		        		Log.i(TAG, "Ping ack received");
 		        		updateUser(message);
 		        	} 
+		        	else if (msgType.equals(MessageBuilder.SIGN_OUT)) {
+		        		getAllUserId();
+		        		updateUser(message);
+		        	}
 		        	else if (msgType.equals(MessageBuilder.GLOBAL_MSG) && !msgSender.equals(ServiceNetwork.user_id)) {
 		        		msgBuilder.saveGlobalMessage(message);
 		        		msgNotifier.messageReceive();
