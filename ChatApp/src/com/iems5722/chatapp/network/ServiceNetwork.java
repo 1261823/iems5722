@@ -150,6 +150,7 @@ public class ServiceNetwork extends Service {
 	    		networkHandler.obtainMessage(ThreadNetwork.NTWK_START_MONITOR).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_INIT).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_LISTEN).sendToTarget();
+	    		udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 	    		
 	    		mcRecvHandler.obtainMessage(ThreadMCRecv.INITIAL_MUTLICAST).sendToTarget();
 	    		mcRecvHandler.obtainMessage(ThreadMCRecv.MULTICAST_LISTEN).sendToTarget();

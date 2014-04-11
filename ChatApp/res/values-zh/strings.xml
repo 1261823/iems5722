@@ -2,85 +2,95 @@
 <resources>
 
     <!-- General Strings -->
-    <string name="app_name">傾計apps</string>
-    <string name="action_settings">設定</string>
+    <string name="app_name">ChatApp</string>
+    <string name="action_settings">设置</string>
     <string name="yes">是</string>
 	<string name="no">否</string>
-	<string name="enter">進入</string>
-	<string name="send">傳送</string>
+	<string name="enter">登陆</string>
+	<string name="send">发送</string>
 	<string name="cancel">取消</string>
 	
 	<!-- Preference -->
-	<string name="pref_title">傾計設定</string>
-	<string name="pref_chat_setting_cat">zh Chat Setting</string>
-	<string name="pref_name_title">zh Name</string>
-	<string name="pref_name_sum">zh Your Username is: </string>
-	<string name="pref_vibrate_title">zh Vibrate</string>
-	<string name="pref_vibrate_sum">zh Phone vibrates on message received</string>
-	<string name="pref_ringtone_title">zh Notification Ringtone</string>
-	<string name="pref_ringtone_sum">zh Currently using: </string>
-	<string name="pref_lang_title">zh Language</string>
-	<string name="pref_lang_sum">zh Currently using: </string>
-	<string name="pref_lang_default">zh EN-US</string>
-	<string name="pref_userid_title">zh User Id</string>
-	<string name="pref_userid_sum">zh This is your ID: </string>
-	<string name="pref_userid_default">zh User Id Not Initialised</string>
+	<string name="pref_title">偏好设置</string>
+	<string name="pref_chat_setting_cat">聊天设置</string>
+	<string name="pref_name_title">姓名</string>
+	<string name="pref_name_sum">你的用户名是: </string>
+	<string name="pref_vibrate_title">振动</string>
+	<string name="pref_vibrate_sum">收到信息时振动</string>
+	<string name="pref_ringtone_title">通知响铃</string>
+	<string name="pref_ringtone_sum">正在使用: </string>
+	<string name="pref_lang_title">语言</string>
+	<string name="pref_lang_sum">正在使用: </string>
+	<string name="pref_lang_default">EN-US</string>
+	<string name="pref_userid_title">用户账号</string>
+	<string name="pref_userid_sum">这是你的账号: </string>
+	<string name="pref_userid_default">该用户账号未注册</string>
 	
+	<string name="pref_gm_title">公共聊天信息</string>
+    <string name="pref_gm_sum_udp">通过用户数据协议发送信息</string>
+    <string name="pref_gm_sum_mc">通过多点传送发送信息</string>
+    <string name="pref_gm_default">用户数据协议</string>
+    <string name="pref_gm_udp">用户数据协议</string>
+    <string name="pref_gm_mc">多点传送</string>
+    
 	<string name="pref_key_name">pref_key_name</string>
+	<string name="pref_key_gm">pref_key_gm</string>
 	<string name="pref_key_vibrate">pref_key_vibrate</string>
 	<string name="pref_key_ringtone">pref_key_ringtone</string>
 	<string name="pref_key_lang">pref_key_lang</string>
 	<string name="pref_key_userid">pref_key_userid</string>
 	
 	<!-- Optons menu -->
-	<string name="menu_pref">zh Preferences</string>		
-	<string name="menu_ping">zh Refresh Users</string>
-	<string name="menu_ping_toast">zh Refreshing Users</string>
+	<string name="menu_pref">用户偏好</string>		
+	<string name="menu_ping">更新用户</string>
+	<string name="menu_ping_toast">正在更新用户</string>
 	
 	<!-- Log in screen -->
 	<string name="login_username">用戶名</string>
-	<string name="login_username_hint">請輸入用戶名</string>
-	<string name="login_btn_enter">開始傾</string>
-	<string name="login_username_empty">請最少輸入一個字母</string>
+	<string name="login_username_hint">请输入用戶名</string>
+	<string name="login_btn_enter">开始聊天</string>
+	<string name="login_username_empty">请最少输入一个字母</string>
 
 	<!-- General Chat screen -->
-	<string name="chat_said"> zh_said</string>
-	<string name="chat_empty">zh No chat history</string>
+	<string name="chat_said"> 聊天记录</string>
+	<string name="chat_empty">无聊天历史</string>
 	
 	<!-- Tab screen -->
-	<string name="tab_globalchat">大家傾</string>
+	<string name="tab_globalchat">公共聊天</string>
 	<string name="tab_users">用戶</string>
-	<string name="tab_privatechat">私密傾</string>
+	<string name="tab_privatechat">私人聊天</string>
 	
 	<!-- User tab -->
-	<string name="user_online_heading">在線用戶</string>
-	<string name="user_offline_heading">離線用戶</string>
-	<string name="user_online_none">冇在線用戶</string>
-	<string name="user_offline_none">冇離線用戶</string>
-	
+	<string name="user_online_heading">在线用戶</string>
+	<string name="user_offline_heading">离线用戶</string>
+	<string name="user_online_none">无在线用戶</string>
+	<string name="user_offline_none">无离线用戶</string>
+	<string name="user_offline_lastseen">最后在线时间:</string>
+		
 	<!-- User context menu items -->
-	<string name="user_menu_ping">zh Check if online</string>
-	<string name="user_menu_chat">zh Chat with user</string>
+	<string name="user_menu_ping">检查是否在线</string>
+	<string name="user_menu_chat">与该用户聊天</string>
 	
 	<!-- Private chat tab -->
-	<string name="priv_chat_empty">zh No private conversations</string>
+	<string name="priv_chat_empty">无私人聊天</string>
 	
 	<!-- Private chat screen -->
-	<string name="priv_chat_title">傾緊計的 </string>	
-	<string name="priv_chat_attach">傳送附件</string>	
+	<string name="priv_chat_title">正在聊天 </string>	
+	<string name="priv_chat_attach">传送附件</string>	
 	
 	<!-- Attachment dialog -->
-	<string name="att_title">相</string>	
-	<string name="att_photo">相</string>	
-	<string name="att_audio">聲音</string>	
-	<string name="att_video">錄像</string>	
-	<string name="att_file">檔案</string>	
+	<string name="att_title">请选择附件</string>	
+	<string name="att_photo">照片</string>	
+	<string name="att_audio">声音</string>	
+	<string name="att_video">录像</string>	
+	<string name="att_file">档案</string>	
 
 	<!-- Wifi Dialog -->
-	<string name="dialog_wifi_title">zh WiFi Connection Required</string>
-	<string name="dialog_wifi_message">zh ChatApp requires an active WiFi connection to function</string>
-	<string name="dialog_wifi_accept">zh Go to WiFi settings</string>
-	<string name="dialog_wifi_decline">zh Continue in offline mode</string>
+	<string name="dialog_wifi_title">需WiFi连接</string>
+	<string name="dialog_wifi_message">ChatApp需有效WiFi连接点以工作</string>
+	<string name="dialog_wifi_accept">前往WiFi设置</string>
+	<string name="dialog_wifi_decline">保持离线</string>
+	<string name="dialog_wifi_dismiss">忽略</string>
 	
 	
 </resources>

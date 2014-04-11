@@ -67,9 +67,6 @@
 	<string name="user_offline_none">No offline users</string>
 	<string name="user_offline_lastseen">Last online:</string>
 	
-	<!-- Private chat tab -->
-	
-	
 	<!-- User context menu items -->
 	<string name="user_menu_ping">Check if online</string>
 	<string name="user_menu_chat">Chat with user</string>
@@ -82,7 +79,7 @@
 	<string name="priv_chat_attach">Send Attachment</string>	
 	
 	<!-- Attachment dialog -->
-	<string name="att_title">Photo</string>	
+	<string name="att_title">Choose an attachment</string>	
 	<string name="att_photo">Photo</string>	
 	<string name="att_audio">Audio</string>	
 	<string name="att_video">Video</string>	
@@ -93,7 +90,7 @@
 	<string name="dialog_wifi_message">ChatApp requires an active WiFi connection to function</string>
 	<string name="dialog_wifi_accept">Check WiFi settings</string>
 	<string name="dialog_wifi_decline">Continue Offline</string>
-	<string name="dialog_wifi_dismiss">Dismiss</string>
+	<string name="dialog_wifi_dismiss">Ignore</string>
 	
 	
 </resources>
