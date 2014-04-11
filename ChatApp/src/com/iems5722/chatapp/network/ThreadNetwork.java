@@ -113,13 +113,11 @@ public class ThreadNetwork extends Handler {
     		 if (networkInfo.isConnected()) {
     			 Log.i(TAG, "Wifi connected");
     			 wifiActive = true;
-    			 ServiceNetwork.WiFiConnected = true;
+    			 mServiceHandler.obtainMessage(ServiceNetwork.WIFI_CONN).sendToTarget();
     		 }
     		 else {
     			Log.d(TAG, "WiFi not connected");
-    			ServiceNetwork.currentIPAddress = -1;
-    			ServiceNetwork.currentNetMask = -1;
-    			ServiceNetwork.WiFiConnected = false;
+    			mServiceHandler.obtainMessage(ServiceNetwork.WIFI_DC).sendToTarget();
     		 }
     	 }
     	 if (!wifiActive) {
@@ -177,6 +175,7 @@ public class ThreadNetwork extends Handler {
 			}
 	        String outMsg = "My IP: " + ServiceNetwork.inetIPAddress + " " + ServiceNetwork.inetNetMask + " MAC " + ServiceNetwork.MACAddress;
 	        Log.d(TAG, outMsg);
+	        mServiceHandler.obtainMessage(ServiceNetwork.SEND_PING_ALL).sendToTarget();
     	}
     }	    
 }

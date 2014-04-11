@@ -322,6 +322,7 @@ public class Activity_TabHandler extends FragmentActivity implements
 			networkService.setUsername(msgUsername);
 			networkService.setUserid(userId);
 			networkService.setUIHandler(mHandler);
+			pingAllUsers();
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {

@@ -30,9 +30,12 @@ public class ServiceNetwork extends Service {
 	public static ServiceHandler mServiceHandler;
 	public final static int INIT_THREAD = 0;
 	public final static int SEND_PING_ACK = 5;
+	public final static int SEND_PING_ALL = 6;
 	public final static int PREF_NAME = 10;
 	public final static int WIFI_INACTIVE = 20;
 	public final static int DEREGISTER_WIFI_BCR = 21;
+	public final static int WIFI_CONN = 22;
+	public final static int WIFI_DC = 23;
 	public final static int MC_SEND = 30;
 	public final static int UDP_SEND = 31;
 	
@@ -150,7 +153,6 @@ public class ServiceNetwork extends Service {
 	    		networkHandler.obtainMessage(ThreadNetwork.NTWK_START_MONITOR).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_INIT).sendToTarget();
 	    		udpRecvHandler.obtainMessage(ThreadUDPRecv.UDP_LISTEN).sendToTarget();
-	    		udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
 	    		
 	    		mcRecvHandler.obtainMessage(ThreadMCRecv.INITIAL_MUTLICAST).sendToTarget();
 	    		mcRecvHandler.obtainMessage(ThreadMCRecv.MULTICAST_LISTEN).sendToTarget();
@@ -171,6 +173,9 @@ public class ServiceNetwork extends Service {
         		InetAddress pingTo = (InetAddress) msg.obj;
         		udpSendHandler.obtainMessage(ThreadUDPSend.PING_ACKNOWLEDGE, pingTo).sendToTarget();
         		break;
+        	case(SEND_PING_ALL):
+        		udpPingAll();
+        		break;
         	case(MC_SEND):
         		//get multicast send thread to send message
 				Log.d(TAG, "call sender to send message " + (String)msg.obj);
@@ -179,7 +184,15 @@ public class ServiceNetwork extends Service {
         	case(UDP_SEND):
         		Log.d(TAG, "Calling UDP sender to send " + (String)msg.obj);
         		udpSendHandler.obtainMessage(ThreadUDPSend.SEND_MSG, msg.obj).sendToTarget();
-        	break;
+        		break;
+        	case(WIFI_CONN):
+        		WiFiConnected = true;
+        		break;
+        	case(WIFI_DC):
+        		WiFiConnected = false;
+			    currentIPAddress = -1;
+			    currentNetMask = -1;
+			    break;
         	}
     	}
     }
@@ -232,9 +245,14 @@ public class ServiceNetwork extends Service {
 	}	
 
 	public void udpPingAll() {
-		//Log.d(TAG, "Recv Ping Request All");
+		Log.d(TAG, "Recv Ping Request All");
 		if(WiFiConnected && !username.isEmpty()) {
+			Log.d(TAG, "sending request to handler");
 			udpSendHandler.obtainMessage(ThreadUDPSend.PING_REQUEST_ALL).sendToTarget();
+		}
+		else {
+			Log.d(TAG, "not ready to ping " + Boolean.toString(WiFiConnected) + " " + username);
+			
 		}
 	}
 	
@@ -258,5 +276,4 @@ public class ServiceNetwork extends Service {
 	public void setUserid(String newid) {
 		user_id = newid;
 	}
-	
 }
