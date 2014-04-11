@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public class Activity_Login extends FragmentActivity implements OnSharedPreferenceChangeListener {
@@ -181,7 +182,7 @@ public class Activity_Login extends FragmentActivity implements OnSharedPreferen
 						startActivity(intent);
 					}
 					else {
-						//TODO ask user to enter a valid username
+						Toast.makeText(context, getString(R.string.login_username_empty), Toast.LENGTH_SHORT).show();
 					}
 				}
 				catch (Exception e) {
