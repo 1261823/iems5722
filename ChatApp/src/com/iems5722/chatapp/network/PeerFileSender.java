@@ -30,7 +30,9 @@ public class PeerFileSender extends Handler {
 	boolean socketOK = true;
 	private final static int HEADER_SIZE=1024;
 	private final static String INFO_SEPARATOR=";";
+	private final static String FILE_INFO_SEPARATOR="#";
 	private final static String ENDING_STRING = "@";
+	private final static String URI_STRING="Uri_Here";
 	
 	public final static int SEND_FILE = 1;
 	public final static int SEND_MSG = 2;
@@ -87,7 +89,12 @@ public class PeerFileSender extends Handler {
 				byte [] fileByteArray  = new byte [(int)(fileSize)];
 				byte [] outputByteArray = new byte [(int)(HEADER_SIZE+fileSize)];
 				
-				String fileInfoString = createFileInfoString(file.getName(), String.valueOf(fileSize));
+				
+				String formattedChatMsg = msgBuilder.messageCreate(MessageBuilder.PRIVATE_MSG, URI_STRING);
+				//create file detail info string
+				String fileInfoDetailString =  createFileInfoDetailString(formattedChatMsg, file.getName(), String.valueOf(fileSize));
+				
+				String fileInfoString = createFileInfoString(PeerFileService.MSG_TYPE_FILE, fileInfoDetailString);
 				
 				byte [] infoByteArray = fileInfoString.getBytes("UTF-8");
 				
@@ -118,6 +125,18 @@ public class PeerFileSender extends Handler {
 			}
 		
 	}
+	
+	private String createFileInfoDetailString(String chatMsgInfo, String filename, String filesize)throws Exception{
+		StringBuilder fileInfoDetailMsgSb = new StringBuilder();
+		
+		fileInfoDetailMsgSb.append(chatMsgInfo);
+		fileInfoDetailMsgSb.append(FILE_INFO_SEPARATOR);
+		fileInfoDetailMsgSb.append(filename);
+		fileInfoDetailMsgSb.append(FILE_INFO_SEPARATOR);
+		fileInfoDetailMsgSb.append(filesize);
+		return fileInfoDetailMsgSb.toString();
+	}
+	
 	
 	private String createFileInfoString(String firstParam, String secondParam)throws Exception{
 		StringBuilder fileInfoMsgSb = new StringBuilder();

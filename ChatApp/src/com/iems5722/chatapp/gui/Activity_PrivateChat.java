@@ -71,6 +71,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	private Context privateChatContext = this;
 	private ProgressDialog progressBar;
 	private int progressBarStatus = 0;
+	private static boolean isActive = false;
 	
 
 	private Handler progressBarHandler = new Handler();
@@ -367,28 +368,31 @@ public class Activity_PrivateChat extends FragmentActivity implements
         @Override
         public void handleMessage(Message msg) {
         	Log.d(TAG, "received message");
-        	switch (msg.what) {
-        	case INIT_PROGRESS_BAR:
-        		progressBar.setProgress(0);
-        		progressBarStatus = 0;
-        		progressBar.show();
-        		Thread  thread = createProgressBarThread();
-        		thread.start();
-        		//Log.d(TAG, "File percentage"+ msg.. + "%");
-    			break;
-        	case UPDATE_PROGRESS_BAR:
-        		setProgressBarStatus(Integer.parseInt(msg.obj.toString()));
-    			break;
-        	case DONE_AND_PREVIEW:
-        		//progressBar.dismiss();
-        		//Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
-        		Uri receivedFileUri = (Uri)msg.obj;
-        		Intent intent = new Intent();  
-        		intent.setAction(android.content.Intent.ACTION_VIEW);  
-        		intent.setDataAndType(receivedFileUri, getMimeType(receivedFileUri.getPath()));  
-        		startActivity(intent);  
-    			break;	
-    		}
+        	if (isActive){
+	        	switch (msg.what) {
+	        	case INIT_PROGRESS_BAR:
+	        		
+	        		progressBar.setProgress(0);
+	        		progressBarStatus = 0;
+	        		progressBar.show();
+	        		Thread  thread = createProgressBarThread();
+	        		thread.start();
+	        		//Log.d(TAG, "File percentage"+ msg.. + "%");
+	    			break;
+	        	case UPDATE_PROGRESS_BAR:
+	        		setProgressBarStatus(Integer.parseInt(msg.obj.toString()));
+	    			break;
+	        	case DONE_AND_PREVIEW:
+	        		//progressBar.dismiss();
+	        		//Toast.makeText(privateChatContext.getApplicationContext(),  msg.obj.toString(), Toast.LENGTH_SHORT).show();
+	        		Uri receivedFileUri = (Uri)msg.obj;
+	        		Intent intent = new Intent();  
+	        		intent.setAction(android.content.Intent.ACTION_VIEW);  
+	        		intent.setDataAndType(receivedFileUri, getMimeType(receivedFileUri.getPath()));  
+	        		startActivity(intent);  
+	    			break;	
+	    		}
+        	}
         }
 	};
 	
@@ -404,5 +408,20 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		    return type;
 
 	}
+	
+	@Override
+   protected void onStart() {
+       super.onStart();
+       isActive = true;
+   }
+
+     
+
+    @Override
+   protected void onStop() {
+       super.onStop();
+       isActive = false;
+   }
+
 	
 }

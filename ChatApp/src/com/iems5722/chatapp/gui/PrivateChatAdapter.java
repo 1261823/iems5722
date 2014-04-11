@@ -1,19 +1,27 @@
 package com.iems5722.chatapp.gui;
 
-import com.iems5722.chatapp.R;
-import com.iems5722.chatapp.database.TblChat;
-import com.iems5722.chatapp.database.TblGlobalChat;
-import com.iems5722.chatapp.database.TblUser;
-import com.iems5722.chatapp.gui.GlobalChatAdapter.ViewHolder;
-import com.iems5722.chatapp.preference.UnitConverter;
+import java.io.File;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
+import android.widget.TextView.BufferType;
+
+import com.iems5722.chatapp.R;
+import com.iems5722.chatapp.database.TblChat;
+import com.iems5722.chatapp.database.TblUser;
+import com.iems5722.chatapp.preference.UnitConverter;
 
 public class PrivateChatAdapter extends SimpleCursorAdapter {
 	public final static String TAG = "PrivateChatAdapter";
@@ -122,9 +130,48 @@ public class PrivateChatAdapter extends SimpleCursorAdapter {
 		vMsgContent = (TextView) v.findViewById(R.id.msg_recv);
 		vMsgTimestamp = (TextView) v.findViewById(R.id.msg_timestamp);
 		
+		
 		vMsgId.setText(Long.toString(dbMsgId));
 		vMsgAuthor.setText(dbMsgAuthor);
-		vMsgContent.setText(dbMsgContent);
 		vMsgTimestamp.setText(UnitConverter.getDateTime(dbMsgTimestamp));
-	}	
+
+		//special handling for stored content URI
+		if (dbMsgContent.startsWith("content://")){
+			String contentUriString = dbMsgContent.substring(10);
+			String filename = dbMsgContent.substring(dbMsgContent.lastIndexOf("/")+1);
+			String defaultText =  "Content Received : ";
+			String displayText = defaultText + filename;
+			
+			SpannableStringBuilder stringBuilder = new SpannableStringBuilder(displayText);
+			ContentSpannable contentSpannable = new ContentSpannable(contentUriString ,context){
+
+			            @Override
+			            public void onClick(View widget) {
+			                Intent intent = new Intent(Intent.ACTION_VIEW);
+			                intent.setDataAndType(getContentUri(), getMimeType(getContentUri().getPath())); 
+			                getContext().startActivity(intent);
+			            }
+			        };
+			        
+		    stringBuilder.setSpan(contentSpannable, defaultText.length()-1 , displayText.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+		    vMsgContent.setText( stringBuilder, BufferType.SPANNABLE);
+		    vMsgContent.setMovementMethod(LinkMovementMethod.getInstance());
+		}else{
+			vMsgContent.setText(dbMsgContent);			
+		}
+	}
+	
+	public  String getMimeType(String url)
+	{
+		 String type = null;
+		 	String extensionLastPart=url.substring(url.lastIndexOf(".")); 
+		    String extension = MimeTypeMap.getFileExtensionFromUrl(extensionLastPart);
+		    if (extension != null) {
+		        MimeTypeMap mime = MimeTypeMap.getSingleton();
+		        type = mime.getMimeTypeFromExtension(extension.toLowerCase());
+		    }
+		    return type;
+
+	}
 }
