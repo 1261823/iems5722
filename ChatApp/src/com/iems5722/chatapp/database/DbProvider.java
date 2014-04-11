@@ -167,6 +167,8 @@ public class DbProvider extends ContentProvider{
 					//Log.d(TAG, "Cursor null " + cursor.getCount());
 				}
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
+				cursor.setNotificationUri(getContext().getContentResolver(), PCHAT_URI);
+				Log.d(TAG, "Listening for changes to " + uri.toString());				
 				return cursor;
 			}
 			catch (Exception e) {

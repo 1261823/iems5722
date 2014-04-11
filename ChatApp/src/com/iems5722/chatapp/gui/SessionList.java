@@ -80,5 +80,10 @@ public class SessionList extends ListFragment implements LoaderCallbacks<Cursor>
 		i.putExtra(TblChat.KEY_MSG_ID, id);
 		startActivity(i);
 	}
+	
+	public void refreshList() {
+		Log.i(TAG, "Updating session list");
+		getLoaderManager().restartLoader(0, null, this);
+	}	
 
 }
