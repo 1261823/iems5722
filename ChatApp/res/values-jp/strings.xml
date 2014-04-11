@@ -2,7 +2,7 @@
 <resources>
 
     <!-- General Strings -->
-    <string name="app_name">はなしアプリ</string>
+    <string name="app_name">話しアプリ</string>
     <string name="action_settings">設定</string>
     <string name="yes">はい</string>
 	<string name="no">いいえ</string>
@@ -11,20 +11,20 @@
 	<string name="cancel">キャンセル</string>
 	
 	<!-- Preference -->
-	<string name="pref_title">はなし設定</string>
-	<string name="pref_chat_setting_cat">zh Chat Setting</string>
-	<string name="pref_name_title">zh Name</string>
-	<string name="pref_name_sum">zh Your Username is: </string>
-	<string name="pref_vibrate_title">zh Vibrate</string>
-	<string name="pref_vibrate_sum">zh Phone vibrates on message received</string>
-	<string name="pref_ringtone_title">zh Notification Ringtone</string>
-	<string name="pref_ringtone_sum">zh Currently using: </string>
-	<string name="pref_lang_title">zh Language</string>
-	<string name="pref_lang_sum">zh Currently using: </string>
-	<string name="pref_lang_default">zh EN-US</string>
-	<string name="pref_userid_title">zh User Id</string>
-	<string name="pref_userid_sum">zh This is your ID: </string>
-	<string name="pref_userid_default">zh User Id Not Initialised</string>
+	<string name="pref_title">話し好み</string>
+	<string name="pref_chat_setting_cat">話し設定</string>
+	<string name="pref_name_title">名前</string>
+	<string name="pref_name_sum">あなたの名前: </string>
+	<string name="pref_vibrate_title">振動</string>
+	<string name="pref_vibrate_sum">メッセージ来たら、振動する</string>
+	<string name="pref_ringtone_title">着信メロディー</string>
+	<string name="pref_ringtone_sum">使用中: </string>
+	<string name="pref_lang_title">言語</string>
+	<string name="pref_lang_sum">使用中: </string>
+	<string name="pref_lang_default">EN-US</string>
+	<string name="pref_userid_title">ユーザーID</string>
+	<string name="pref_userid_sum">あなたのID: </string>
+	<string name="pref_userid_default">ユーザーIDがまだ初期化しません</string>
 	
 	<string name="pref_key_name">pref_key_name</string>
 	<string name="pref_key_vibrate">pref_key_vibrate</string>
@@ -33,22 +33,22 @@
 	<string name="pref_key_userid">pref_key_userid</string>
 	
 	<!-- Optons menu -->
-	<string name="menu_pref">zh Preferences</string>		
-	<string name="menu_ping">zh Refresh Users</string>
-	<string name="menu_ping_toast">zh Refreshing Users</string>
+	<string name="menu_pref">好み</string>		
+	<string name="menu_ping">リフレッシュ　ユーザー</string>
+	<string name="menu_ping_toast">ユーザーリフレッシュ中</string>
 	
 	<!-- Log in screen -->
 	<string name="login_username">ユーザー名前</string>
 	<string name="login_username_hint">名前を入れてください</string>
 	<string name="login_btn_enter">はなしを始まる</string>
-	<string name="login_username_empty">せめてひとのキャラクラーを入れてください</string>
+	<string name="login_username_empty">せめてひとつのキャラクラーを入れてください</string>
 
 	<!-- General Chat screen -->
-	<string name="chat_said"> zh_said</string>
-	<string name="chat_empty">zh No chat history</string>
+	<string name="chat_said">話し</string>
+	<string name="chat_empty">話し記録なし</string>
 	
 	<!-- Tab screen -->
-	<string name="tab_globalchat">みなとはなし</string>
+	<string name="tab_globalchat">みなと話し</string>
 	<string name="tab_users">ユーザー</string>
 	<string name="tab_privatechat">私語</string>
 	
@@ -59,11 +59,11 @@
 	<string name="user_offline_none">オフラインユーザーなし</string>
 	
 	<!-- User context menu items -->
-	<string name="user_menu_ping">zh Check if online</string>
-	<string name="user_menu_chat">zh Chat with user</string>
+	<string name="user_menu_ping">ユーザーを探し中</string>
+	<string name="user_menu_chat">ユーザーと話し</string>
 	
 	<!-- Private chat tab -->
-	<string name="priv_chat_empty">zh No private conversations</string>
+	<string name="priv_chat_empty">私語が無し</string>
 	
 	<!-- Private chat screen -->
 	<string name="priv_chat_title">受ける者の</string>	
@@ -77,10 +77,10 @@
 	<string name="att_file">ファイル</string>	
 
 	<!-- Wifi Dialog -->
-	<string name="dialog_wifi_title">zh WiFi Connection Required</string>
-	<string name="dialog_wifi_message">zh ChatApp requires an active WiFi connection to function</string>
-	<string name="dialog_wifi_accept">zh Go to WiFi settings</string>
-	<string name="dialog_wifi_decline">zh Continue in offline mode</string>
+	<string name="dialog_wifi_title">WiFiが必要</string>
+	<string name="dialog_wifi_message">話しアプリにはWiFi繋がるのは必要です</string>
+	<string name="dialog_wifi_accept">Wifi設定に行く</string>
+	<string name="dialog_wifi_decline">オフラインのままでいい</string>
 	
 	
 </resources>
