@@ -100,6 +100,8 @@ public class ThreadUDPSend extends Handler {
 
 	public void udpSendMessage(String msg, InetAddress peerInetAddress) {
 		//username cannot be empty
+		if(peerInetAddress==null) return;
+		
 		if (!ServiceNetwork.user_id.isEmpty()) {
 			byte[] sendData  = new byte[1024]; 
 			sendData = msg.getBytes(); 
