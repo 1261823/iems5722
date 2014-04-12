@@ -6,19 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Calendar;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.iems5722.chatapp.database.DbProvider;
-import com.iems5722.chatapp.database.TblChat;
-import com.iems5722.chatapp.gui.Activity_PrivateChat;
 import com.iems5722.chatapp.preference.MsgNotifier;
 
 public class ThreadTCPRecvWorker extends Thread{
@@ -33,8 +27,10 @@ public class ThreadTCPRecvWorker extends Thread{
 	private static final String TAG="ThreadTCPRecvWorker";
 	private final static int HEADER_SIZE=1024;
 	private final static String INFO_SEPARATOR=";";
+	private final static String FILE_INFO_SEPARATOR="#";
 	private final static String PRESERVED_DIR="chatApp";
 	private final static String ENDING_STRING = "@";
+	private final static String URI_STRING="Uri_Here";
 	
 	public ThreadTCPRecvWorker(Socket receiptSocket, Context context, PeerFileService peerFileService){
 		this.receiptSocket = receiptSocket;
@@ -78,8 +74,15 @@ public class ThreadTCPRecvWorker extends Thread{
 				Log.d(TAG, "Received Chat Msg: " + chatMsg);
 				msgBuilder.savePrivateMessage(chatMsg, null);
 				msgNotifier.messageReceive();					
-			}else{//assume other type must be file
-				int filesize = Integer.parseInt(secondParam);
+			}else if (firstParam.equals(PeerFileService.MSG_TYPE_FILE)){//assume other type must be file
+				//decode file info detail msg
+				Log.d(TAG, "second Param" + secondParam);
+				String[] fileDetailArray = secondParam.split(FILE_INFO_SEPARATOR);
+				String formattedChatMsg = fileDetailArray[0];
+				String filenameString = fileDetailArray[1];
+				String filesizeString = fileDetailArray[2];
+				
+				int filesize = Integer.parseInt(filesizeString);
 				
 				//receive file after info arrived
 				byte[] fileByteArray = new byte[filesize];
@@ -87,7 +90,7 @@ public class ThreadTCPRecvWorker extends Thread{
 				
 				createFileWorkspace();
 				
-				File newFile = new File(Environment.getExternalStorageDirectory()+"/"+PRESERVED_DIR, firstParam);
+				File newFile = new File(Environment.getExternalStorageDirectory()+"/"+PRESERVED_DIR, filenameString);
 				
 				if(newFile==null){
 					Log.d(TAG, "no space to create file in external storage");
@@ -115,9 +118,16 @@ public class ThreadTCPRecvWorker extends Thread{
 				
 				Log.d(TAG, "File receive finished");
 				
-				msgNotifier.messageReceive();				
+				Uri fileUri = Uri.fromFile(newFile);
 				
-				peerFileService.previewFileProcess(Uri.fromFile(newFile));
+
+				//things to do after received files 
+				msgNotifier.messageReceive();
+				
+				msgBuilder.savePrivateMessage(formattedChatMsg.replace(URI_STRING, "content://" + fileUri.toString()), null);
+				
+				//only can see when still in private chat
+				peerFileService.previewFileProcess(fileUri);
 				
 				fos.close();
 				bos.close();

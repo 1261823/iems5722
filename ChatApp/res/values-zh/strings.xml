@@ -25,7 +25,7 @@
 	<string name="pref_userid_title">用户账号</string>
 	<string name="pref_userid_sum">这是你的账号: </string>
 	<string name="pref_userid_default">该用户账号未注册</string>
-	
+
 	<string name="pref_gm_title">公共聊天信息</string>
     <string name="pref_gm_sum_udp">通过用户数据协议发送信息</string>
     <string name="pref_gm_sum_mc">通过多点传送发送信息</string>
@@ -91,6 +91,4 @@
 	<string name="dialog_wifi_accept">前往WiFi设置</string>
 	<string name="dialog_wifi_decline">保持离线</string>
 	<string name="dialog_wifi_dismiss">忽略</string>
-	
-	
 </resources>
