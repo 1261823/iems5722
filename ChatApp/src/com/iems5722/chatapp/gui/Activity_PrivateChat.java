@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +52,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	PeerFileService peerFileService;
 	private Intent peerFileServiceIntent;
 	private Handler peerFileServiceHandler;
+	private boolean isPeerServiceBounded = false;
 		
 	//loader types
 	final static int LOAD_USER = 0;
@@ -79,6 +81,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		setContentView(R.layout.frame_chatdetail);
 
 		Bundle arguments = getIntent().getExtras();
@@ -124,7 +127,7 @@ public class Activity_PrivateChat extends FragmentActivity implements
 		
 		//create Peer File Transfer service
 		peerFileServiceIntent = new Intent(this, PeerFileService.class);
-		bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
+		isPeerServiceBounded = bindService(peerFileServiceIntent, peerFileServiceConnection, Context.BIND_AUTO_CREATE);
 		
 		//initial progress bar
 		progressBar = new ProgressDialog(this);
@@ -302,16 +305,20 @@ public class Activity_PrivateChat extends FragmentActivity implements
 			peerFileService = peerFileServiceBinder.getService();
 			peerFileServiceHandler = peerFileService.getServiceHandler();
 			peerFileService.setUiHandler(mHandler);
+			
 		}
 		
 		public void onServiceDisconnected(ComponentName className) {
-			Log.d(TAG, "onPeerFileServiceDisconnected");				
+			Log.d(TAG, "onPeerFileServiceDisconnected");
+			
 		}
 	};
 	
 	@Override
 	public void onDestroy() {
-		unbindService(peerFileServiceConnection);		
+		if(isPeerServiceBounded){
+			unbindService(peerFileServiceConnection);
+		}
 		super.onDestroy();
 	}
 	
